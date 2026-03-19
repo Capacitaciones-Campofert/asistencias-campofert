@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import streamlit as st
-import pandas as pd
 import os
 import io
 from datetime import datetime
@@ -55,7 +53,6 @@ def generar_pdf(datos, imagen_firma):
     p.drawString(100, 620, f"Fecha de Registro: {datos['Fecha']}")
     p.line(100, 610, 500, 610)
     
-    # TEMA DINÁMICO EN EL PDF
     p.drawString(100, 590, f"Capacitación: {datos['Tema']}")
     
     p.drawString(100, 465, "Firma del Trabajador")
@@ -89,14 +86,15 @@ def guardar_pdf_en_servidor(pdf_buffer, id_empleado, nombre_empleado):
 
 # --- FLUJO PRINCIPAL DE STREAMLIT ---
 
-# 2. MOSTRAR AMBOS LOGOS JUNTOS EN LA PARTE SUPERIOR
-col_l1, col_l2, col_l3 = st.columns([3, 4, 3])
+# LOGOS ALINEADOS VERTICALMENTE
+col_l1, col_l2, col_l3 = st.columns([2, 5, 2])
 with col_l2:
-    c1, c2 = st.columns(2)
+    # 'vertical_alignment' asegura que ambos logos estén centrados entre sí
+    c1, c2 = st.columns(2, vertical_alignment="center")
     if os.path.exists("logo_campofert.png"):
-        c1.image("logo_campofert.png", width=120)
+        c1.image("logo_campofert.png", use_container_width=True)
     if os.path.exists("logo_campolab.png"):
-        c2.image("logo_campolab.png", width=120)
+        c2.image("logo_campolab.png", use_container_width=True)
 
 st.title("Registro de Capacitación")
 
