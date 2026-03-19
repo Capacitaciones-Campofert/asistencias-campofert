@@ -38,18 +38,22 @@ def obtener_datos():
     return None
 
 def guardar_en_google_sheets(datos):
+    """Envía el registro a la hoja de Google configurada"""
     try:
-        # Fíjate que NO haya espacio después del 1: "Hoja 1"
-        df_existente = conn.read(worksheet="Hoja") 
+        # 1. Leemos la hoja principal (sin forzar nombre de pestaña)
+        df_existente = conn.read() 
         
+        # 2. Creamos la nueva fila
         df_nuevo = pd.DataFrame([datos])
+        
+        # 3. Concatenamos
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         
-        # Aquí también: "Hoja 1" sin espacios al final
-        conn.update(worksheet="Hoja", data=df_final)
+        # 4. Actualizamos la nube
+        conn.update(data=df_final)
         return True
     except Exception as e:
-        st.error(f"Error crítico al guardar en la nube: {e}")
+        st.error(f"Error de conexión: {e}")
         return False
 
 def actualizar_excel_acumulado_local(datos):
