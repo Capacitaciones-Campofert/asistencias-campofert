@@ -38,16 +38,14 @@ def obtener_datos():
     return None
 
 def guardar_en_google_sheets(datos):
-    """Envía el registro a tu Google Sheet en tiempo real"""
     try:
-        # ESPECIFICAMOS EL NOMBRE DE TU PESTAÑA (Hoja 1)
+        # Fíjate que NO haya espacio después del 1: "Hoja 1"
         df_existente = conn.read(worksheet="Hoja 1") 
         
-        # Crear la nueva fila
         df_nuevo = pd.DataFrame([datos])
-        
-        # Unir y actualizar la pestaña específica
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+        
+        # Aquí también: "Hoja 1" sin espacios al final
         conn.update(worksheet="Hoja 1", data=df_final)
         return True
     except Exception as e:
