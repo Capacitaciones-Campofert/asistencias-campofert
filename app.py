@@ -8,17 +8,25 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
+# Librería para la conexión a la nube
+from streamlit_gsheets import GSheetsConnection
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Campofert - Sistema de Firmas", layout="centered", page_icon="🌱")
 
-# --- 1. LEER TEMA DESDE EL LINK ---
+# --- 1. CONEXIÓN A GOOGLE SHEETS ---
+# Usa la URL que pegaste en Settings > Secrets
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# --- 2. LEER TEMA DESDE EL URL ---
 params = st.query_params
 tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
 tema_actual = tema_raw.replace("+", " ").upper()
 
 # --- FUNCIONES DE BASE DE DATOS ---
+
 def obtener_datos():
+    """Lee la base de empleados local para validación rápida"""
     ruta = "empleados.xlsx"
     if os.path.exists(ruta):
         try:
@@ -29,35 +37,41 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return None
 
-def actualizar_excel_acumulado(datos):
-    """Guarda una copia fiel de cada registro en un Excel único para RRHH"""
+def guardar_en_google_sheets(datos):
+    """Envía el registro a tu Google Sheet en tiempo real"""
+    try:
+        # ESPECIFICAMOS EL NOMBRE DE TU PESTAÑA (Hoja 1)
+        df_existente = conn.read(worksheet="Hoja 1") 
+        
+        # Crear la nueva fila
+        df_nuevo = pd.DataFrame([datos])
+        
+        # Unir y actualizar la pestaña específica
+        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+        conn.update(worksheet="Hoja 1", data=df_final)
+        return True
+    except Exception as e:
+        st.error(f"Error crítico al guardar en la nube: {e}")
+        return False
+
+def actualizar_excel_acumulado_local(datos):
+    """Respaldo local en el servidor de Streamlit (opcional)"""
     ruta_excel = "asistencias_acumuladas.xlsx"
     df_nuevo = pd.DataFrame([datos])
-    
     if os.path.exists(ruta_excel):
         df_existente = pd.read_excel(ruta_excel, dtype={'ID': str})
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
     else:
         df_final = df_nuevo
-        
     df_final.to_excel(ruta_excel, index=False)
 
-def guardar_asistencia_segura(datos):
-    ruta_carpeta = "REGISTROS_TEMPORALES"
-    if not os.path.exists(ruta_carpeta):
-        os.makedirs(ruta_carpeta)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nombre_archivo = f"registro_{datos['ID']}_{timestamp}.csv"
-    ruta_completa = os.path.join(ruta_carpeta, nombre_archivo)
-    pd.DataFrame([datos]).to_csv(ruta_completa, index=False, encoding='utf-8-sig')
-    return ruta_completa
+# --- FUNCIONES DE PDF CON LOGOS ---
 
-# --- FUNCIONES DE ARCHIVOS (PDF CON LOGOS) ---
 def generar_pdf(datos, imagen_firma):
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     
-    # Agregar Logos al PDF
+    # Agregar Logos (Campofert y Campolab)
     try:
         if os.path.exists("logo_campofert.png"):
             p.drawImage("logo_campofert.png", 70, 740, width=90, preserveAspectRatio=True, mask='auto')
@@ -81,7 +95,7 @@ def generar_pdf(datos, imagen_firma):
     p.setFont("Helvetica-Bold", 13)
     p.drawString(100, 530, f"Capacitación: {datos['Tema']}")
     
-    # Firma
+    # Dibujar la firma del canvas
     p.setFont("Helvetica", 10)
     p.drawString(100, 420, "__________________________")
     p.drawString(100, 405, "Firma del Trabajador")
@@ -97,17 +111,8 @@ def generar_pdf(datos, imagen_firma):
     buffer.seek(0)
     return buffer
 
-def guardar_pdf_en_servidor(pdf_buffer, id_empleado, nombre_empleado):
-    ruta_carpeta = "CERTIFICADOS_RRHH"
-    if not os.path.exists(ruta_carpeta):
-        os.makedirs(ruta_carpeta)
-    nombre_archivo = f"Asistencia_{id_empleado}_{nombre_empleado.replace(' ', '_')}.pdf"
-    ruta_completa = os.path.join(ruta_carpeta, nombre_archivo)
-    with open(ruta_completa, "wb") as f:
-        f.write(pdf_buffer.getbuffer())
-    return nombre_archivo
+# --- INTERFAZ DE USUARIO ---
 
-# --- INTERFAZ ---
 col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
 with col_v2:
     c1, c2 = st.columns(2, vertical_alignment="center")
@@ -117,7 +122,7 @@ with col_v2:
         c2.image("logo_campolab.png", use_container_width=True)
 
 st.title("Registro de Capacitación")
-st.info(f"📋 Registrándote en: **{tema_actual}**")
+st.info(f"📋 Tema: **{tema_actual}**")
 
 df_maestro = obtener_datos()
 empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
@@ -143,38 +148,46 @@ if not st.session_state.finalizado:
                 "Tema": tema_actual
             }
         else:
-            st.warning("ID no encontrado. Registre como nuevo.")
-            if st.checkbox("¿Registrar como Invitado?"):
+            st.warning("ID no encontrado. ¿Eres invitado?")
+            if st.checkbox("Registrar como Invitado"):
                 with st.form("form_invitado"):
-                    n = st.text_input("Apellidos y Nombres:")
+                    n = st.text_input("Nombre Completo:")
                     e = st.selectbox("Empresa:", empresas_lista)
                     c = st.text_input("Cargo:")
-                    if st.form_submit_button("Validar Datos") and n and c:
-                        datos_finales = {"Fecha": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "ID": cedula_input, "Nombre": n, "Empresa": e, "Cargo": c, "Tema": tema_actual}
+                    if st.form_submit_button("Validar") and n and c:
+                        datos_finales = {
+                            "Fecha": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                            "ID": cedula_input,
+                            "Nombre": n,
+                            "Empresa": e,
+                            "Cargo": c,
+                            "Tema": tema_actual
+                        }
 
     if datos_finales:
-        st.write("### Dibuja tu firma abajo")
+        st.write("### Firma aquí")
         canvas_result = st_canvas(stroke_width=3, stroke_color="#1a3c55", background_color="#f0f2f6", height=150, drawing_mode="freedraw", key="firma_pad")
-        if st.button("🚀 Confirmar Registro Final"):
+        
+        if st.button("🚀 Confirmar Registro"):
             if canvas_result.image_data is not None:
-                # 1. Guardar en Excel Acumulado para RRHH
-                actualizar_excel_acumulado(datos_finales)
-                # 2. Guardar CSV individual (respaldo)
-                guardar_asistencia_segura(datos_finales)
-                # 3. Generar y Guardar PDF
-                pdf_memoria = generar_pdf(datos_finales, canvas_result.image_data)
-                nombre_pdf = guardar_pdf_en_servidor(pdf_memoria, datos_finales['ID'], datos_finales['Nombre'])
+                # 1. GUARDAR EN LA NUBE (OBLIGATORIO)
+                exito = guardar_en_google_sheets(datos_finales) # <--- CORREGIDO AQUÍ
                 
-                st.session_state.pdf_final = pdf_memoria
-                st.session_state.archivo_nombre = nombre_pdf
-                st.session_state.finalizado = True
-                st.rerun()
+                if exito:
+                    # 2. Generar PDF
+                    pdf_memoria = generar_pdf(datos_finales, canvas_result.image_data)
+                    st.session_state.pdf_final = pdf_memoria
+                    st.session_state.archivo_nombre = f"Asistencia_{datos_finales['ID']}.pdf"
+                    st.session_state.finalizado = True
+                    st.rerun()
             else:
-                st.error("Falta la firma.")
+                st.error("Por favor, firma antes de continuar.")
+
 else:
     st.balloons()
-    st.success(f"¡Registro exitoso! Guardado en el sistema de RRHH.")
-    st.download_button(label="📥 Descargar Certificado", data=st.session_state.pdf_final.getvalue(), file_name=st.session_state.archivo_nombre, mime="application/pdf")
-    if st.button("🔄 Siguiente Persona"):
+    st.success("¡Registro guardado exitosamente en la nube de Campofert!")
+    st.download_button(label="📥 Descargar Certificado (PDF)", data=st.session_state.pdf_final.getvalue(), file_name=st.session_state.archivo_nombre, mime="application/pdf")
+    
+    if st.button("🔄 Registrar otra persona"):
         for key in list(st.session_state.keys()): del st.session_state[key]
         st.rerun()
