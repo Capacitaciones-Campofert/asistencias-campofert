@@ -37,19 +37,19 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return None
 
-# Conexión principal
-conn = st.connection("gsheets", type=GSheetsConnection)
-
 def guardar_en_google_sheets(datos):
     try:
-        # Intenta leer sin especificar 'worksheet' primero para probar conexión
-        df_existente = conn.read() 
+        # Reemplaza esta URL por la de tu archivo si es diferente
+        url_hoja = "https://docs.google.com/spreadsheets/d/1SviEjyV8aR88jgRtZf6XeorUTFtg0SVf2lcV7weA5uM/edit"
+        
+        # Leemos especificando la URL
+        df_existente = conn.read(spreadsheet=url_hoja) 
         
         df_nuevo = pd.DataFrame([datos])
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         
-        # Si tu pestaña se llama "Hoja", asegúrate de que NO tenga espacios
-        conn.update(data=df_final) 
+        # Actualizamos especificando la URL y, si quieres, la pestaña "Hoja"
+        conn.update(spreadsheet=url_hoja, data=df_final)
         return True
     except Exception as e:
         st.error(f"Error de conexión: {e}")
