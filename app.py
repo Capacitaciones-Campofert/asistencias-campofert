@@ -40,13 +40,13 @@ def obtener_datos():
 def guardar_en_google_sheets(datos):
     try:
         # Fíjate que NO haya espacio después del 1: "Hoja 1"
-        df_existente = conn.read(worksheet="Hoja 1") 
+        df_existente = conn.read(worksheet="Hoja") 
         
         df_nuevo = pd.DataFrame([datos])
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         
         # Aquí también: "Hoja 1" sin espacios al final
-        conn.update(worksheet="Hoja 1", data=df_final)
+        conn.update(worksheet="Hoja", data=df_final)
         return True
     except Exception as e:
         st.error(f"Error crítico al guardar en la nube: {e}")
