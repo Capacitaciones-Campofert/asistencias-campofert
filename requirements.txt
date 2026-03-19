@@ -1,6 +1,7 @@
 streamlit
-streamlit-drawable-canvas
 pandas
 openpyxl
+streamlit-drawable-canvas
 reportlab
-pillow
+Pillow
+st-gsheets-connection
