@@ -12,16 +12,11 @@ from PIL import Image
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Campofert - Sistema de Firmas", layout="centered", page_icon="🌱")
 
-# --- 1. LEER TEMA DESDE EL LINK ---
-query_params = st.query_params
-
-# Esta línea busca el tema sin importar si escribes tema con minúscula o mayúscula
-tema_actual = "CAPACITACIÓN GENERAL" # Valor por defecto
-
-if "tema" in query_params:
-    tema_actual = query_params["tema"].replace("+", " ").upper()
-elif "Tema" in query_params:
-    tema_actual = query_params["Tema"].replace("+", " ").upper()
+# --- 1. LEER TEMA DESDE EL LINK (CORREGIDO) ---
+# Usamos .get() para evitar errores si el parámetro no existe
+params = st.query_params
+tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
+tema_actual = tema_raw.replace("+", " ").upper()
 
 # --- FUNCIONES DE BASE DE DATOS ---
 def obtener_datos():
@@ -59,9 +54,7 @@ def generar_pdf(datos, imagen_firma):
     p.drawString(100, 640, f"Cargo: {datos['Cargo']}")
     p.drawString(100, 620, f"Fecha de Registro: {datos['Fecha']}")
     p.line(100, 610, 500, 610)
-    
     p.drawString(100, 590, f"Capacitación: {datos['Tema']}")
-    
     p.drawString(100, 465, "Firma del Trabajador")
     p.line(100, 480, 300, 480)
     img = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
@@ -93,10 +86,10 @@ def guardar_pdf_en_servidor(pdf_buffer, id_empleado, nombre_empleado):
 
 # --- FLUJO PRINCIPAL DE STREAMLIT ---
 
-# LOGOS ALINEADOS VERTICALMENTE
-col_l1, col_l2, col_l3 = st.columns([2, 5, 2])
-with col_l2:
-    # 'vertical_alignment' asegura que ambos logos estén centrados entre sí
+# LOGOS ALINEADOS (MEJORADO)
+col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
+with col_v2:
+    # Agregamos gap="large" y alineación vertical para que se vean parejos
     c1, c2 = st.columns(2, vertical_alignment="center")
     if os.path.exists("logo_campofert.png"):
         c1.image("logo_campofert.png", use_container_width=True)
@@ -104,10 +97,9 @@ with col_l2:
         c2.image("logo_campolab.png", use_container_width=True)
 
 st.title("Registro de Capacitación")
-
-# Mostramos el tema arriba para que el trabajador sepa en qué se registra
 st.info(f"📋 Registrándote en: **{tema_actual}**")
 
+# --- RESTO DEL PROCESO ---
 df_maestro = obtener_datos()
 empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab", "Temporal"]
 
@@ -159,7 +151,6 @@ if not st.session_state.finalizado:
                 st.rerun()
             else:
                 st.error("Falta la firma.")
-
 else:
     st.balloons()
     st.success(f"¡Registro exitoso! Guardado como: {st.session_state.archivo_nombre}")
