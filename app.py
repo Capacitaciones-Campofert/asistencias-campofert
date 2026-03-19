@@ -14,7 +14,14 @@ st.set_page_config(page_title="Campofert - Sistema de Firmas", layout="centered"
 
 # --- 1. LEER TEMA DESDE EL LINK ---
 query_params = st.query_params
-tema_actual = query_params.get("tema", "CAPACITACIÓN GENERAL").replace("+", " ").upper()
+
+# Esta línea busca el tema sin importar si escribes tema con minúscula o mayúscula
+tema_actual = "CAPACITACIÓN GENERAL" # Valor por defecto
+
+if "tema" in query_params:
+    tema_actual = query_params["tema"].replace("+", " ").upper()
+elif "Tema" in query_params:
+    tema_actual = query_params["Tema"].replace("+", " ").upper()
 
 # --- FUNCIONES DE BASE DE DATOS ---
 def obtener_datos():
