@@ -37,20 +37,19 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return None
 
+# Conexión principal
+conn = st.connection("gsheets", type=GSheetsConnection)
+
 def guardar_en_google_sheets(datos):
-    """Envía el registro a la hoja de Google configurada"""
     try:
-        # 1. Leemos la hoja principal (sin forzar nombre de pestaña)
+        # Intenta leer sin especificar 'worksheet' primero para probar conexión
         df_existente = conn.read() 
         
-        # 2. Creamos la nueva fila
         df_nuevo = pd.DataFrame([datos])
-        
-        # 3. Concatenamos
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         
-        # 4. Actualizamos la nube
-        conn.update(data=df_final)
+        # Si tu pestaña se llama "Hoja", asegúrate de que NO tenga espacios
+        conn.update(data=df_final) 
         return True
     except Exception as e:
         st.error(f"Error de conexión: {e}")
