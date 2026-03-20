@@ -78,58 +78,65 @@ def generar_pdf(datos, imagen_firma):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # --- FUNCIÓN PARA DIBUJAR LOGOS CON RUTA RELATIVA ---
-    def insertar_logo(nombre_archivo, x, y, ancho):
+    # --- FUNCIÓN PARA CARGAR LOGOS ---
+    def colocar_logo(nombre_archivo, x, y, ancho):
+        # 1. Intentar carga local (Raíz del repo)
         if os.path.exists(nombre_archivo):
             try:
                 img = Image.open(nombre_archivo)
                 p.drawImage(ImageReader(img), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
-            except Exception as e:
-                print(f"Error al procesar {nombre_archivo}: {e}")
+                return
+            except:
+                pass
+        
+        # 2. Si falla local, intentar descarga desde el GitHub de Campofert
+        try:
+            import requests
+            # Usamos la ruta RAW basada en tu estructura actual
+            url = f"https://raw.githubusercontent.com/WilmerGarzon/asistencias-campofert/main/{nombre_archivo}"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                img_data = io.BytesIO(response.content)
+                img = Image.open(img_data)
+                p.drawImage(ImageReader(img), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
+        except:
+            pass
 
-    # --- 1. POSICIONAMIENTO DE LOGOS ---
-    # Logo Campofert (Izquierda)
-    insertar_logo("logo_campofert.png", 50, 730, 100)
-    
-    # Logo Campolab (Derecha)
-    insertar_logo("logo_campolab.png", 460, 730, 100)
+    # Posicionamos los logos (Ajustados para que no se corten)
+    colocar_logo("logo_campofert.png", 50, 720, 100)
+    colocar_logo("logo_campolab.png", 460, 720, 100)
 
-    # --- 2. TÍTULOS CENTRALES ---
+    # --- TEXTO DEL CERTIFICADO ---
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width/2, 710, "CERTIFICADO DE ASISTENCIA")
+    p.drawCentredString(width/2, 700, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width/2, 690, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width/2, 680, "CAMPOFERT S.A.S / CAMPOLAB")
 
-    # --- 3. INFORMACIÓN DEL PARTICIPANTE ---
     p.setFont("Helvetica", 11)
-    y_p = 640
-    p.drawString(100, y_p, f"Participante: {datos['Nombre']}")
-    p.drawString(100, y_p-20, f"Identificación: {datos['ID']}")
-    p.drawString(100, y_p-40, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, y_p-60, f"Cargo: {datos['Cargo']}")
-    p.drawString(100, y_p-80, f"Fecha: {datos['Fecha']}")
+    y_linea = 620
+    p.drawString(100, y_linea, f"Participante: {datos['Nombre']}")
+    p.drawString(100, y_linea-20, f"Identificación: {datos['ID']}")
+    p.drawString(100, y_linea-40, f"Empresa: {datos['Empresa']}")
+    p.drawString(100, y_linea-60, f"Cargo: {datos['Cargo']}")
+    p.drawString(100, y_linea-80, f"Fecha: {datos['Fecha']}")
     
-    # Línea decorativa
-    p.line(100, y_p-90, 510, y_p-90)
+    p.line(100, y_linea-90, 510, y_linea-90)
     
-    # --- 4. TEMA DE CAPACITACIÓN ---
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(100, y_p-110, f"Capacitación: {datos['Tema']}")
+    p.drawString(100, y_linea-110, f"Capacitación: {datos['Tema']}")
 
-    # --- 5. FIRMA DEL TRABAJADOR ---
+    # --- SECCIÓN DE FIRMA ---
     p.setFont("Helvetica", 9)
     p.drawString(100, 420, "__________________________")
     p.drawString(100, 408, "Firma del Trabajador")
     
     if imagen_firma is not None:
         try:
-            # Convertimos la firma del canvas a imagen para el PDF
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
             p.drawImage(ImageReader(img_f), 100, 422, width=150, height=60, mask='auto')
-        except Exception as e:
-            print(f"No se pudo estampar la firma: {e}")
+        except:
+            pass
 
-    # Finalizar documento
     p.showPage()
     p.save()
     buffer.seek(0)

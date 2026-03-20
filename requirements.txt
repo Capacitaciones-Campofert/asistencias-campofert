@@ -5,3 +5,4 @@ reportlab
 streamlit-drawable-canvas
 Pillow
 openpyxl
+requests
