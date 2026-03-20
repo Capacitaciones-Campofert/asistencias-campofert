@@ -107,18 +107,18 @@ def generar_pdf(datos, imagen_firma):
             st.error(f"Error técnico en logo: {e}")
 
     # --- DIBUJAR LOS LOGOS ---
-    dibujar_logo_64(logo_campofert_64, 50, 650, 100)
-    dibujar_logo_64(logo_campolab_64, 460, 650, 100)
+    dibujar_logo_64(logo_campofert_64, 50, 620, 100)
+    dibujar_logo_64(logo_campolab_64, 460, 620, 100)
 
     # --- TÍTULOS ---
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width/2, 705, "CERTIFICADO DE ASISTENCIA")
+    p.drawCentredString(width/2, 600, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width/2, 685, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width/2, 580, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # --- INFORMACIÓN ---
     p.setFont("Helvetica", 11)
-    y_p = 630
+    y_p = 530
     p.drawString(100, y_p, f"Participante: {datos['Nombre']}")
     p.drawString(100, y_p-20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_p-40, f"Empresa: {datos['Empresa']}")
