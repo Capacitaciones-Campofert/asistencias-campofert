@@ -107,18 +107,18 @@ def generar_pdf(datos, imagen_firma):
             st.error(f"Error técnico en logo: {e}")
 
     # --- DIBUJAR LOS LOGOS ---
-    dibujar_logo_64(logo_campofert_64, 50, 650, 80)
-    dibujar_logo_64(logo_campolab_64, 480, 650, 80)
+    dibujar_logo_64(logo_campofert_64, 50, 630, 80)
+    dibujar_logo_64(logo_campolab_64, 480, 630, 80)
 
     # --- TÍTULOS ---
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width/2, 580, "CERTIFICADO DE ASISTENCIA")
+    p.drawCentredString(width/2, 610, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width/2, 560, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width/2, 610, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # --- INFORMACIÓN ---
     p.setFont("Helvetica", 11)
-    y_p = 500
+    y_p = 540
     p.drawString(100, y_p, f"Participante: {datos['Nombre']}")
     p.drawString(100, y_p-20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_p-40, f"Empresa: {datos['Empresa']}")
@@ -138,7 +138,7 @@ def generar_pdf(datos, imagen_firma):
     if imagen_firma is not None:
         try:
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-            p.drawImage(ImageReader(img_f), 100, 422, width=150, height=60, mask='auto')
+            p.drawImage(ImageReader(img_f), 100, 252, width=150, height=60, mask='auto')
         except:
             pass
 
