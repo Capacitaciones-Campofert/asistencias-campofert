@@ -107,8 +107,8 @@ def generar_pdf(datos, imagen_firma):
             st.error(f"Error técnico en logo: {e}")
 
     # --- DIBUJAR LOS LOGOS ---
-    dibujar_logo_64(logo_campofert_64, 50, 700, 100)
-    dibujar_logo_64(logo_campolab_64, 460, 700, 100)
+    dibujar_logo_64(logo_campofert_64, 50, 650, 100)
+    dibujar_logo_64(logo_campolab_64, 460, 650, 100)
 
     # --- TÍTULOS ---
     p.setFont("Helvetica-Bold", 16)
