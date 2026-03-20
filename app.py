@@ -39,28 +39,23 @@ def obtener_datos():
 
 def guardar_en_google_sheets(datos):
     try:
-        # 1. URL limpia (Asegúrate de que en Secrets sea igual)
-        url_hoja = "https://docs.google.com/spreadsheets/d/1SviEjyV8aR88jgRtZf6XeorUTFtg0SVf2lcV7weA5uM/edit"
-        
-        # 2. Conectamos usando la configuración de los Secrets
-        # Es vital que en tus Secrets el bloque empiece con [connections.gsheets]
+        # 1. Llamamos a la conexión sin pasarle la URL (ya está en Secrets)
+        # Esto evita el error de "Spreadsheet must be specified"
         conn = st.connection("gsheets", type=GSheetsConnection)
         
-        # 3. Leemos la pestaña específica "Hoja"
-        # Si tu pestaña se llama diferente en el Excel, cámbialo aquí
-        df_existente = conn.read(spreadsheet=url_hoja, worksheet="Hoja", ttl=0) 
+        # 2. Leemos la pestaña "Hoja" (Asegúrate que se llame así en el Excel)
+        # El parámetro ttl=0 fuerza a traer los datos reales, no de memoria
+        df_existente = conn.read(worksheet="Hoja", ttl=0) 
         
-        # 4. Preparamos el nuevo registro
+        # 3. Preparamos y unimos los datos
         df_nuevo = pd.DataFrame([datos])
-        
-        # 5. Concatenamos y actualizamos
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
-        conn.update(spreadsheet=url_hoja, worksheet="Hoja", data=df_final)
         
+        # 4. Actualizamos la nube
+        conn.update(worksheet="Hoja", data=df_final)
         return True
-        
     except Exception as e:
-        # Si sale 404 aquí, revisa que el correo de la cuenta de servicio sea EDITOR en el Excel
+        # Este mensaje nos dirá si el error cambió de 404 a otra cosa
         st.error(f"Error de conexión: {e}")
         return False
 
