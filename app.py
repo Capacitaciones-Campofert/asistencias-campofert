@@ -54,6 +54,7 @@ def guardar_en_google_sheets(datos):
         # 4. Actualizamos la nube
         conn.update(worksheet="Hoja", data=df_final)
         return True
+    
     except Exception as e:
         # Este mensaje nos dirá si el error cambió de 404 a otra cosa
         st.error(f"Error de conexión: {e}")
@@ -73,44 +74,69 @@ def actualizar_excel_acumulado_local(datos):
 # --- FUNCIONES DE PDF CON LOGOS ---
 
 def generar_pdf(datos, imagen_firma):
+    """Genera el certificado PDF con los logos posicionados profesionalmente"""
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     
-    # Agregar Logos (Campofert y Campolab)
+    # --- 1. SECCIÓN DE LOGOS (SUPERIOR) ---
+    # Coordenada Y para ambos logos (cerca del borde superior)
+    y_logos = 740 
+    
     try:
+        # Logo Campofert: Esquina superior izquierda
+        # (X=50, Y=740, ancho=110)
         if os.path.exists("logo_campofert.png"):
-            p.drawImage("logo_campofert.png", 70, 740, width=90, preserveAspectRatio=True, mask='auto')
+            p.drawImage("logo_campofert.png", 50, y_logos, width=110, preserveAspectRatio=True, mask='auto')
+            
+        # Logo Campolab: Esquina superior derecha
+        # (X=450, Y=740, ancho=110)
         if os.path.exists("logo_campolab.png"):
-            p.drawImage("logo_campolab.png", 450, 740, width=90, preserveAspectRatio=True, mask='auto')
-    except:
+            p.drawImage("logo_campolab.png", 450, y_logos, width=110, preserveAspectRatio=True, mask='auto')
+    except Exception as e:
+        # Si no encuentra los logos, el PDF se genera sin ellos y no se detiene la App
+        print(f"No se pudieron cargar los logos en el PDF: {e}")
         pass
 
+    # --- 2. TÍTULO Y ENCABEZADO (AJUSTADO HACIA ABAJO) ---
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(300, 710, "CERTIFICADO DE ASISTENCIA")
+    # Bajamos el título a Y=700 para dar espacio a los logos
+    p.drawCentredString(300, 700, "CERTIFICADO DE ASISTENCIA")
+    
     p.setFont("Helvetica", 12)
-    p.drawCentredString(300, 690, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(300, 680, "CAMPOFERT S.A.S / CAMPOLAB")
     
-    p.drawString(100, 640, f"Participante: {datos['Nombre']}")
-    p.drawString(100, 620, f"Identificación: {datos['ID']}")
-    p.drawString(100, 600, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, 580, f"Cargo: {datos['Cargo']}")
-    p.drawString(100, 560, f"Fecha: {datos['Fecha']}")
+    # --- 3. DATOS DEL PARTICIPANTE ---
+    p.setFont("Helvetica", 11)
+    p.drawString(100, 630, f"Participante: {datos['Nombre']}")
+    p.drawString(100, 610, f"Identificación: {datos['ID']}")
+    p.drawString(100, 590, f"Empresa: {datos['Empresa']}")
+    p.drawString(100, 570, f"Cargo: {datos['Cargo']}")
+    p.drawString(100, 550, f"Fecha: {datos['Fecha']}")
     
-    p.line(100, 550, 500, 550)
-    p.setFont("Helvetica-Bold", 13)
-    p.drawString(100, 530, f"Capacitación: {datos['Tema']}")
+    # Línea divisoria
+    p.line(100, 540, 500, 540)
     
-    # Dibujar la firma del canvas
+    # --- 4. DETALLES DE LA CAPACITACIÓN ---
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(100, 520, f"Capacitación: {datos['Tema']}")
+    
+    # --- 5. SECCIÓN DE FIRMA ---
     p.setFont("Helvetica", 10)
     p.drawString(100, 420, "__________________________")
     p.drawString(100, 405, "Firma del Trabajador")
     
-    img = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-    img_byte_arr = io.BytesIO()
-    img.save(img_byte_arr, format='PNG')
-    img_byte_arr.seek(0)
-    p.drawImage(ImageReader(img_byte_arr), 100, 425, width=160, height=70, mask='auto')
+    # Insertar la imagen de la firma desde el canvas
+    try:
+        img = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='PNG')
+        img_byte_arr.seek(0)
+        # Posición de la firma (X=100, Y=425)
+        p.drawImage(ImageReader(img_byte_arr), 100, 425, width=160, height=70, mask='auto')
+    except:
+        pass
     
+    # Finalizar y guardar el PDF
     p.showPage()
     p.save()
     buffer.seek(0)
