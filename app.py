@@ -77,58 +77,59 @@ def generar_pdf(datos, imagen_firma):
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
-    
-    # --- DIAGNÓSTICO DE RUTA ---
-    # Obtenemos la ruta donde está corriendo el script actualmente
-    ruta_base = os.path.dirname(os.path.abspath(__file__))
 
-    def dibujar_logo_seguro(nombre_archivo, x, y, ancho):
-        ruta_completa = os.path.join(ruta_base, nombre_archivo)
-        try:
-            if os.path.exists(ruta_completa):
-                img = Image.open(ruta_completa)
+    # --- FUNCIÓN PARA DIBUJAR LOGOS CON RUTA RELATIVA ---
+    def insertar_logo(nombre_archivo, x, y, ancho):
+        if os.path.exists(nombre_archivo):
+            try:
+                img = Image.open(nombre_archivo)
                 p.drawImage(ImageReader(img), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
-            else:
-                # Si no lo encuentra, escribimos un texto pequeño en el PDF para saber qué falló
-                p.setFont("Helvetica", 6)
-                p.drawString(x, y, f"Falta: {nombre_archivo}")
-        except Exception as e:
-            print(f"Error con {nombre_archivo}: {e}")
+            except Exception as e:
+                print(f"Error al procesar {nombre_archivo}: {e}")
 
-    # --- DIBUJAR LOGOS CON RUTA ABSOLUTA ---
-    dibujar_logo_seguro("logo_campofert.png", 50, 730, 100)
-    dibujar_logo_seguro("logo_campolab.png", 460, 730, 100)
+    # --- 1. POSICIONAMIENTO DE LOGOS ---
+    # Logo Campofert (Izquierda)
+    insertar_logo("logo_campofert.png", 50, 730, 100)
+    
+    # Logo Campolab (Derecha)
+    insertar_logo("logo_campolab.png", 460, 730, 100)
 
-    # --- RESTO DEL PDF (IGUAL) ---
+    # --- 2. TÍTULOS CENTRALES ---
     p.setFont("Helvetica-Bold", 16)
     p.drawCentredString(width/2, 710, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
     p.drawCentredString(width/2, 690, "CAMPOFERT S.A.S / CAMPOLAB")
 
+    # --- 3. INFORMACIÓN DEL PARTICIPANTE ---
     p.setFont("Helvetica", 11)
-    y_pos = 640
-    p.drawString(100, y_pos, f"Participante: {datos['Nombre']}")
-    p.drawString(100, y_pos-20, f"Identificación: {datos['ID']}")
-    p.drawString(100, y_pos-40, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, y_pos-60, f"Cargo: {datos['Cargo']}")
-    p.drawString(100, y_pos-80, f"Fecha: {datos['Fecha']}")
+    y_p = 640
+    p.drawString(100, y_p, f"Participante: {datos['Nombre']}")
+    p.drawString(100, y_p-20, f"Identificación: {datos['ID']}")
+    p.drawString(100, y_p-40, f"Empresa: {datos['Empresa']}")
+    p.drawString(100, y_p-60, f"Cargo: {datos['Cargo']}")
+    p.drawString(100, y_p-80, f"Fecha: {datos['Fecha']}")
     
-    p.line(100, y_pos-90, 510, y_pos-90)
+    # Línea decorativa
+    p.line(100, y_p-90, 510, y_p-90)
     
+    # --- 4. TEMA DE CAPACITACIÓN ---
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(100, y_pos-110, f"Capacitación: {datos['Tema']}")
+    p.drawString(100, y_p-110, f"Capacitación: {datos['Tema']}")
 
-    # Firma
+    # --- 5. FIRMA DEL TRABAJADOR ---
     p.setFont("Helvetica", 9)
     p.drawString(100, 420, "__________________________")
     p.drawString(100, 408, "Firma del Trabajador")
     
-    try:
-        img_firma = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-        p.drawImage(ImageReader(img_firma), 100, 422, width=150, height=60, mask='auto')
-    except:
-        pass
+    if imagen_firma is not None:
+        try:
+            # Convertimos la firma del canvas a imagen para el PDF
+            img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
+            p.drawImage(ImageReader(img_f), 100, 422, width=150, height=60, mask='auto')
+        except Exception as e:
+            print(f"No se pudo estampar la firma: {e}")
 
+    # Finalizar documento
     p.showPage()
     p.save()
     buffer.seek(0)
