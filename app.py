@@ -77,29 +77,34 @@ def generar_pdf(datos, imagen_firma):
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
+    
+    # --- DIAGNÓSTICO DE RUTA ---
+    # Obtenemos la ruta donde está corriendo el script actualmente
+    ruta_base = os.path.dirname(os.path.abspath(__file__))
 
-    # --- FUNCIÓN INTERNA PARA CARGAR LOGOS SEGURAMENTE ---
-    def dibujar_logo(ruta, x, y, ancho):
+    def dibujar_logo_seguro(nombre_archivo, x, y, ancho):
+        ruta_completa = os.path.join(ruta_base, nombre_archivo)
         try:
-            if os.path.exists(ruta):
-                # Abrimos con PIL para asegurar que el archivo se lea bien
-                img_logo = Image.open(ruta)
-                p.drawImage(ImageReader(img_logo), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
+            if os.path.exists(ruta_completa):
+                img = Image.open(ruta_completa)
+                p.drawImage(ImageReader(img), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
+            else:
+                # Si no lo encuentra, escribimos un texto pequeño en el PDF para saber qué falló
+                p.setFont("Helvetica", 6)
+                p.drawString(x, y, f"Falta: {nombre_archivo}")
         except Exception as e:
-            print(f"Error cargando {ruta}: {e}")
+            print(f"Error con {nombre_archivo}: {e}")
 
-    # --- DIBUJAR LOGOS ---
-    # Campofert a la izquierda, Campolab a la derecha
-    dibujar_logo("logo_campofert.png", 50, 730, 100)
-    dibujar_logo("logo_campolab.png", 460, 730, 100)
+    # --- DIBUJAR LOGOS CON RUTA ABSOLUTA ---
+    dibujar_logo_seguro("logo_campofert.png", 50, 730, 100)
+    dibujar_logo_seguro("logo_campolab.png", 460, 730, 100)
 
-    # --- TÍTULOS ---
+    # --- RESTO DEL PDF (IGUAL) ---
     p.setFont("Helvetica-Bold", 16)
     p.drawCentredString(width/2, 710, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
     p.drawCentredString(width/2, 690, "CAMPOFERT S.A.S / CAMPOLAB")
 
-    # --- CUERPO DEL DOCUMENTO ---
     p.setFont("Helvetica", 11)
     y_pos = 640
     p.drawString(100, y_pos, f"Participante: {datos['Nombre']}")
@@ -113,17 +118,16 @@ def generar_pdf(datos, imagen_firma):
     p.setFont("Helvetica-Bold", 12)
     p.drawString(100, y_pos-110, f"Capacitación: {datos['Tema']}")
 
-    # --- SECCIÓN DE FIRMA ---
+    # Firma
     p.setFont("Helvetica", 9)
     p.drawString(100, 420, "__________________________")
     p.drawString(100, 408, "Firma del Trabajador")
     
     try:
-        # Procesar la firma del canvas
         img_firma = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
         p.drawImage(ImageReader(img_firma), 100, 422, width=150, height=60, mask='auto')
-    except Exception as e:
-        print(f"Error en firma: {e}")
+    except:
+        pass
 
     p.showPage()
     p.save()
