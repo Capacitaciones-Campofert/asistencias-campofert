@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import io
 import base64
+import pytz
 from datetime import datetime
 from streamlit_drawable_canvas import st_canvas
 from reportlab.pdfgen import canvas
@@ -186,7 +187,7 @@ if not st.session_state.finalizado:
             persona = resultado.iloc[0]
             st.success(f"✅ Usuario: {persona['Apellidos y Nombres']}")
             datos_finales = {
-                "Fecha": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
                 "ID": cedula_input,
                 "Nombre": persona['Apellidos y Nombres'],
                 "Empresa": persona['Empresa'],
@@ -201,8 +202,10 @@ if not st.session_state.finalizado:
                     e = st.selectbox("Empresa:", empresas_lista)
                     c = st.text_input("Cargo:")
                     if st.form_submit_button("Validar") and n and c:
+                        
+                        # --- CAMBIO 2: HORA PARA INVITADO ---
                         datos_finales = {
-                            "Fecha": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                            "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
                             "ID": cedula_input,
                             "Nombre": n,
                             "Empresa": e,
