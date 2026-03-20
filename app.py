@@ -39,19 +39,28 @@ def obtener_datos():
 
 def guardar_en_google_sheets(datos):
     try:
-        # Reemplaza esta URL por la de tu archivo si es diferente
+        # 1. URL limpia (Asegúrate de que en Secrets sea igual)
         url_hoja = "https://docs.google.com/spreadsheets/d/1SviEjyV8aR88jgRtZf6XeorUTFtg0SVf2lcV7weA5uM/edit"
         
-        # Leemos especificando la URL
-        df_existente = conn.read(spreadsheet=url_hoja) 
+        # 2. Conectamos usando la configuración de los Secrets
+        # Es vital que en tus Secrets el bloque empiece con [connections.gsheets]
+        conn = st.connection("gsheets", type=GSheetsConnection)
         
+        # 3. Leemos la pestaña específica "Hoja"
+        # Si tu pestaña se llama diferente en el Excel, cámbialo aquí
+        df_existente = conn.read(spreadsheet=url_hoja, worksheet="Hoja", ttl=0) 
+        
+        # 4. Preparamos el nuevo registro
         df_nuevo = pd.DataFrame([datos])
-        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         
-        # Actualizamos especificando la URL y, si quieres, la pestaña "Hoja"
-        conn.update(spreadsheet=url_hoja, data=df_final)
+        # 5. Concatenamos y actualizamos
+        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+        conn.update(spreadsheet=url_hoja, worksheet="Hoja", data=df_final)
+        
         return True
+        
     except Exception as e:
+        # Si sale 404 aquí, revisa que el correo de la cuenta de servicio sea EDITOR en el Excel
         st.error(f"Error de conexión: {e}")
         return False
 
