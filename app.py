@@ -74,69 +74,57 @@ def actualizar_excel_acumulado_local(datos):
 # --- FUNCIONES DE PDF CON LOGOS ---
 
 def generar_pdf(datos, imagen_firma):
-    """Genera el certificado PDF con los logos posicionados profesionalmente"""
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
-    
-    # --- 1. SECCIÓN DE LOGOS (SUPERIOR) ---
-    # Coordenada Y para ambos logos (cerca del borde superior)
-    y_logos = 740 
-    
-    try:
-        # Logo Campofert: Esquina superior izquierda
-        # (X=50, Y=740, ancho=110)
-        if os.path.exists("logo_campofert.png"):
-            p.drawImage("logo_campofert.png", 50, y_logos, width=110, preserveAspectRatio=True, mask='auto')
-            
-        # Logo Campolab: Esquina superior derecha
-        # (X=450, Y=740, ancho=110)
-        if os.path.exists("logo_campolab.png"):
-            p.drawImage("logo_campolab.png", 450, y_logos, width=110, preserveAspectRatio=True, mask='auto')
-    except Exception as e:
-        # Si no encuentra los logos, el PDF se genera sin ellos y no se detiene la App
-        print(f"No se pudieron cargar los logos en el PDF: {e}")
-        pass
+    width, height = letter
 
-    # --- 2. TÍTULO Y ENCABEZADO (AJUSTADO HACIA ABAJO) ---
+    # --- FUNCIÓN INTERNA PARA CARGAR LOGOS SEGURAMENTE ---
+    def dibujar_logo(ruta, x, y, ancho):
+        try:
+            if os.path.exists(ruta):
+                # Abrimos con PIL para asegurar que el archivo se lea bien
+                img_logo = Image.open(ruta)
+                p.drawImage(ImageReader(img_logo), x, y, width=ancho, preserveAspectRatio=True, mask='auto')
+        except Exception as e:
+            print(f"Error cargando {ruta}: {e}")
+
+    # --- DIBUJAR LOGOS ---
+    # Campofert a la izquierda, Campolab a la derecha
+    dibujar_logo("logo_campofert.png", 50, 730, 100)
+    dibujar_logo("logo_campolab.png", 460, 730, 100)
+
+    # --- TÍTULOS ---
     p.setFont("Helvetica-Bold", 16)
-    # Bajamos el título a Y=700 para dar espacio a los logos
-    p.drawCentredString(300, 700, "CERTIFICADO DE ASISTENCIA")
-    
+    p.drawCentredString(width/2, 710, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(300, 680, "CAMPOFERT S.A.S / CAMPOLAB")
-    
-    # --- 3. DATOS DEL PARTICIPANTE ---
+    p.drawCentredString(width/2, 690, "CAMPOFERT S.A.S / CAMPOLAB")
+
+    # --- CUERPO DEL DOCUMENTO ---
     p.setFont("Helvetica", 11)
-    p.drawString(100, 630, f"Participante: {datos['Nombre']}")
-    p.drawString(100, 610, f"Identificación: {datos['ID']}")
-    p.drawString(100, 590, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, 570, f"Cargo: {datos['Cargo']}")
-    p.drawString(100, 550, f"Fecha: {datos['Fecha']}")
+    y_pos = 640
+    p.drawString(100, y_pos, f"Participante: {datos['Nombre']}")
+    p.drawString(100, y_pos-20, f"Identificación: {datos['ID']}")
+    p.drawString(100, y_pos-40, f"Empresa: {datos['Empresa']}")
+    p.drawString(100, y_pos-60, f"Cargo: {datos['Cargo']}")
+    p.drawString(100, y_pos-80, f"Fecha: {datos['Fecha']}")
     
-    # Línea divisoria
-    p.line(100, 540, 500, 540)
+    p.line(100, y_pos-90, 510, y_pos-90)
     
-    # --- 4. DETALLES DE LA CAPACITACIÓN ---
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(100, 520, f"Capacitación: {datos['Tema']}")
-    
-    # --- 5. SECCIÓN DE FIRMA ---
-    p.setFont("Helvetica", 10)
+    p.drawString(100, y_pos-110, f"Capacitación: {datos['Tema']}")
+
+    # --- SECCIÓN DE FIRMA ---
+    p.setFont("Helvetica", 9)
     p.drawString(100, 420, "__________________________")
-    p.drawString(100, 405, "Firma del Trabajador")
+    p.drawString(100, 408, "Firma del Trabajador")
     
-    # Insertar la imagen de la firma desde el canvas
     try:
-        img = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-        img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='PNG')
-        img_byte_arr.seek(0)
-        # Posición de la firma (X=100, Y=425)
-        p.drawImage(ImageReader(img_byte_arr), 100, 425, width=160, height=70, mask='auto')
-    except:
-        pass
-    
-    # Finalizar y guardar el PDF
+        # Procesar la firma del canvas
+        img_firma = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
+        p.drawImage(ImageReader(img_firma), 100, 422, width=150, height=60, mask='auto')
+    except Exception as e:
+        print(f"Error en firma: {e}")
+
     p.showPage()
     p.save()
     buffer.seek(0)
