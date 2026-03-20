@@ -107,14 +107,14 @@ def generar_pdf(datos, imagen_firma):
             st.error(f"Error técnico en logo: {e}")
 
     # --- DIBUJAR LOS LOGOS ---
-    dibujar_logo_64(logo_campofert_64, 50, 680, 80)
-    dibujar_logo_64(logo_campolab_64, 480, 680, 80)
+    dibujar_logo_64(logo_campofert_64, 50, 610, 80)
+    dibujar_logo_64(logo_campolab_64, 480, 610, 80)
 
     # --- TÍTULOS ---
     p.setFont("Helvetica-Bold", 16)
     p.drawCentredString(width/2, 650, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width/2, 650, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width/2, 620, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # --- INFORMACIÓN ---
     p.setFont("Helvetica", 11)
@@ -136,11 +136,11 @@ def generar_pdf(datos, imagen_firma):
     
     # Aquí el 250 es la "Y" de tu línea de guiones. 
     # CÁMBIALO A 150
-    p.drawString(100, 150, "__________________________")
+    p.drawString(100, 250, "__________________________")
     
     # Aquí el 238 es la "Y" del texto "Firma del Trabajador". 
     # CÁMBIALO A 138 (para que baje con la línea)
-    p.drawString(100, 138, "Firma del Trabajador")
+    p.drawString(100, 238, "Firma del Trabajador")
     
     if imagen_firma is not None:
         try:
@@ -148,7 +148,7 @@ def generar_pdf(datos, imagen_firma):
             
             # Aquí el 252 es la "Y" de la imagen de la firma.
             # CÁMBIALO A 152 (para que quede justo encima de la línea de 150)
-            p.drawImage(ImageReader(img_f), 100, 152, width=150, height=60, mask='auto')
+            p.drawImage(ImageReader(img_f), 100, 250, width=150, height=60, mask='auto')
         except:
             pass
 
