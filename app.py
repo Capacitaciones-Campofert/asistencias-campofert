@@ -10,8 +10,13 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
-# Librería para la conexión a la nube
+# Librería para la conexión a la nube   
 from streamlit_gsheets import GSheetsConnection
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Campofert - Sistema de Firmas", layout="centered", page_icon="🌱")
@@ -158,6 +163,52 @@ def generar_pdf(datos, imagen_firma):
     buffer.seek(0)
     return buffer
 
+def enviar_respaldo_gestion_humana(datos, pdf_buffer):
+    mi_correo = "gestionhumanacpfert@gmail.com"
+    # PEGA AQUÍ LAS 16 LETRAS QUE GENERASTE (sin espacios)
+    password = "bhbwshtosozexhcr" 
+
+    msg = MIMEMultipart()
+    msg['From'] = mi_correo
+    msg['To'] = mi_correo
+    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+
+    cuerpo_html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; color: #333;">
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #2e7d32;">
+            <h2 style="color: #2e7d32;">Notificación de Asistencia - Campofert / Campolab</h2>
+            <p>Se ha generado un nuevo certificado de capacitación:</p>
+            <hr>
+            <p><strong>Participante:</strong> {datos['Nombre']}</p>
+            <p><strong>Cédula:</strong> {datos['ID']}</p>
+            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
+            <p><strong>Tema:</strong> {datos['Tema']}</p>
+            <p><strong>Fecha y Hora:</strong> {datos['Fecha']}</p>
+            <hr>
+            <p style="font-size: 0.8em; color: #666;">Archivo adjunto disponible para su archivo en Gestión Humana.</p>
+        </div>
+    </body>
+    </html>
+    """
+    msg.attach(MIMEText(cuerpo_html, 'html'))
+
+    adjunto = MIMEBase('application', 'octet-stream')
+    adjunto.set_payload(pdf_buffer.getvalue())
+    encoders.encode_base64(adjunto)
+    adjunto.add_header('Content-Disposition', f"attachment; filename= Asistencia_{datos['ID']}.pdf")
+    msg.attach(adjunto)
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(mi_correo, password)
+        server.sendmail(mi_correo, mi_correo, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        return False
+
 # --- INTERFAZ DE USUARIO ---
 
 col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
@@ -220,11 +271,18 @@ if not st.session_state.finalizado:
         if st.button("🚀 Confirmar Registro"):
             if canvas_result.image_data is not None:
                 # 1. GUARDAR EN LA NUBE (OBLIGATORIO)
-                exito = guardar_en_google_sheets(datos_finales) # <--- CORREGIDO AQUÍ
+                exito = guardar_en_google_sheets(datos_finales) 
                 
                 if exito:
                     # 2. Generar PDF
                     pdf_memoria = generar_pdf(datos_finales, canvas_result.image_data)
+                    
+                    # --- NUEVO: ENVIAR COPIA AL CORREO ---
+                    # Esta línea dispara el correo a gestionhumanacpfert@gmail.com
+                    enviar_respaldo_gestion_humana(datos_finales, pdf_memoria)
+                    # ------------------------------------
+
+                    # 3. Guardar en el estado para la descarga del usuario
                     st.session_state.pdf_final = pdf_memoria
                     st.session_state.archivo_nombre = f"Asistencia_{datos_finales['ID']}.pdf"
                     st.session_state.finalizado = True
