@@ -47,26 +47,6 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return None
 
-def crear_nuevo_empleado(datos_empleado):
-    """Agrega un nuevo trabajador a la pestaña 'Empleados' permanentemente"""
-    try:
-        conn_emp = st.connection("empleados", type=GSheetsConnection)
-        df_maestro = conn_emp.read(worksheet="Empleados", ttl=0)
-        
-        nuevo_registro = pd.DataFrame([{
-            "ID": str(datos_empleado['ID']),
-            "Apellidos y Nombres": datos_empleado['Nombre'].upper(),
-            "Empresa": datos_empleado['Empresa'],
-            "Cargo": datos_empleado['Cargo'].upper()
-        }])
-        
-        df_final = pd.concat([df_maestro, nuevo_registro], ignore_index=True)
-        conn_emp.update(worksheet="Empleados", data=df_final)
-        return True
-    except Exception as e:
-        st.error(f"Error al guardar nuevo empleado: {e}")
-        return False
-
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     mi_correo = "gestionhumanacpfert@gmail.com"
     password = "bhbwshtosozexhcr" # Recuerda usar "Contraseña de aplicación"
