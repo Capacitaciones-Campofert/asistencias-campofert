@@ -59,27 +59,29 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # 1. LOGOS (Posición Y=680 para que bajen y no se corten)
+    # 1. LOGOS (Más GRANDES y VISIBLES, posición y=700)
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 50, 620, width=110, preserveAspectRatio=True, mask='auto')
+            # Aumentamos ancho a 130 y posición y=700
+            p.drawImage(ImageReader(img_cf), 50, 700, width=130, preserveAspectRatio=True, mask='auto')
         
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 450, 620, width=110, preserveAspectRatio=True, mask='auto')
+            # Aumentamos ancho a 130 y posición y=700
+            p.drawImage(ImageReader(img_cl), 430, 700, width=130, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
-    # 2. TÍTULOS (Bajamos su posición para que respiren respecto a los logos)
+    # 2. TÍTULOS (Subimos de 670 a 720 para dar más aire)
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, 590, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, 720, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 575, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, 695, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # 3. INFORMACIÓN DEL PARTICIPANTE
     p.setFont("Helvetica", 11)
-    y_info = 500
+    y_info = 610
     p.drawString(100, y_info,      f"Participante: {datos['Nombre']}")
     p.drawString(100, y_info - 20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_info - 40, f"Empresa: {datos['Empresa']}")
@@ -94,21 +96,21 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     if imagen_foto is not None:
         img_foto = Image.open(imagen_foto)
         # La centramos usando (width/2) - (ancho_imagen/2)
-        p.drawImage(ImageReader(img_foto), (width/2)-90, 220, width=180, height=135, preserveAspectRatio=True)
+        p.drawImage(ImageReader(img_foto), (width/2)-90, 280, width=180, height=135, preserveAspectRatio=True)
 
     # --- LA FIRMA (Justo debajo de la foto) ---
     if imagen_firma is not None:
         try:
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-            # La ponemos en y=180 para que quede debajo de la foto que está en y=250
-            p.drawImage(ImageReader(img_f), (width/2)-75, 140, width=150, height=70, mask='auto')
+            # La ponemos en y=200 para que quede debajo de la foto
+            p.drawImage(ImageReader(img_f), (width/2)-75, 200, width=150, height=70, mask='auto')
         except:
             pass
     
     # Línea de firma y pie de página final
-    p.line((width/2)-80, 140, (width/2)+80, 140)
+    p.line((width/2)-80, 200, (width/2)+80, 200)
     p.setFont("Helvetica-Oblique", 10)
-    p.drawCentredString(width/2, 125, "Firma Digital Autenticada")
+    p.drawCentredString(width/2, 185, "Firma Digital Autenticada")
 
     p.showPage()
     p.save()
@@ -120,20 +122,38 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 # =============================================================================
 
 st.markdown("---")
-# Usamos Image.open para que se vean nítidos en la web también
+
+# --- CSS PARA ALINEAR LOGOS ARRIBA ---
+# Este bloque corrige la desalineación vertical que notaste.
+st.markdown(
+    """
+    <style>
+    [data-testid="stHorizontalBlock"] img {
+        vertical-align: top;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 col1, col2, col3 = st.columns([1, 1, 1])
 
 with col1:
     if os.path.exists("logo_campofert.png"):
-        st.image(Image.open("logo_campofert.png"), width=180)
+        # Cargamos con PIL y Image.open para asegurar nitidez (no pixelado)
+        img_cf_ui = Image.open("logo_campofert.png")
+        st.image(img_cf_ui, width=180)
+
 with col3:
     if os.path.exists("logo_campolab.png"):
-        st.image(Image.open("logo_campolab.png"), width=180)
+        # Cargamos con PIL para mantener calidad
+        img_cl_ui = Image.open("logo_campolab.png")
+        st.image(img_cl_ui, width=180)
 
 st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
-# Lógica de Tema y Pasos
+# --- LÓGICA DE TEMA Y PASOS ---
 params = st.query_params
 tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
 st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
@@ -150,15 +170,16 @@ if st.session_state.paso == 1:
         if not res.empty:
             st.session_state.persona = res.iloc[0]
             st.session_state.cedula = cedula
-            st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}.")
+            st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
             if st.button("Continuar al registro ➡️"):
                 st.session_state.paso = 2
                 st.rerun()
         else:
-            st.error("Cédula no encontrada.")
+            st.error("Cédula no encontrada en la base de datos.")
 
 elif st.session_state.paso == 2:
     st.subheader("📸 Captura de Identidad")
+    st.write("Colócate frente a la cámara para validar tu asistencia.")
     foto = st.camera_input("Foto de validación")
     if foto:
         st.session_state.foto_data = foto
@@ -168,7 +189,15 @@ elif st.session_state.paso == 2:
 
 elif st.session_state.paso == 3:
     st.subheader("✍️ Firma Digital")
-    canvas_res = st_canvas(stroke_width=3, stroke_color="#000000", background_color="#ffffff", height=180, width=350, key="firma_final")
+    st.write("Firma dentro del recuadro blanco:")
+    canvas_res = st_canvas(
+        stroke_width=3, 
+        stroke_color="#000000", 
+        background_color="#ffffff", 
+        height=180, 
+        width=350,
+        key="firma_final"
+    )
     
     if st.button("Finalizar y Generar Certificado ✅"):
         if canvas_res.image_data is not None:
@@ -181,19 +210,21 @@ elif st.session_state.paso == 3:
                 "Tema": tema_actual
             }
             
+            # ACCIÓN: Guardar en la nube (Google Sheets)
             if guardar_en_google_sheets(datos_asistencia):
+                # Generar el PDF para la descarga
                 pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.foto_data)
                 st.session_state.pdf_doc = pdf
                 st.session_state.paso = 4
                 st.rerun()
         else:
-            st.error("Es necesario firmar.")
+            st.error("Es necesario firmar para completar el proceso.")
 
 elif st.session_state.paso == 4:
     st.balloons()
-    st.success("¡Tu asistencia ha sido registrada!")
+    st.success("¡Tu asistencia ha sido registrada correctamente!")
     st.download_button(
-        label="📥 Descargar Certificado (PDF)",
+        label="📥 Descargar mi Certificado (PDF)",
         data=st.session_state.pdf_doc.getvalue(),
         file_name=f"Certificado_{st.session_state.cedula}.pdf",
         mime="application/pdf"
