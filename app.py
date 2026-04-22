@@ -34,6 +34,7 @@ tema_actual = tema_raw.replace("+", " ").upper()
 
 # =============================================================================
 # FUNCIONES DE APOYO
+# =============================================================================
 
 def obtener_datos():
     """Lee la base de empleados local para validación rápida"""
@@ -208,10 +209,6 @@ menu = st.sidebar.radio("Ir a:", ["📋 Registro Asistencia", "🛠️ Panel Adm
 # OPCIÓN 1: REGISTRO DE ASISTENCIA
 # =============================================================================
 if menu == "📋 Registro Asistencia":
-    # IMPORTANTE: Todo esto ahora está dentro del 'if menu == ...'
-    
-    params = st.query_params
-    tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
     st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
 
     if 'paso' not in st.session_state:
