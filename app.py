@@ -35,11 +35,16 @@ tema_actual = tema_raw.replace("+", " ").upper()
 # =============================================================================
 # FUNCIONES DE APOYO
 # =============================================================================
+# FUNCIÓN DE CORREO
+# =============================================================================
+
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
-    """Función para enviarte la copia automáticamente"""
+    mi_correo = "gestionhumanacpfert@gmail.com"
+    password = "bhbwshtosozexhcr"
+
     msg = MIMEMultipart()
-    msg['From'] = EMAIL_USER
-    msg['To'] = EMAIL_USER # Te llega a ti mismo
+    msg['From'] = mi_correo
+    msg['To'] = mi_correo
     msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
     cuerpo_html = f"""
@@ -47,13 +52,15 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     <body style="font-family: Arial, sans-serif; color: #333;">
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #2e7d32;">
             <h2 style="color: #2e7d32;">Notificación de Asistencia - Campofert / Campolab</h2>
+            <p>Se ha generado un nuevo certificado de capacitación:</p>
             <hr>
             <p><strong>Participante:</strong> {datos['Nombre']}</p>
             <p><strong>Cédula:</strong> {datos['ID']}</p>
+            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
             <p><strong>Tema:</strong> {datos['Tema']}</p>
-            <p><strong>Fecha:</strong> {datos['Fecha']}</p>
+            <p><strong>Fecha y Hora:</strong> {datos['Fecha']}</p>
             <hr>
-            <p style="font-size: 0.8em; color: #666;">Copia de respaldo generada automáticamente.</p>
+            <p style="font-size: 0.8em; color: #666;">Archivo adjunto disponible para su archivo en Gestión Humana.</p>
         </div>
     </body>
     </html>
@@ -69,23 +76,12 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+        server.login(mi_correo, password)
+        server.sendmail(mi_correo, mi_correo, msg.as_string())
         server.quit()
         return True
     except Exception:
         return False
-
-def obtener_datos():
-    ruta = "empleados.xlsx"
-    if os.path.exists(ruta):
-        try:
-            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
-            df.columns = df.columns.str.strip()
-            return df
-        except:
-            return None
-    return None
 
 def guardar_en_google_sheets(datos):
     try:
