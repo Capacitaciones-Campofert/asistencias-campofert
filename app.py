@@ -34,7 +34,7 @@ EMAIL_PASS = "bhbwshtosozexhcr"
 
 def obtener_datos():
     """Lee la base de empleados local para validación rápida"""
-    ruta = "Empleados.xlsx"
+    ruta = "empleados.xlsx"
     if os.path.exists(ruta):
         try:
             df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
