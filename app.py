@@ -243,10 +243,6 @@ with col_logo3:
 st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- MENÚ LATERAL ---
-st.sidebar.title("Navegación")
-menu = st.sidebar.radio("Ir a:", ["📋 Registro Asistencia", "🛠️ Panel Administrador"])
-
 # =============================================================================
 # OPCIÓN 1: REGISTRO DE ASISTENCIA
 # =============================================================================
