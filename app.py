@@ -29,20 +29,18 @@ EMAIL_USER = "gestionhumanacpfert@gmail.com"
 EMAIL_PASS = "bhbwshtosozexhcr" 
 
 # =============================================================================
-# 2. FUNCIONES DE APOYO (DEBEN DEFINIRSE ANTES DE USARSE)
+# 2. FUNCIONES DE APOYO
 # =============================================================================
 
 def obtener_datos():
-    """Lee la base de empleados local para validación rápida"""
-    ruta = "empleados.xlsx"
-    if os.path.exists(ruta):
-        try:
-            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
-            df.columns = df.columns.str.strip()
-            return df
-        except Exception as e:
-            st.error(f"Error al leer empleados.xlsx: {e}")
-    return None
+    """Lee la base de datos de empleados desde Google Sheets"""
+    try:
+        df = conn.read(worksheet="Empleados", ttl=0)
+        df.columns = df.columns.str.strip()
+        return df
+    except Exception as e:
+        st.error(f"Error al conectar con Google Sheets: {e}")
+        return None
 
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     """Envía el PDF por correo electrónico"""
@@ -101,7 +99,6 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Logos
     try:
         if os.path.exists("logo_campofert.png"):
             p.drawImage(ImageReader("logo_campofert.png"), 50, 620, width=135, preserveAspectRatio=True, mask='auto')
@@ -143,23 +140,19 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     return buffer
 
 # =============================================================================
-# 3. INTERFAZ Y DISEÑO
+# 3. INTERFAZ Y LÓGICA DE PASOS
 # =============================================================================
 
-st.markdown("<style>[data-testid='stHorizontalBlock'] {align-items: center;}</style>", unsafe_allow_html=True)
-
-col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
-with col_logo1:
-    if os.path.exists("logo_campofert.png"): st.image("logo_campofert.png", width=160)
-with col_logo3:
-    if os.path.exists("logo_campolab.png"): st.image("logo_campolab.png", width=160)
+# Diseño de Logos superiores
+col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
+with col_v2:
+    c1, c2 = st.columns(2)
+    if os.path.exists("logo_campofert.png"):
+        c1.image("logo_campofert.png", use_container_width=True)
+    if os.path.exists("logo_campolab.png"):
+        c2.image("logo_campolab.png", use_container_width=True)
 
 st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
-st.markdown("---")
-
-# =============================================================================
-# 4. LÓGICA DE NEGOCIO (PASOS)
-# =============================================================================
 
 # Leer tema del URL
 params = st.query_params
@@ -172,96 +165,39 @@ if 'paso' not in st.session_state:
 
 # Cargar base de datos
 df_maestro = obtener_datos()
-empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
-# INTERFAZ DE USUARIO
-# =============================================================================
+if df_maestro is not None:
+    empresas_lista = sorted(df_maestro['Empresa'].unique().tolist())
+else:
+    empresas_lista = ["Campofert", "Campolab"]
 
-col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
-with col_v2:
-    c1, c2 = st.columns(2, vertical_alignment="center")
-    if os.path.exists("logo_campofert.png"):
-        c1.image("logo_campofert.png", use_container_width=True)
-    if os.path.exists("logo_campolab.png"):
-        c2.image("logo_campolab.png", use_container_width=True)
-
-st.title("Registro de Capacitación")
-st.info(f"📋 Tema: **{tema_actual}**")
-
-df_maestro = obtener_datos()
-empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
-
-if 'finalizado' not in st.session_state:
-    st.session_state.finalizado = False
-
-if not st.session_state.finalizado:
-    cedula_input = st.text_input("Ingresa tu ID / Cédula:").strip()
-    datos_finales = None
-
-    if cedula_input:
-        resultado = df_maestro[df_maestro['ID'] == cedula_input] if df_maestro is not None else pd.DataFrame()
-        if not resultado.empty:
-            persona = resultado.iloc[0]
-            st.success(f"✅ Usuario: {persona['Apellidos y Nombres']}")
-            datos_finales = {
-                "Fecha":   datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
-                "ID":      cedula_input,
-                "Nombre":  persona['Apellidos y Nombres'],
-                "Empresa": persona['Empresa'],
-                "Cargo":   persona['Cargo'],
-                "Tema":    tema_actual
-            }
-        else:
-            st.warning("ID no encontrado. ¿Eres invitado?")
-            if st.checkbox("Registrar como Invitado"):
-                with st.form("form_invitado"):
-                    n = st.text_input("Nombre Completo:")
-                    e = st.selectbox("Empresa:", empresas_lista)
-                    c = st.text_input("Cargo:")
-                    if st.form_submit_button("Validar") and n and c:
-                        datos_finales = {
-                            "Fecha":   datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
-                            "ID":      cedula_input,
-                            "Nombre":  n,
-                            "Empresa": e,
-                            "Cargo":   c,
-                            "Tema":    tema_actual
-                        }
-
-    if datos_finales:
-        st.write("### Firma aquí")
-        canvas_result = st_canvas(
-            stroke_width=3,
-            stroke_color="#1a3c55",
-            background_color="#f0f2f6",
-            height=150,
-            drawing_mode="freedraw",
-            key="firma_pad"
-
-# --- PASO 1: VALIDACIÓN DE CÉDULA ---
+# --- PASO 1: VALIDACIÓN ---
 if st.session_state.paso == 1:
-    cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
-    if cedula:
-        if df_maestro is not None and not df_maestro.empty:
-            # Convertimos a string para comparar correctamente
+    cedula_input = st.text_input("Ingresa tu ID / Cédula:").strip()
+    if cedula_input:
+        if df_maestro is not None:
             df_maestro['ID'] = df_maestro['ID'].astype(str)
-            res = df_maestro[df_maestro['ID'].astype(str) == cedula]
+            res = df_maestro[df_maestro['ID'] == cedula_input]
             
             if not res.empty:
-                # CORRECCIÓN AQUÍ: Usamos .iloc[0] para obtener la fila 
-                # y luego lo convertimos a diccionario
-                fila_empleado = res.iloc[0]
-                st.session_state.persona = fila_empleado.to_dict() 
-                
-                st.session_state.cedula = cedula
-                st.success(f"Hola, {st.session_state.persona.get('Nombre', 'Empleado')}. ¡Bienvenido!")
-                
-                if st.button("Continuar al registro ➡️"):
+                fila = res.iloc[0]
+                st.session_state.persona = fila.to_dict()
+                st.session_state.cedula = cedula_input
+                st.success(f"✅ Bienvenido, {st.session_state.persona.get('Apellidos y Nombres')}")
+                if st.button("Continuar ➡️"):
                     st.session_state.paso = 2
                     st.rerun()
             else:
-                st.error("Cédula no encontrada en la base de datos de Empleados.")
-        else:
-            st.warning("La base de datos de empleados está vacía o no se pudo cargar.")
+                st.warning("ID no encontrado. ¿Eres invitado?")
+                if st.checkbox("Registrar como Invitado"):
+                    with st.form("invitado"):
+                        n = st.text_input("Nombre Completo:")
+                        e = st.selectbox("Empresa:", empresas_lista)
+                        c = st.text_input("Cargo:")
+                        if st.form_submit_button("Validar Invitado") and n and c:
+                            st.session_state.persona = {'Apellidos y Nombres': n, 'Empresa': e, 'Cargo': c}
+                            st.session_state.cedula = cedula_input
+                            st.session_state.paso = 2
+                            st.rerun()
 
 # --- PASO 2: CÁMARA ---
 elif st.session_state.paso == 2:
@@ -273,7 +209,7 @@ elif st.session_state.paso == 2:
             st.session_state.paso = 3
             st.rerun()
 
-# --- PASO 3: FIRMA Y GENERACIÓN ---
+# --- PASO 3: FIRMA Y CIERRE ---
 elif st.session_state.paso == 3:
     st.subheader("✍️ Firma Digital")
     canvas_res = st_canvas(
@@ -284,7 +220,7 @@ elif st.session_state.paso == 3:
     if st.button("Finalizar y Generar Certificado ✅"):
         if canvas_res.image_data is not None:
             datos_asistencia = {
-                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
+                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
                 "ID": st.session_state.cedula,
                 "Nombre": st.session_state.persona['Apellidos y Nombres'],
                 "Empresa": st.session_state.persona['Empresa'],
@@ -292,34 +228,29 @@ elif st.session_state.paso == 3:
                 "Tema": tema_actual
             }
             
-            with st.spinner("Guardando y enviando certificado..."):
+            with st.spinner("Procesando..."):
                 if guardar_en_google_sheets(datos_asistencia):
                     pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
                     enviar_respaldo_gestion_humana(datos_asistencia, pdf)
-                    
                     pdf.seek(0)
                     st.session_state.pdf_doc = pdf
                     st.session_state.paso = 4
                     st.rerun()
         else:
-            st.error("Es necesario firmar para completar el proceso.")
+            st.error("Es necesario firmar.")
 
-# --- PASO 4: DESCARGA Y REINICIO ---
+# --- PASO 4: ÉXITO ---
 elif st.session_state.paso == 4:
     st.balloons()
-    st.success("¡Tu asistencia ha sido registrada correctamente!")
-    
+    st.success("¡Registro completado!")
     if st.session_state.get('pdf_doc'):
         st.download_button(
-            label="📥 Descargar mi Certificado (PDF)",
+            label="📥 Descargar Certificado",
             data=st.session_state.pdf_doc.getvalue(),
             file_name=f"Certificado_{st.session_state.cedula}.pdf",
             mime="application/pdf"
         )
-    
-    if st.button("Realizar otro registro"):
-        for key in ['cedula', 'persona', 'pdf_doc', 'foto_data']:
-            if key in st.session_state:
-                del st.session_state[key]
+    if st.button("Nuevo Registro"):
+        for k in ['cedula','persona','pdf_doc','foto_data']: st.session_state.pop(k, None)
         st.session_state.paso = 1
         st.rerun()
