@@ -35,6 +35,18 @@ tema_actual = tema_raw.replace("+", " ").upper()
 # =============================================================================
 # FUNCIONES DE APOYO
 
+def obtener_datos():
+    """Lee la base de empleados local para validación rápida"""
+    ruta = "empleados.xlsx"
+    if os.path.exists(ruta):
+        try:
+            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
+            df.columns = df.columns.str.strip()
+            return df
+        except Exception as e:
+            st.error(f"Error al leer empleados.xlsx: {e}")
+    return None
+
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     mi_correo = "gestionhumanacpfert@gmail.com"
     password = "bhbwshtosozexhcr" # Recuerda usar "Contraseña de aplicación"
@@ -198,18 +210,6 @@ st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
 
 if 'paso' not in st.session_state:
     st.session_state.paso = 1
-
-def obtener_datos():
-    """Lee la base de empleados local para validación rápida"""
-    ruta = "empleados.xlsx"
-    if os.path.exists(ruta):
-        try:
-            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
-            df.columns = df.columns.str.strip()
-            return df
-        except Exception as e:
-            st.error(f"Error al leer empleados.xlsx: {e}")
-    return None
 
 df_maestro = obtener_datos()
 
