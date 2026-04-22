@@ -59,32 +59,37 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # 1. LOGOS (Posición Y=670 para visibilidad total y ancho de 135)
+    # 1. LOGOS (Posición Y=650 para visibilidad total y ancho de 135)
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 50, 670, width=135, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cf), 50, 650, width=135, preserveAspectRatio=True, mask='auto')
         
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 430, 670, width=135, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 430, 650, width=135, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
-    # 2. TÍTULOS (Bajamos a 640 para que respiren bajo los logos)
+    # 2. TÍTULOS (Ajustados proporcionalmente hacia abajo)
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, 640, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, 620, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 620, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, 600, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # 3. INFORMACIÓN DEL PARTICIPANTE
     p.setFont("Helvetica", 11)
-    y_info = 540
+    y_info = 520
     p.drawString(100, y_info,      f"Participante: {datos['Nombre']}")
     p.drawString(100, y_info - 20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_info - 40, f"Empresa: {datos['Empresa']}")
     p.drawString(100, y_info - 60, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
+    
+    # --- TEMA EN NEGRILLA ---
+    p.setFont("Helvetica-Bold", 11)
     p.drawString(100, y_info - 80, f"Tema: {datos['Tema']}")
+    
+    p.setFont("Helvetica", 11) # Volver a fuente normal
     p.drawString(100, y_info - 100, f"Fecha/Hora: {datos['Fecha']}")
     p.line(100, y_info - 110, 510, y_info - 110)
 
