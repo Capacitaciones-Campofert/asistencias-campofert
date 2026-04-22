@@ -51,7 +51,7 @@ def guardar_en_google_sheets(datos):
         return False
 
 # =============================================================================
-# GENERACIÓN DE PDF (DISEÑO CORREGIDO PARA LOGOS)
+# GENERACIÓN DE PDF (DISEÑO FINAL CORREGIDO)
 # =============================================================================
 
 def generar_pdf(datos, imagen_firma, imagen_foto):
@@ -59,29 +59,27 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # 1. LOGOS (Más GRANDES y VISIBLES, posición y=700)
+    # 1. LOGOS (Posición Y=670 para visibilidad total y ancho de 135)
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            # Aumentamos ancho a 130 y posición y=700
-            p.drawImage(ImageReader(img_cf), 50, 700, width=130, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cf), 50, 670, width=135, preserveAspectRatio=True, mask='auto')
         
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            # Aumentamos ancho a 130 y posición y=700
-            p.drawImage(ImageReader(img_cl), 430, 700, width=130, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 430, 670, width=135, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
-    # 2. TÍTULOS (Subimos de 670 a 720 para dar más aire)
+    # 2. TÍTULOS (Bajamos a 640 para que respiren bajo los logos)
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, 720, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, 640, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 695, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, 620, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # 3. INFORMACIÓN DEL PARTICIPANTE
     p.setFont("Helvetica", 11)
-    y_info = 610
+    y_info = 540
     p.drawString(100, y_info,      f"Participante: {datos['Nombre']}")
     p.drawString(100, y_info - 20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_info - 40, f"Empresa: {datos['Empresa']}")
@@ -90,27 +88,21 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawString(100, y_info - 100, f"Fecha/Hora: {datos['Fecha']}")
     p.line(100, y_info - 110, 510, y_info - 110)
 
-    # 4. FOTO Y FIRMA (Una debajo de la otra, centradas)
-    
-    # --- LA FOTO ---
+    # 4. FOTO Y FIRMA (Centradas en columna)
     if imagen_foto is not None:
         img_foto = Image.open(imagen_foto)
-        # La centramos usando (width/2) - (ancho_imagen/2)
-        p.drawImage(ImageReader(img_foto), (width/2)-90, 280, width=180, height=135, preserveAspectRatio=True)
+        p.drawImage(ImageReader(img_foto), (width/2)-90, 240, width=180, height=135, preserveAspectRatio=True)
 
-    # --- LA FIRMA (Justo debajo de la foto) ---
     if imagen_firma is not None:
         try:
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-            # La ponemos en y=200 para que quede debajo de la foto
-            p.drawImage(ImageReader(img_f), (width/2)-75, 200, width=150, height=70, mask='auto')
+            p.drawImage(ImageReader(img_f), (width/2)-75, 150, width=150, height=70, mask='auto')
         except:
             pass
     
-    # Línea de firma y pie de página final
-    p.line((width/2)-80, 200, (width/2)+80, 200)
+    p.line((width/2)-80, 150, (width/2)+80, 150)
     p.setFont("Helvetica-Oblique", 10)
-    p.drawCentredString(width/2, 185, "Firma Digital Autenticada")
+    p.drawCentredString(width/2, 135, "Firma Digital Autenticada")
 
     p.showPage()
     p.save()
@@ -118,42 +110,37 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     return buffer
 
 # =============================================================================
-# INTERFAZ DE LA APP
+# INTERFAZ DE STREAMLIT (LOGO FIJO Y ALINEADO)
 # =============================================================================
 
-st.markdown("---")
-
-# --- CSS PARA ALINEAR LOGOS ARRIBA ---
-# Este bloque corrige la desalineación vertical que notaste.
+# CSS para asegurar que las columnas de logos se alineen por el centro verticalmente
 st.markdown(
     """
     <style>
-    [data-testid="stHorizontalBlock"] img {
-        vertical-align: top;
+    [data-testid="stHorizontalBlock"] {
+        align-items: center;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-col1, col2, col3 = st.columns([1, 1, 1])
-
-with col1:
+# BANNER SUPERIOR (Fuera de los pasos para que no desaparezca)
+col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
+with col_logo1:
     if os.path.exists("logo_campofert.png"):
-        # Cargamos con PIL y Image.open para asegurar nitidez (no pixelado)
-        img_cf_ui = Image.open("logo_campofert.png")
-        st.image(img_cf_ui, width=180)
-
-with col3:
+        st.image(Image.open("logo_campofert.png"), width=160)
+with col_logo3:
     if os.path.exists("logo_campolab.png"):
-        # Cargamos con PIL para mantener calidad
-        img_cl_ui = Image.open("logo_campolab.png")
-        st.image(img_cl_ui, width=180)
+        st.image(Image.open("logo_campolab.png"), width=160)
 
 st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
-# --- LÓGICA DE TEMA Y PASOS ---
+# =============================================================================
+# LÓGICA DE PASOS
+# =============================================================================
+
 params = st.query_params
 tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
 st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
@@ -179,7 +166,6 @@ if st.session_state.paso == 1:
 
 elif st.session_state.paso == 2:
     st.subheader("📸 Captura de Identidad")
-    st.write("Colócate frente a la cámara para validar tu asistencia.")
     foto = st.camera_input("Foto de validación")
     if foto:
         st.session_state.foto_data = foto
@@ -189,14 +175,9 @@ elif st.session_state.paso == 2:
 
 elif st.session_state.paso == 3:
     st.subheader("✍️ Firma Digital")
-    st.write("Firma dentro del recuadro blanco:")
     canvas_res = st_canvas(
-        stroke_width=3, 
-        stroke_color="#000000", 
-        background_color="#ffffff", 
-        height=180, 
-        width=350,
-        key="firma_final"
+        stroke_width=3, stroke_color="#000000", background_color="#ffffff", 
+        height=180, width=350, key="firma_final"
     )
     
     if st.button("Finalizar y Generar Certificado ✅"):
@@ -210,9 +191,7 @@ elif st.session_state.paso == 3:
                 "Tema": tema_actual
             }
             
-            # ACCIÓN: Guardar en la nube (Google Sheets)
             if guardar_en_google_sheets(datos_asistencia):
-                # Generar el PDF para la descarga
                 pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.foto_data)
                 st.session_state.pdf_doc = pdf
                 st.session_state.paso = 4
