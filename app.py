@@ -16,18 +16,24 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
-# --- CONFIGURACIÓN DE PÁGINA ---
+# =============================================================================
+# 1. CONFIGURACIÓN Y CONEXIONES
+# =============================================================================
 st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="centered", page_icon="🌱")
 
-# --- CONEXIÓN A GOOGLE SHEETS ---
+# Conexión a Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
 
+# Configuración de Correo
+EMAIL_USER = "gestionhumanacpfert@gmail.com"
+EMAIL_PASS = "bhbwshtosozexhcr" 
+
 # =============================================================================
-# 1. FUNCIONES DE APOYO (DEBEN IR ARRIBA)
+# 2. FUNCIONES DE APOYO (DEBEN DEFINIRSE ANTES DE USARSE)
 # =============================================================================
 
 def obtener_datos():
-    """Lee la pestaña 'Empleados' con la base maestra"""
+    """Carga la base de datos de empleados"""
     try:
         return conn.read(worksheet="Empleados", ttl=600)
     except Exception as e:
@@ -35,12 +41,10 @@ def obtener_datos():
         return pd.DataFrame()
 
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
-    mi_correo = "gestionhumanacpfert@gmail.com"
-    password = "bhbwshtosozexhcr" 
-
+    """Envía el PDF por correo electrónico"""
     msg = MIMEMultipart()
-    msg['From'] = mi_correo
-    msg['To'] = mi_correo 
+    msg['From'] = EMAIL_USER
+    msg['To'] = EMAIL_USER 
     msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
     cuerpo_html = f"""
@@ -67,8 +71,8 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(mi_correo, password)
-        server.sendmail(mi_correo, mi_correo, msg.as_string())
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
         server.quit()
         return True
     except Exception as e:
@@ -76,22 +80,24 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
         return False
 
 def guardar_en_google_sheets(datos):
+    """Guarda el registro en la pestaña 'Hoja'"""
     try:
-        # Aquí se guarda en la pestaña llamada "Hoja"
         df_existente = conn.read(worksheet="Hoja", ttl=0)
         df_nuevo = pd.DataFrame([datos])
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         conn.update(worksheet="Hoja", data=df_final)
         return True
     except Exception as e:
-        st.error(f"Error de conexión con Google Sheets: {e}")
+        st.error(f"Error al guardar en Sheets: {e}")
         return False
 
 def generar_pdf(datos, imagen_firma, imagen_foto):
+    """Crea el certificado en PDF"""
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
+    # Logos
     try:
         if os.path.exists("logo_campofert.png"):
             p.drawImage(ImageReader("logo_campofert.png"), 50, 620, width=135, preserveAspectRatio=True, mask='auto')
@@ -133,7 +139,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     return buffer
 
 # =============================================================================
-# 2. DISEÑO DE INTERFAZ
+# 3. INTERFAZ Y DISEÑO
 # =============================================================================
 
 st.markdown("<style>[data-testid='stHorizontalBlock'] {align-items: center;}</style>", unsafe_allow_html=True)
@@ -148,35 +154,41 @@ st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", un
 st.markdown("---")
 
 # =============================================================================
-# 3. LÓGICA PRINCIPAL
+# 4. LÓGICA DE NEGOCIO (PASOS)
 # =============================================================================
 
+# Leer tema del URL
 params = st.query_params
 tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
 st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
 
-# --- CARGAR DATOS ---
-df_maestro = obtener_datos()
-
+# Inicializar sesión
 if 'paso' not in st.session_state:
     st.session_state.paso = 1
 
-# PASO 1: CÉDULA
+# Cargar base de datos
+df_maestro = obtener_datos()
+
+# --- PASO 1: VALIDACIÓN DE CÉDULA ---
 if st.session_state.paso == 1:
     cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
     if cedula:
-        res = df_maestro[df_maestro['ID'].astype(str) == cedula] if df_maestro is not None else pd.DataFrame()
-        if not res.empty:
-            st.session_state.persona = res.iloc[0]
-            st.session_state.cedula = cedula
-            st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
-            if st.button("Continuar al registro ➡️"):
-                st.session_state.paso = 2
-                st.rerun()
+        if df_maestro is not None and not df_maestro.empty:
+            # Convertimos a string para comparar correctamente
+            res = df_maestro[df_maestro['ID'].astype(str) == cedula]
+            if not res.empty:
+                st.session_state.persona = res.iloc[0].to_dict()
+                st.session_state.cedula = cedula
+                st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
+                if st.button("Continuar al registro ➡️"):
+                    st.session_state.paso = 2
+                    st.rerun()
+            else:
+                st.error("Cédula no encontrada en la base de datos de Empleados.")
         else:
-            st.error("Cédula no encontrada en la base de datos.")
+            st.warning("La base de datos de empleados está vacía o no se pudo cargar.")
 
-# PASO 2: FOTO
+# --- PASO 2: CÁMARA ---
 elif st.session_state.paso == 2:
     st.subheader("📸 Captura de Identidad")
     foto = st.camera_input("Foto de validación")
@@ -186,7 +198,7 @@ elif st.session_state.paso == 2:
             st.session_state.paso = 3
             st.rerun()
 
-# PASO 3: FIRMA Y CIERRE
+# --- PASO 3: FIRMA Y GENERACIÓN ---
 elif st.session_state.paso == 3:
     st.subheader("✍️ Firma Digital")
     canvas_res = st_canvas(
@@ -205,7 +217,7 @@ elif st.session_state.paso == 3:
                 "Tema": tema_actual
             }
             
-            with st.spinner("Procesando registro..."):
+            with st.spinner("Guardando y enviando certificado..."):
                 if guardar_en_google_sheets(datos_asistencia):
                     pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
                     enviar_respaldo_gestion_humana(datos_asistencia, pdf)
@@ -217,7 +229,7 @@ elif st.session_state.paso == 3:
         else:
             st.error("Es necesario firmar para completar el proceso.")
 
-# PASO 4: ÉXITO
+# --- PASO 4: DESCARGA Y REINICIO ---
 elif st.session_state.paso == 4:
     st.balloons()
     st.success("¡Tu asistencia ha sido registrada correctamente!")
@@ -232,6 +244,7 @@ elif st.session_state.paso == 4:
     
     if st.button("Realizar otro registro"):
         for key in ['cedula', 'persona', 'pdf_doc', 'foto_data']:
-            if key in st.session_state: del st.session_state[key]
+            if key in st.session_state:
+                del st.session_state[key]
         st.session_state.paso = 1
         st.rerun()
