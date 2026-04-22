@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import io
 import pytz
+import qrcode
+from io import BytesIO
 from datetime import datetime
 from streamlit_drawable_canvas import st_canvas
 from reportlab.pdfgen import canvas
@@ -334,8 +336,11 @@ elif menu == "🛠️ Panel Administrador":
                         st.write("¡Link copiado! (Usa Ctrl+C)")
                 
                 with col_b:
-                    st.write("Código QR listo para proyectar:")
-                    st.qrcode(link_final)
+                    st.write("Código QR listo para proyectar:")    
+                    qr = qrcode.make(link_final)
+                    buf = BytesIO()
+                    qr.save(buf, format="PNG")
+                    st.image(buf.getvalue(), caption="Escanea con el celular", width=220)
                     st.caption("Los trabajadores pueden escanear esto con su celular.")
 
         # --- PESTAÑA 2: REPORTES EN VIVO ---
