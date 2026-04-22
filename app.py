@@ -33,6 +33,46 @@ EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr") # Fallback par
 params = st.query_params
 tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
 tema_actual = tema_raw.replace("+", " ").upper()
+rol_url = params.get("rol") # Detecta si viene del QR automático
+
+# =============================================================================
+# LÓGICA DE SEGURIDAD Y ROLES
+# =============================================================================
+
+# Si el URL ya trae rol=Empleado (desde el QR), lo asignamos automáticamente
+if rol_url == "Empleado":
+    st.session_state.rol = "Empleado"
+
+if 'rol' not in st.session_state:
+    st.markdown("<h2 style='text-align: center;'>Sistema de Gestión Humana</h2>", unsafe_allow_html=True)
+    col_r1, col_r2 = st.columns(2)
+    with col_r1:
+        if st.button("👤 SOY EMPLEADO (Registro)", use_container_width=True):
+            st.session_state.rol = "Empleado"
+            st.rerun()
+    with col_r2:
+        if st.button("🛠️ SOY ADMINISTRADOR", use_container_width=True):
+            st.session_state.rol = "Admin"
+            st.rerun()
+    st.stop()
+
+# Estética: Ocultar menú lateral si es empleado para evitar distracciones
+if st.session_state.rol == "Empleado":
+    no_sidebar_style = """
+        <style>
+            [data-testid="stSidebar"] {display: none;}
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+        </style>
+    """
+    st.markdown(no_sidebar_style, unsafe_allow_html=True)
+    menu = "📋 Registro Asistencia"
+else:
+    st.sidebar.title("Navegación")
+    menu = st.sidebar.radio("Ir a:", ["🛠️ Panel Administrador", "📋 Registro Asistencia"])
+    if st.sidebar.button("Cerrar Sesión Admin"):
+        st.session_state.rol = None
+        st.rerun()
 
 # =============================================================================
 # FUNCIONES DE APOYO
