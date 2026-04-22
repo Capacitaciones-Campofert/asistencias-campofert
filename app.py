@@ -231,35 +231,34 @@ elif st.session_state.paso == 3:
         height=180, width=350, key="firma_final"
     )
     
-   if st.button("Finalizar y Generar Certificado ✅"):
-    if canvas_res.image_data is not None:
-        # 1. Preparar Diccionario de Datos
-        datos_asistencia = {
-            "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
-            "ID": st.session_state.cedula,
-            "Nombre": st.session_state.persona['Apellidos y Nombres'],
-            "Empresa": st.session_state.persona['Empresa'],
-            "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
-            "Tema": tema_actual
-        }
-        
-        # 2. Guardar en Google Sheets
-        if guardar_en_google_sheets(datos_asistencia):
-            # 3. Generar PDF (incluyendo la foto si la capturaste)
-            pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
+    # Asegúrate de que este 'if' tenga exactamente 4 espacios desde el margen del 'elif'
+    if st.button("Finalizar y Generar Certificado ✅"):
+        if canvas_res.image_data is not None:
+            # 1. Preparar Diccionario de Datos
+            datos_asistencia = {
+                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
+                "ID": st.session_state.cedula,
+                "Nombre": st.session_state.persona['Apellidos y Nombres'],
+                "Empresa": st.session_state.persona['Empresa'],
+                "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
+                "Tema": tema_actual
+            }
             
-            # --- AJUSTE CRÍTICO PARA EL ENVÍO ---
-            # Enviamos una copia o reseteamos el puntero dentro de la función
-            enviar_respaldo_gestion_humana(datos_asistencia, pdf)
-            
-            # 4. Guardar en session_state para el paso final
-            # Importante: Aseguramos que el PDF esté listo para la descarga
-            pdf.seek(0) 
-            st.session_state.pdf_doc = pdf
-            st.session_state.paso = 4
-            st.rerun()
-    else:
-        st.error("Es necesario firmar para completar el proceso.")
+            # 2. Guardar en Google Sheets
+            if guardar_en_google_sheets(datos_asistencia):
+                # 3. Generar PDF (incluyendo la foto si la capturaste)
+                pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
+                
+                # 4. Enviar Respaldo
+                enviar_respaldo_gestion_humana(datos_asistencia, pdf)
+                
+                # 5. Preparar descarga y saltar al paso final
+                pdf.seek(0) 
+                st.session_state.pdf_doc = pdf
+                st.session_state.paso = 4
+                st.rerun()
+        else:
+            st.error("Es necesario firmar para completar el proceso.")
 
 elif st.session_state.paso == 4:
     st.balloons()
