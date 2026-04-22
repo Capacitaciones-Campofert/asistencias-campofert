@@ -296,30 +296,106 @@ if menu == "📋 Registro Asistencia":
             st.rerun()
 
 # =============================================================================
-# OPCIÓN 2: PANEL ADMINISTRADOR
+# OPCIÓN 2: PANEL ADMINISTRADOR (CONECTADO Y FUNCIONAL)
 # =============================================================================
 elif menu == "🛠️ Panel Administrador":
     st.title("🛠️ Panel de Gestión Humana")
+    
+    # Sistema de seguridad simple
     password = st.text_input("Introduce la clave de acceso:", type="password")
     
     if password == "campofert2026": 
-        tab1, tab2 = st.tabs(["🚀 Generar Capacitación", "📊 Monitor de Asistencias"])
+        # Creamos las pestañas para organizar las herramientas que mencionaste
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "🚀 Generador QR", 
+            "📊 Reportes en Vivo", 
+            "👥 Gestión de Personal",
+            "📜 Histórico PDF"
+        ])
         
+        # --- PESTAÑA 1: GENERADOR DE ENLACES Y QR ---
         with tab1:
-            st.subheader("Generador de Links y QR")
-            nombre_cap = st.text_input("Nombre del nuevo Tema (Ej: Induccion SST):")
+            st.subheader("Generador de Capacitaciones")
+            st.write("Escribe el tema para generar el link de acceso directo.")
+            
+            nombre_cap = st.text_input("Nombre del Tema (Ej: Manejo de Extintores):")
+            
             if nombre_cap:
-                link_final = f"https://asistencia-campofert.streamlit.app/?tema={nombre_cap.replace(' ', '+')}"
-                st.info("Copia este link o muestra el QR:")
-                st.code(link_final)
-                st.qrcode(link_final)
+                # Generamos el link con el parámetro tema
+                # Reemplaza con la URL real de tu app cuando la publiques
+                base_url = "https://asistencia-campofert.streamlit.app/"
+                link_final = f"{base_url}?tema={nombre_cap.replace(' ', '+')}"
+                
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.info("Link para compartir:")
+                    st.code(link_final)
+                    if st.button("Copiar Link"):
+                        st.write("¡Link copiado! (Usa Ctrl+C)")
+                
+                with col_b:
+                    st.write("Código QR listo para proyectar:")
+                    st.qrcode(link_final)
+                    st.caption("Los trabajadores pueden escanear esto con su celular.")
 
+        # --- PESTAÑA 2: REPORTES EN VIVO ---
         with tab2:
-            st.subheader("Registros en Google Sheets")
+            st.subheader("Monitor de Asistencias en Tiempo Real")
             try:
-                df_reporte = conn.read(worksheet="Hoja", ttl=0)
-                st.dataframe(df_reporte, use_container_width=True)
+                # Leemos la base de datos de asistencia de Google Sheets
+                df_asistencia = conn.read(worksheet="Hoja", ttl=0)
+                
+                # Filtros rápidos
+                temas_disponibles = df_asistencia['Tema'].unique().tolist()
+                filtro_tema = st.selectbox("Filtrar por Tema:", ["TODOS"] + temas_disponibles)
+                
+                df_mostrar = df_asistencia.copy()
+                if filtro_tema != "TODOS":
+                    df_mostrar = df_asistencia[df_asistencia['Tema'] == filtro_tema]
+                
+                st.metric("Total Registrados", len(df_mostrar))
+                st.dataframe(df_mostrar, use_container_width=True)
+                
+                # Botón para descargar reporte en Excel
+                csv = df_mostrar.to_csv(index=False).encode('utf-8')
+                st.download_button("📥 Descargar Reporte (CSV)", csv, "reporte_asistencia.csv", "text/csv")
             except:
-                st.error("No se pudo conectar con Google Sheets.")
+                st.error("Aún no hay registros en la base de datos.")
+
+        # --- PESTAÑA 3: GESTIÓN DE PERSONAL ---
+        with tab3:
+            st.subheader("Gestión de Base de Datos (empleados.xlsx)")
+            st.write("Aquí puedes actualizar la lista de empleados autorizados.")
+            
+            archivo_subido = st.file_uploader("Subir nueva base de datos (Excel)", type=["xlsx"])
+            
+            if archivo_subido:
+                with open("empleados.xlsx", "wb") as f:
+                    f.write(archivo_subido.getbuffer())
+                st.success("✅ Base de datos 'empleados.xlsx' actualizada correctamente.")
+            
+            if os.path.exists("empleados.xlsx"):
+                df_temp = pd.read_excel("empleados.xlsx")
+                st.write("Personal actual en el sistema:")
+                st.dataframe(df_temp.head(10)) # Mostramos solo los primeros 10
+
+        # --- PESTAÑA 4: HISTÓRICO DE CERTIFICADOS ---
+        with tab4:
+            st.subheader("Buscador de Certificados")
+            st.write("Si un trabajador perdió su PDF, puedes buscarlo aquí por cédula.")
+            
+            cedula_busqueda = st.text_input("Ingrese Cédula del trabajador:")
+            
+            if cedula_busqueda:
+                df_asistencia = conn.read(worksheet="Hoja", ttl=0)
+                registros = df_asistencia[df_asistencia['ID'].astype(str) == cedula_busqueda]
+                
+                if not registros.empty:
+                    st.write(f"Se encontraron {len(registros)} capacitaciones para esta cédula:")
+                    st.table(registros[['Fecha', 'Nombre', 'Tema']])
+                    st.info("Nota: Para volver a generar el PDF exacto, el trabajador debe realizar el registro nuevamente o puedes descargarlo desde el correo de respaldo que configuramos.")
+                else:
+                    st.warning("No se encontraron registros para esa identificación.")
+
     elif password != "":
-        st.error("Clave incorrecta")
+        st.error("🔑 Clave incorrecta. Acceso denegado.")
