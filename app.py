@@ -254,6 +254,7 @@ elif st.session_state.paso == 3:
             if guardar_en_google_sheets(datos_asistencia):
                 pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.foto_data)
                 st.session_state.pdf_doc = pdf
+                enviar_respaldo_gestion_humana(datos_asistencia, pdf)
                 st.session_state.paso = 4
                 st.rerun()
         else:
