@@ -238,7 +238,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             p.drawImage(ImageReader(img_cf), 20, height - 180, width=120, preserveAspectRatio=True, mask='auto')
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 460, height - 180, width=120, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 430, height - 180, width=120, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
