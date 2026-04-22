@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 import io
-import base64
 import pytz
 from datetime import datetime
 from streamlit_drawable_canvas import st_canvas
@@ -11,11 +10,6 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 from streamlit_gsheets import GSheetsConnection
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="centered", page_icon="🌱")
@@ -23,18 +17,8 @@ st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="cent
 # --- CONEXIÓN A GOOGLE SHEETS ---
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- CONFIGURACIÓN DE CORREO (SECRETS) ---
-# Configura esto en el panel de Streamlit Cloud (Settings > Secrets)
-EMAIL_USER = "gestionhumanacpfert@gmail.com"
-EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr") # Fallback para pruebas
-
-# --- LEER TEMA DESDE EL URL ---
-params = st.query_params
-tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
-tema_actual = tema_raw.replace("+", " ").upper()
-
 # =============================================================================
-# FUNCIONES DE BASE DE DATOS
+# FUNCIONES DE APOYO
 # =============================================================================
 
 def obtener_datos():
@@ -44,8 +28,8 @@ def obtener_datos():
             df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
             df.columns = df.columns.str.strip()
             return df
-        except Exception as e:
-            st.error(f"Error al leer empleados.xlsx: {e}")
+        except:
+            return None
     return None
 
 def guardar_en_google_sheets(datos):
@@ -55,12 +39,11 @@ def guardar_en_google_sheets(datos):
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
         conn.update(worksheet="Hoja", data=df_final)
         return True
-    except Exception as e:
-        st.error(f"Error de conexión con Sheets: {e}")
+    except:
         return False
 
 # =============================================================================
-# FUNCIONES DE PDF CON FOTO Y FIRMA
+# GENERACIÓN DE PDF (DISEÑO SOLICITADO)
 # =============================================================================
 
 def generar_pdf(datos, imagen_firma, imagen_foto):
@@ -68,134 +51,123 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Títulos y Encabezado
+    # 1. Logos en el PDF
+    try:
+        if os.path.exists("logo_campofert.png"):
+            p.drawImage("logo_campofert.png", 50, 720, width=80, preserveAspectRatio=True)
+        if os.path.exists("logo_campolab.png"):
+            p.drawImage("logo_campolab.png", 470, 720, width=80, preserveAspectRatio=True)
+    except:
+        pass
+
+    # 2. Títulos
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, 730, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, 700, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 710, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, 680, "CAMPOFERT S.A.S / CAMPOLAB")
 
-    # Información
+    # 3. Información
     p.setFont("Helvetica", 11)
-    y_info = 670
-    p.drawString(70, y_info,      f"Participante: {datos['Nombre']}")
-    p.drawString(70, y_info - 20, f"Identificación: {datos['ID']}")
-    p.drawString(70, y_info - 40, f"Empresa: {datos['Empresa']}")
-    p.drawString(70, y_info - 60, f"Tema: {datos['Tema']}")
-    p.drawString(70, y_info - 80, f"Fecha/Hora: {datos['Fecha']}")
-    
-    p.line(70, y_info - 90, 530, y_info - 90)
+    y = 630
+    p.drawString(70, y,      f"Participante: {datos['Nombre']}")
+    p.drawString(70, y - 20, f"Identificación: {datos['ID']}")
+    p.drawString(70, y - 40, f"Empresa: {datos['Empresa']}")
+    p.drawString(70, y - 60, f"Tema: {datos['Tema']}")
+    p.drawString(70, y - 80, f"Fecha/Hora: {datos['Fecha']}")
+    p.line(70, y - 90, 530, y - 90)
 
-    # --- INSERTAR FOTO DE EVIDENCIA ---
-    p.drawString(70, 550, "EVIDENCIA FOTOGRÁFICA (IDENTIDAD):")
+    # 4. Foto (Sin palabra "evidencia")
     if imagen_foto is not None:
         img_foto = Image.open(imagen_foto)
-        p.drawImage(ImageReader(img_foto), 70, 360, width=180, height=140, preserveAspectRatio=True)
+        p.drawImage(ImageReader(img_foto), (width/2)-100, 300, width=200, height=150, preserveAspectRatio=True)
 
-    # --- INSERTAR FIRMA ---
-    p.drawString(350, 550, "FIRMA DEL TRABAJADOR:")
+    # 5. Firma (Como pie de firma debajo de la foto)
     if imagen_firma is not None:
         img_firma = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-        p.drawImage(ImageReader(img_firma), 350, 380, width=150, height=80, mask='auto')
+        p.drawImage(ImageReader(img_firma), (width/2)-60, 210, width=120, height=60, mask='auto')
     
-    p.drawString(350, 370, "__________________________")
-    p.setFont("Helvetica-Oblique", 9)
-    p.drawString(350, 355, "Firma Digital Autenticada")
+    p.line((width/2)-80, 215, (width/2)+80, 215)
+    p.setFont("Helvetica-Bold", 10)
+    p.drawCentredString(width / 2, 200, "Firma Digital Autenticada")
 
     p.showPage()
     p.save()
     buffer.seek(0)
     return buffer
 
-def enviar_respaldo(datos, pdf_buffer):
-    msg = MIMEMultipart()
-    msg['From'] = EMAIL_USER
-    msg['To'] = EMAIL_USER
-    msg['Subject'] = f"✅ Auditoría Asistencia: {datos['Nombre']}"
-
-    cuerpo = f"Registro de asistencia generado para {datos['Nombre']} el {datos['Fecha']}."
-    msg.attach(MIMEText(cuerpo, 'plain'))
-
-    adjunto = MIMEBase('application', 'octet-stream')
-    adjunto.set_payload(pdf_buffer.getvalue())
-    encoders.encode_base64(adjunto)
-    adjunto.add_header('Content-Disposition', f"attachment; filename=Auditoria_{datos['ID']}.pdf")
-    msg.attach(adjunto)
-
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
-        server.quit()
-        return True
-    except:
-        return False
-
 # =============================================================================
-# INTERFAZ DE USUARIO
+# INTERFAZ DE LA APP (LOGOS AL COMIENZO)
 # =============================================================================
 
-st.title("Sistema de Registro de Capacitación")
-st.info(f"📋 Tema: **{tema_actual}**")
+# Mostramos los logos al inicio de la App
+col1, col2, col3 = st.columns([1, 2, 1])
+with col1:
+    if os.path.exists("logo_campofert.png"):
+        st.image("logo_campofert.png", width=100)
+with col3:
+    if os.path.exists("logo_campolab.png"):
+        st.image("logo_campolab.png", width=100)
+
+st.title("Registro de Capacitación")
+
+# Lógica de Tema
+params = st.query_params
+tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
+st.info(f"📋 Tema: {tema_actual}")
+
+if 'paso' not in st.session_state:
+    st.session_state.paso = 1
 
 df_maestro = obtener_datos()
-if 'finalizado' not in st.session_state:
-    st.session_state.finalizado = False
 
-if not st.session_state.finalizado:
-    cedula_input = st.text_input("Ingresa tu ID / Cédula:").strip()
-    
-    if cedula_input:
-        resultado = df_maestro[df_maestro['ID'] == cedula_input] if df_maestro is not None else pd.DataFrame()
-        
-        if not resultado.empty:
-            persona = resultado.iloc[0]
-            st.success(f"✅ Usuario: {persona['Apellidos y Nombres']}")
-            
-            # --- PASO 1: FOTO OBLIGATORIA ---
-            st.subheader("📸 Paso 1: Evidencia Fotográfica")
-            foto = st.camera_input("Captura tu foto para auditoría")
-            
-            if foto:
-                # --- PASO 2: FIRMA ---
-                st.subheader("✍️ Paso 2: Firma Digital")
-                canvas_result = st_canvas(
-                    stroke_width=3, stroke_color="#000000", background_color="#eeeeee",
-                    height=150, drawing_mode="freedraw", key="firma_audit"
-                )
-
-                if st.button("🚀 Confirmar Registro"):
-                    if canvas_result.image_data is not None:
-                        datos = {
-                            "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M"),
-                            "ID": cedula_input,
-                            "Nombre": persona['Apellidos y Nombres'],
-                            "Empresa": persona['Empresa'],
-                            "Cargo": persona['Cargo'],
-                            "Tema": tema_actual
-                        }
-                        
-                        # Guardar y generar certificado
-                        if guardar_en_google_sheets(datos):
-                            pdf = generar_pdf(datos, canvas_result.image_data, foto)
-                            enviar_respaldo(datos, pdf)
-                            st.session_state.pdf_final = pdf
-                            st.session_state.archivo_nombre = f"Certificado_{cedula_input}.pdf"
-                            st.session_state.finalizado = True
-                            st.rerun()
-                    else:
-                        st.error("Por favor, firma antes de confirmar.")
+if st.session_state.paso == 1:
+    cedula = st.text_input("Ingresa tu Cédula:").strip()
+    if cedula:
+        res = df_maestro[df_maestro['ID'] == cedula] if df_maestro is not None else pd.DataFrame()
+        if not res.empty:
+            st.session_state.persona = res.iloc[0]
+            st.session_state.cedula = cedula
+            st.success(f"Bienvenido, {st.session_state.persona['Apellidos y Nombres']}")
+            if st.button("Siguiente ➡️"):
+                st.session_state.paso = 2
+                st.rerun()
         else:
-            st.warning("ID no encontrado en la base de datos.")
+            st.error("ID no encontrado.")
 
-else:
-    st.balloons()
-    st.success("¡Registro completado y validado con éxito!")
-    st.download_button("📥 Descargar Certificado con Evidencia", 
-                       data=st.session_state.pdf_final.getvalue(), 
-                       file_name=st.session_state.archivo_nombre, 
-                       mime="application/pdf")
+elif st.session_state.paso == 2:
+    st.subheader("📸 Paso 2: Foto de Identidad")
+    foto = st.camera_input("Captura tu rostro")
+    if foto:
+        st.session_state.foto_data = foto
+        if st.button("Continuar a Firma ➡️"):
+            st.session_state.paso = 3
+            st.rerun()
+
+elif st.session_state.paso == 3:
+    st.subheader("✍️ Paso 3: Firma")
+    canvas_res = st_canvas(stroke_width=3, stroke_color="#000000", background_color="#ffffff", height=150, key="f")
     
-    if st.button("🔄 Nuevo Registro"):
-        st.session_state.finalizado = False
+    if st.button("Finalizar Registro ✅"):
+        if canvas_res.image_data is not None:
+            datos = {
+                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M"),
+                "ID": st.session_state.cedula,
+                "Nombre": st.session_state.persona['Apellidos y Nombres'],
+                "Empresa": st.session_state.persona['Empresa'],
+                "Tema": tema_actual
+            }
+            if guardar_en_google_sheets(datos):
+                pdf = generar_pdf(datos, canvas_res.image_data, st.session_state.foto_data)
+                st.session_state.pdf_doc = pdf
+                st.session_state.paso = 4
+                st.rerun()
+        else:
+            st.error("Falta la firma.")
+
+elif st.session_state.paso == 4:
+    st.balloons()
+    st.success("¡Registro Exitoso!")
+    st.download_button("📥 Descargar Certificado", data=st.session_state.pdf_doc.getvalue(), file_name="Certificado.pdf", mime="application/pdf")
+    if st.button("Hacer otro registro"):
+        st.session_state.paso = 1
         st.rerun()
