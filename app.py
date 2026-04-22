@@ -46,6 +46,7 @@ def obtener_datos():
         except Exception as e:
             st.error(f"Error al leer empleados.xlsx: {e}")
     return None
+
 def crear_nuevo_empleado(datos_empleado):
     """Agrega un nuevo trabajador a la pestaña 'Empleados' permanentemente"""
     try:
