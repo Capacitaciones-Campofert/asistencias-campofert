@@ -10,12 +10,27 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 from streamlit_gsheets import GSheetsConnection
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="centered", page_icon="🌱")
 
 # --- CONEXIÓN A GOOGLE SHEETS ---
 conn = st.connection("gsheets", type=GSheetsConnection)
+
+# --- CONFIGURACIÓN DE CORREO (SECRETS) ---
+# Configura esto en el panel de Streamlit Cloud (Settings > Secrets)
+EMAIL_USER = "gestionhumanacpfert@gmail.com"
+EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr") # Fallback para pruebas
+
+# --- LEER TEMA DESDE EL URL ---
+params = st.query_params
+tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
+tema_actual = tema_raw.replace("+", " ").upper()
 
 # =============================================================================
 # FUNCIONES DE APOYO
