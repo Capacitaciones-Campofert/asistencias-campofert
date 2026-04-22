@@ -1,9 +1,10 @@
 streamlit
 pandas
+pytz
 st-gsheets-connection
 reportlab
 streamlit-drawable-canvas
 Pillow
 openpyxl
 requests
-pytz
+qrcode
