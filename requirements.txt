@@ -1,8 +1,9 @@
 streamlit
 pandas
-openpyxl
-streamlit-drawable-canvas
-reportlab
 st-gsheets-connection
+reportlab
+streamlit-drawable-canvas
 Pillow
+openpyxl
+requests
 pytz
