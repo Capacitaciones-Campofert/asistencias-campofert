@@ -63,23 +63,23 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 50, 680, width=110, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cf), 50, 620, width=110, preserveAspectRatio=True, mask='auto')
         
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 450, 680, width=110, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 450, 620, width=110, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
     # 2. TÍTULOS (Bajamos su posición para que respiren respecto a los logos)
     p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, 650, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, 590, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 630, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, 575, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # 3. INFORMACIÓN DEL PARTICIPANTE
     p.setFont("Helvetica", 11)
-    y_info = 550
+    y_info = 500
     p.drawString(100, y_info,      f"Participante: {datos['Nombre']}")
     p.drawString(100, y_info - 20, f"Identificación: {datos['ID']}")
     p.drawString(100, y_info - 40, f"Empresa: {datos['Empresa']}")
@@ -94,21 +94,21 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     if imagen_foto is not None:
         img_foto = Image.open(imagen_foto)
         # La centramos usando (width/2) - (ancho_imagen/2)
-        p.drawImage(ImageReader(img_foto), (width/2)-90, 250, width=180, height=135, preserveAspectRatio=True)
+        p.drawImage(ImageReader(img_foto), (width/2)-90, 220, width=180, height=135, preserveAspectRatio=True)
 
     # --- LA FIRMA (Justo debajo de la foto) ---
     if imagen_firma is not None:
         try:
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
             # La ponemos en y=180 para que quede debajo de la foto que está en y=250
-            p.drawImage(ImageReader(img_f), (width/2)-75, 175, width=150, height=70, mask='auto')
+            p.drawImage(ImageReader(img_f), (width/2)-75, 140, width=150, height=70, mask='auto')
         except:
             pass
     
     # Línea de firma y pie de página final
-    p.line((width/2)-80, 175, (width/2)+80, 175)
+    p.line((width/2)-80, 140, (width/2)+80, 140)
     p.setFont("Helvetica-Oblique", 10)
-    p.drawCentredString(width/2, 160, "Firma Digital Autenticada")
+    p.drawCentredString(width/2, 125, "Firma Digital Autenticada")
 
     p.showPage()
     p.save()
