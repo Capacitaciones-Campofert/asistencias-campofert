@@ -6,6 +6,4 @@ reportlab
 streamlit-drawable-canvas
 Pillow
 openpyxl
-requests
 qrcode
-streamlit-gsheets
