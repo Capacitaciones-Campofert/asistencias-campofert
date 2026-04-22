@@ -362,7 +362,7 @@ elif menu == "🛠️ Panel Administrador":
                 # Generamos el link con el parámetro tema
                 # Reemplaza con la URL real de tu app cuando la publiques
                 base_url = "https://asistencia-campofert.streamlit.app/"
-                link_final = f"{base_url}?tema={nombre_cap.replace(' ', '+')}"
+                link_final = f"{base_url}?tema={nombre_cap.replace(' ', '+')}&rol=Empleado"
                 
                 col_a, col_b = st.columns(2)
                 with col_a:
