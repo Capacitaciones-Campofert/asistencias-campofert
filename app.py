@@ -223,31 +223,31 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Franja verde superior
+    # Franja verde superior (más alta para logos + título)
     p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.rect(0, height - 80, width, 80, fill=1, stroke=0)
+    p.rect(0, height - 130, width, 130, fill=1, stroke=0)
 
-    # Franja amarilla delgada
+    # Franja amarilla delgada debajo
     p.setFillColorRGB(0.98, 0.66, 0.15)
-    p.rect(0, height - 88, width, 8, fill=1, stroke=0)
+    p.rect(0, height - 138, width, 8, fill=1, stroke=0)
 
-    # Logos
+    # Logos dentro de la franja (bien centrados verticalmente)
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 40, height - 72, width=110, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cf), 40, height - 120, width=120, preserveAspectRatio=True, mask='auto')
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 450, height - 72, width=110, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 445, height - 120, width=120, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
-    # Título blanco sobre verde
+    # Título blanco sobre verde (centrado en la franja)
     p.setFillColorRGB(1, 1, 1)
     p.setFont("Helvetica-Bold", 15)
-    p.drawCentredString(width / 2, height - 45, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
+    p.drawCentredString(width / 2, height - 65, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
     p.setFont("Helvetica", 11)
-    p.drawCentredString(width / 2, height - 62, "CAMPOFERT S.A.S / CAMPOLAB")
+    p.drawCentredString(width / 2, height - 85, "CAMPOFERT S.A.S / CAMPOLAB")
 
     # Datos del participante
     p.setFillColorRGB(0, 0, 0)
