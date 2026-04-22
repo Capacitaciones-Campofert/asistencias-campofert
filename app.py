@@ -34,41 +34,35 @@ tema_actual = tema_raw.replace("+", " ").upper()
 
 # =============================================================================
 # FUNCIONES DE APOYO
-# =============================================================================
-# FUNCIÓN DE CORREO
-# =============================================================================
 
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     mi_correo = "gestionhumanacpfert@gmail.com"
-    password = "bhbwshtosozexhcr"
+    password = "bhbwshtosozexhcr" # Recuerda usar "Contraseña de aplicación"
 
     msg = MIMEMultipart()
     msg['From'] = mi_correo
-    msg['To'] = mi_correo
+    msg['To'] = mi_correo # Se lo envía a sí mismo como respaldo
     msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
+    # Cuerpo del mensaje
     cuerpo_html = f"""
     <html>
-    <body style="font-family: Arial, sans-serif; color: #333;">
-        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #2e7d32;">
-            <h2 style="color: #2e7d32;">Notificación de Asistencia - Campofert / Campolab</h2>
-            <p>Se ha generado un nuevo certificado de capacitación:</p>
-            <hr>
-            <p><strong>Participante:</strong> {datos['Nombre']}</p>
-            <p><strong>Cédula:</strong> {datos['ID']}</p>
-            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
-            <p><strong>Tema:</strong> {datos['Tema']}</p>
-            <p><strong>Fecha y Hora:</strong> {datos['Fecha']}</p>
-            <hr>
-            <p style="font-size: 0.8em; color: #666;">Archivo adjunto disponible para su archivo en Gestión Humana.</p>
-        </div>
-    </body>
+        <body style="font-family: Arial, sans-serif;">
+            <div style="border: 1px solid #2e7d32; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #2e7d32;">Respaldo de Capacitación</h2>
+                <p><strong>Empleado:</strong> {datos['Nombre']}</p>
+                <p><strong>Cédula:</strong> {datos['ID']}</p>
+                <p><strong>Tema:</strong> {datos['Tema']}</p>
+            </div>
+        </body>
     </html>
     """
     msg.attach(MIMEText(cuerpo_html, 'html'))
 
+    # ADJUNTO DEL PDF
+    pdf_buffer.seek(0) # IMPORTANTE: Regresa al inicio del archivo
     adjunto = MIMEBase('application', 'octet-stream')
-    adjunto.set_payload(pdf_buffer.getvalue())
+    adjunto.set_payload(pdf_buffer.read())
     encoders.encode_base64(adjunto)
     adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
     msg.attach(adjunto)
@@ -80,7 +74,8 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
         server.sendmail(mi_correo, mi_correo, msg.as_string())
         server.quit()
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Error: {e}")
         return False
 
 def guardar_en_google_sheets(datos):
@@ -236,35 +231,55 @@ elif st.session_state.paso == 3:
         height=180, width=350, key="firma_final"
     )
     
-    if st.button("Finalizar y Generar Certificado ✅"):
-        if canvas_res.image_data is not None:
-            datos_asistencia = {
-                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
-                "ID": st.session_state.cedula,
-                "Nombre": st.session_state.persona['Apellidos y Nombres'],
-                "Empresa": st.session_state.persona['Empresa'],
-                "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
-                "Tema": tema_actual
-            }
+   if st.button("Finalizar y Generar Certificado ✅"):
+    if canvas_res.image_data is not None:
+        # 1. Preparar Diccionario de Datos
+        datos_asistencia = {
+            "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
+            "ID": st.session_state.cedula,
+            "Nombre": st.session_state.persona['Apellidos y Nombres'],
+            "Empresa": st.session_state.persona['Empresa'],
+            "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
+            "Tema": tema_actual
+        }
+        
+        # 2. Guardar en Google Sheets
+        if guardar_en_google_sheets(datos_asistencia):
+            # 3. Generar PDF (incluyendo la foto si la capturaste)
+            pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
             
-            if guardar_en_google_sheets(datos_asistencia):
-                pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.foto_data)
-                st.session_state.pdf_doc = pdf
-                enviar_respaldo_gestion_humana(datos_asistencia, pdf)
-                st.session_state.paso = 4
-                st.rerun()
-        else:
-            st.error("Es necesario firmar para completar el proceso.")
+            # --- AJUSTE CRÍTICO PARA EL ENVÍO ---
+            # Enviamos una copia o reseteamos el puntero dentro de la función
+            enviar_respaldo_gestion_humana(datos_asistencia, pdf)
+            
+            # 4. Guardar en session_state para el paso final
+            # Importante: Aseguramos que el PDF esté listo para la descarga
+            pdf.seek(0) 
+            st.session_state.pdf_doc = pdf
+            st.session_state.paso = 4
+            st.rerun()
+    else:
+        st.error("Es necesario firmar para completar el proceso.")
 
 elif st.session_state.paso == 4:
     st.balloons()
     st.success("¡Tu asistencia ha sido registrada correctamente!")
-    st.download_button(
-        label="📥 Descargar mi Certificado (PDF)",
-        data=st.session_state.pdf_doc.getvalue(),
-        file_name=f"Certificado_{st.session_state.cedula}.pdf",
-        mime="application/pdf"
-    )
+    
+    # Verificación de seguridad para el botón de descarga
+    if st.session_state.get('pdf_doc'):
+        st.download_button(
+            label="📥 Descargar mi Certificado (PDF)",
+            data=st.session_state.pdf_doc.getvalue(),
+            file_name=f"Certificado_{st.session_state.cedula}.pdf",
+            mime="application/pdf"
+        )
+    
     if st.button("Realizar otro registro"):
+        # Limpiamos datos sensibles antes de reiniciar
+        keys_to_reset = ['cedula', 'persona', 'pdf_doc', 'foto_data', 'finalizado']
+        for key in keys_to_reset:
+            if key in st.session_state:
+                del st.session_state[key]
+        
         st.session_state.paso = 1
         st.rerun()
