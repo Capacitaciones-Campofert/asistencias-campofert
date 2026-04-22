@@ -35,6 +35,46 @@ tema_actual = tema_raw.replace("+", " ").upper()
 # =============================================================================
 # FUNCIONES DE APOYO
 # =============================================================================
+def enviar_respaldo_gestion_humana(datos, pdf_buffer):
+    """Función para enviarte la copia automáticamente"""
+    msg = MIMEMultipart()
+    msg['From'] = EMAIL_USER
+    msg['To'] = EMAIL_USER # Te llega a ti mismo
+    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+
+    cuerpo_html = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; color: #333;">
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #2e7d32;">
+            <h2 style="color: #2e7d32;">Notificación de Asistencia - Campofert / Campolab</h2>
+            <hr>
+            <p><strong>Participante:</strong> {datos['Nombre']}</p>
+            <p><strong>Cédula:</strong> {datos['ID']}</p>
+            <p><strong>Tema:</strong> {datos['Tema']}</p>
+            <p><strong>Fecha:</strong> {datos['Fecha']}</p>
+            <hr>
+            <p style="font-size: 0.8em; color: #666;">Copia de respaldo generada automáticamente.</p>
+        </div>
+    </body>
+    </html>
+    """
+    msg.attach(MIMEText(cuerpo_html, 'html'))
+
+    adjunto = MIMEBase('application', 'octet-stream')
+    adjunto.set_payload(pdf_buffer.getvalue())
+    encoders.encode_base64(adjunto)
+    adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
+    msg.attach(adjunto)
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+        server.quit()
+        return True
+    except Exception:
+        return False
 
 def obtener_datos():
     ruta = "empleados.xlsx"
