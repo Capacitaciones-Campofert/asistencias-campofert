@@ -173,6 +173,69 @@ if 'paso' not in st.session_state:
 # Cargar base de datos
 df_maestro = obtener_datos()
 empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
+# INTERFAZ DE USUARIO
+# =============================================================================
+
+col_v1, col_v2, col_v3 = st.columns([2, 5, 2])
+with col_v2:
+    c1, c2 = st.columns(2, vertical_alignment="center")
+    if os.path.exists("logo_campofert.png"):
+        c1.image("logo_campofert.png", use_container_width=True)
+    if os.path.exists("logo_campolab.png"):
+        c2.image("logo_campolab.png", use_container_width=True)
+
+st.title("Registro de Capacitación")
+st.info(f"📋 Tema: **{tema_actual}**")
+
+df_maestro = obtener_datos()
+empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
+
+if 'finalizado' not in st.session_state:
+    st.session_state.finalizado = False
+
+if not st.session_state.finalizado:
+    cedula_input = st.text_input("Ingresa tu ID / Cédula:").strip()
+    datos_finales = None
+
+    if cedula_input:
+        resultado = df_maestro[df_maestro['ID'] == cedula_input] if df_maestro is not None else pd.DataFrame()
+        if not resultado.empty:
+            persona = resultado.iloc[0]
+            st.success(f"✅ Usuario: {persona['Apellidos y Nombres']}")
+            datos_finales = {
+                "Fecha":   datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
+                "ID":      cedula_input,
+                "Nombre":  persona['Apellidos y Nombres'],
+                "Empresa": persona['Empresa'],
+                "Cargo":   persona['Cargo'],
+                "Tema":    tema_actual
+            }
+        else:
+            st.warning("ID no encontrado. ¿Eres invitado?")
+            if st.checkbox("Registrar como Invitado"):
+                with st.form("form_invitado"):
+                    n = st.text_input("Nombre Completo:")
+                    e = st.selectbox("Empresa:", empresas_lista)
+                    c = st.text_input("Cargo:")
+                    if st.form_submit_button("Validar") and n and c:
+                        datos_finales = {
+                            "Fecha":   datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %I:%M:%S %p"),
+                            "ID":      cedula_input,
+                            "Nombre":  n,
+                            "Empresa": e,
+                            "Cargo":   c,
+                            "Tema":    tema_actual
+                        }
+
+    if datos_finales:
+        st.write("### Firma aquí")
+        canvas_result = st_canvas(
+            stroke_width=3,
+            stroke_color="#1a3c55",
+            background_color="#f0f2f6",
+            height=150,
+            drawing_mode="freedraw",
+            key="firma_pad"
 
 # --- PASO 1: VALIDACIÓN DE CÉDULA ---
 if st.session_state.paso == 1:
