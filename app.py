@@ -59,15 +59,15 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # 1. LOGOS (Posición Y=650 para visibilidad total y ancho de 135)
+    # 1. LOGOS (Posición Y=620 para visibilidad total y ancho de 135)
     try:
         if os.path.exists("logo_campofert.png"):
             img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 50, 650, width=135, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cf), 50, 620, width=135, preserveAspectRatio=True, mask='auto')
         
         if os.path.exists("logo_campolab.png"):
             img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 430, 650, width=135, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(img_cl), 430, 620, width=135, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
