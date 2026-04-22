@@ -229,29 +229,42 @@ if st.session_state.paso == 1:
                 st.rerun()
         else:
             # CASO 2: El empleado NO existe - Mostramos formulario de registro
-            st.warning("⚠️ Cédula no encontrada. Si eres nuevo, regístrate a continuación:")
+            st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
             
-            # Usamos un formulario para agrupar los datos del nuevo empleado
             with st.form("registro_nuevo_empleado"):
                 nombre_nuevo = st.text_input("Nombres y Apellidos Completos:")
-                empresa_nueva = st.selectbox("Selecciona tu Empresa:", ["CAMPOFERT", "CAMPOLAB"])
+                
+                # Añadimos la opción de contratista/temporal a la lista
+                empresa_seleccionada = st.selectbox(
+                    "Selecciona tu Empresa:", 
+                    ["CAMPOFERT", "CAMPOLAB", "TEMPORAL / CONTRATISTA"]
+                )
+                
+                # Campo opcional para especificar la empresa externa
+                empresa_externa = ""
+                if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
+                    empresa_externa = st.text_input("¿A qué empresa perteneces? (Ej: Temporal XYZ):")
+                
                 cargo_nuevo = st.text_input("Tu Cargo:")
                 
                 boton_registro = st.form_submit_button("Registrarme y Continuar ➡️")
                 
                 if boton_registro:
                     if nombre_nuevo and cargo_nuevo:
-                        # Guardamos los datos manualmente en la sesión
+                        # Si es contratista, usamos el nombre que escribió en 'empresa_externa'
+                        # Si no, usamos la opción del selectbox (Campofert/Campolab)
+                        nombre_empresa_final = empresa_externa.upper() if empresa_seleccionada == "TEMPORAL / CONTRATISTA" else empresa_seleccionada
+                        
                         st.session_state.persona = {
                             'Apellidos y Nombres': nombre_nuevo.upper(),
-                            'Empresa': empresa_nueva,
+                            'Empresa': nombre_empresa_final,
                             'Cargo': cargo_nuevo.upper()
                         }
                         st.session_state.cedula = cedula
                         st.session_state.paso = 2
                         st.rerun()
                     else:
-                        st.error("Por favor, completa todos los campos para poder continuar.")
+                        st.error("Por favor, completa nombre y cargo para continuar.")
 
 elif st.session_state.paso == 2:
     st.subheader("📸 Captura de Identidad")
