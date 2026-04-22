@@ -175,11 +175,18 @@ if st.session_state.paso == 1:
     if cedula:
         if df_maestro is not None and not df_maestro.empty:
             # Convertimos a string para comparar correctamente
+            df_maestro['ID'] = df_maestro['ID'].astype(str)
             res = df_maestro[df_maestro['ID'].astype(str) == cedula]
+            
             if not res.empty:
-                st.session_state.persona = res.iloc[0].to_dict()
+                # CORRECCIÓN AQUÍ: Usamos .iloc[0] para obtener la fila 
+                # y luego lo convertimos a diccionario
+                fila_empleado = res.iloc[0]
+                st.session_state.persona = fila_empleado.to_dict() 
+                
                 st.session_state.cedula = cedula
-                st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
+                st.success(f"Hola, {st.session_state.persona.get('Nombre', 'Empleado')}. ¡Bienvenido!")
+                
                 if st.button("Continuar al registro ➡️"):
                     st.session_state.paso = 2
                     st.rerun()
