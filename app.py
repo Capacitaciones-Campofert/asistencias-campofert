@@ -172,6 +172,7 @@ if 'paso' not in st.session_state:
 
 # Cargar base de datos
 df_maestro = obtener_datos()
+empresas_lista = sorted(df_maestro['Empresa'].unique().tolist()) if df_maestro is not None else ["Campofert", "Campolab"]
 
 # --- PASO 1: VALIDACIÓN DE CÉDULA ---
 if st.session_state.paso == 1:
