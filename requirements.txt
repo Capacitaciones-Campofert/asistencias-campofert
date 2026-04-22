@@ -8,3 +8,4 @@ Pillow
 openpyxl
 requests
 qrcode
+streamlit-gsheets
