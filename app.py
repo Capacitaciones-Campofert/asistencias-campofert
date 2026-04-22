@@ -200,136 +200,129 @@ with col_logo3:
 st.markdown("<h1 style='text-align: center;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
+# --- MENÚ LATERAL ---
+st.sidebar.title("Navegación")
+menu = st.sidebar.radio("Ir a:", ["📋 Registro Asistencia", "🛠️ Panel Administrador"])
+
 # =============================================================================
-# LÓGICA DE PASOS
+# OPCIÓN 1: REGISTRO DE ASISTENCIA
 # =============================================================================
+if menu == "📋 Registro Asistencia":
+    # IMPORTANTE: Todo esto ahora está dentro del 'if menu == ...'
+    
+    params = st.query_params
+    tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
+    st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
 
-params = st.query_params
-tema_actual = (params.get("tema") or "CAPACITACIÓN GENERAL").replace("+", " ").upper()
-st.info(f"📋 **TEMA ACTUAL:** {tema_actual}")
+    if 'paso' not in st.session_state:
+        st.session_state.paso = 1
 
-if 'paso' not in st.session_state:
-    st.session_state.paso = 1
+    df_maestro = obtener_datos()
 
-df_maestro = obtener_datos()
-
-if st.session_state.paso == 1:
-    cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
-    if cedula:
-        # Intentamos buscar en el Excel local
-        res = df_maestro[df_maestro['ID'].astype(str) == cedula] if df_maestro is not None else pd.DataFrame()
-        
-        if not res.empty:
-            # CASO 1: El empleado existe en la base de datos
-            st.session_state.persona = res.iloc[0].to_dict()
-            st.session_state.cedula = cedula
-            st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
-            if st.button("Continuar al registro ➡️"):
-                st.session_state.paso = 2
-                st.rerun()
-        else:
-            # CASO 2: El empleado NO existe - Mostramos formulario de registro
-            st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
+    # PASO 1: Ingreso de Cédula o Registro Manual
+    if st.session_state.paso == 1:
+        cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
+        if cedula:
+            res = df_maestro[df_maestro['ID'].astype(str) == cedula] if df_maestro is not None else pd.DataFrame()
             
-            with st.form("registro_nuevo_empleado"):
-                nombre_nuevo = st.text_input("Nombres y Apellidos Completos:")
-                
-                # Añadimos la opción de contratista/temporal a la lista
-                empresa_seleccionada = st.selectbox(
-                    "Selecciona tu Empresa:", 
-                    ["CAMPOFERT", "CAMPOLAB", "TEMPORAL / CONTRATISTA"]
-                )
-                
-                # Campo opcional para especificar la empresa externa
-                empresa_externa = ""
-                if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
-                    empresa_externa = st.text_input("¿A qué empresa perteneces? (Ej: Temporal XYZ):")
-                
-                cargo_nuevo = st.text_input("Tu Cargo:")
-                
-                boton_registro = st.form_submit_button("Registrarme y Continuar ➡️")
-                
-                if boton_registro:
-                    if nombre_nuevo and cargo_nuevo:
-                        # Si es contratista, usamos el nombre que escribió en 'empresa_externa'
-                        # Si no, usamos la opción del selectbox (Campofert/Campolab)
-                        nombre_empresa_final = empresa_externa.upper() if empresa_seleccionada == "TEMPORAL / CONTRATISTA" else empresa_seleccionada
-                        
-                        st.session_state.persona = {
-                            'Apellidos y Nombres': nombre_nuevo.upper(),
-                            'Empresa': nombre_empresa_final,
-                            'Cargo': cargo_nuevo.upper()
-                        }
-                        st.session_state.cedula = cedula
-                        st.session_state.paso = 2
-                        st.rerun()
-                    else:
-                        st.error("Por favor, completa nombre y cargo para continuar.")
+            if not res.empty:
+                st.session_state.persona = res.iloc[0].to_dict()
+                st.session_state.cedula = cedula
+                st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
+                if st.button("Continuar al registro ➡️"):
+                    st.session_state.paso = 2
+                    st.rerun()
+            else:
+                st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
+                with st.form("registro_nuevo_empleado"):
+                    nombre_nuevo = st.text_input("Nombres y Apellidos Completos:")
+                    empresa_seleccionada = st.selectbox("Empresa:", ["CAMPOFERT", "CAMPOLAB", "TEMPORAL / CONTRATISTA"])
+                    empresa_externa = ""
+                    if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
+                        empresa_externa = st.text_input("¿A qué empresa perteneces?")
+                    
+                    cargo_nuevo = st.text_input("Tu Cargo:")
+                    if st.form_submit_button("Registrarme y Continuar ➡️"):
+                        if nombre_nuevo and cargo_nuevo:
+                            nom_emp = empresa_externa.upper() if empresa_seleccionada == "TEMPORAL / CONTRATISTA" else empresa_seleccionada
+                            st.session_state.persona = {'Apellidos y Nombres': nombre_nuevo.upper(), 'Empresa': nom_emp, 'Cargo': cargo_nuevo.upper()}
+                            st.session_state.cedula = cedula
+                            st.session_state.paso = 2
+                            st.rerun()
+                        else:
+                            st.error("Completa todos los campos.")
 
-elif st.session_state.paso == 2:
-    st.subheader("📸 Captura de Identidad")
-    foto = st.camera_input("Foto de validación")
-    if foto:
-        st.session_state.foto_data = foto
-        if st.button("Ir a la firma ✍️"):
-            st.session_state.paso = 3
+    # PASO 2: Foto
+    elif st.session_state.paso == 2:
+        st.subheader("📸 Captura de Identidad")
+        foto = st.camera_input("Foto de validación")
+        if foto:
+            st.session_state.foto_data = foto
+            if st.button("Ir a la firma ✍️"):
+                st.session_state.paso = 3
+                st.rerun()
+
+    # PASO 3: Firma y Guardado
+    elif st.session_state.paso == 3:
+        st.subheader("✍️ Firma Digital")
+        canvas_res = st_canvas(stroke_width=3, stroke_color="#000000", background_color="#ffffff", height=180, width=350, key="firma_final")
+        
+        if st.button("Finalizar y Generar Certificado ✅"):
+            if canvas_res.image_data is not None:
+                datos_asistencia = {
+                    "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
+                    "ID": st.session_state.cedula,
+                    "Nombre": st.session_state.persona['Apellidos y Nombres'],
+                    "Empresa": st.session_state.persona['Empresa'],
+                    "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
+                    "Tema": tema_actual
+                }
+                if guardar_en_google_sheets(datos_asistencia):
+                    pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
+                    enviar_respaldo_gestion_humana(datos_asistencia, pdf)
+                    pdf.seek(0)
+                    st.session_state.pdf_doc = pdf
+                    st.session_state.paso = 4
+                    st.rerun()
+
+    # PASO 4: Descarga y Reinicio
+    elif st.session_state.paso == 4:
+        st.balloons()
+        st.success("¡Tu asistencia ha sido registrada!")
+        if st.session_state.get('pdf_doc'):
+            st.download_button("📥 Descargar mi Certificado (PDF)", st.session_state.pdf_doc.getvalue(), f"Certificado_{st.session_state.cedula}.pdf", "application/pdf")
+        
+        if st.button("Realizar otro registro"):
+            for key in ['cedula', 'persona', 'pdf_doc', 'foto_data']:
+                if key in st.session_state: del st.session_state[key]
+            st.session_state.paso = 1
             st.rerun()
 
-elif st.session_state.paso == 3:
-    st.subheader("✍️ Firma Digital")
-    canvas_res = st_canvas(
-        stroke_width=3, stroke_color="#000000", background_color="#ffffff", 
-        height=180, width=350, key="firma_final"
-    )
+# =============================================================================
+# OPCIÓN 2: PANEL ADMINISTRADOR
+# =============================================================================
+elif menu == "🛠️ Panel Administrador":
+    st.title("🛠️ Panel de Gestión Humana")
+    password = st.text_input("Introduce la clave de acceso:", type="password")
     
-    # Asegúrate de que este 'if' tenga exactamente 4 espacios desde el margen del 'elif'
-    if st.button("Finalizar y Generar Certificado ✅"):
-        if canvas_res.image_data is not None:
-            # 1. Preparar Diccionario de Datos
-            datos_asistencia = {
-                "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
-                "ID": st.session_state.cedula,
-                "Nombre": st.session_state.persona['Apellidos y Nombres'],
-                "Empresa": st.session_state.persona['Empresa'],
-                "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
-                "Tema": tema_actual
-            }
-            
-            # 2. Guardar en Google Sheets
-            if guardar_en_google_sheets(datos_asistencia):
-                # 3. Generar PDF (incluyendo la foto si la capturaste)
-                pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
-                
-                # 4. Enviar Respaldo
-                enviar_respaldo_gestion_humana(datos_asistencia, pdf)
-                
-                # 5. Preparar descarga y saltar al paso final
-                pdf.seek(0) 
-                st.session_state.pdf_doc = pdf
-                st.session_state.paso = 4
-                st.rerun()
-        else:
-            st.error("Es necesario firmar para completar el proceso.")
-
-elif st.session_state.paso == 4:
-    st.balloons()
-    st.success("¡Tu asistencia ha sido registrada correctamente!")
-    
-    # Verificación de seguridad para el botón de descarga
-    if st.session_state.get('pdf_doc'):
-        st.download_button(
-            label="📥 Descargar mi Certificado (PDF)",
-            data=st.session_state.pdf_doc.getvalue(),
-            file_name=f"Certificado_{st.session_state.cedula}.pdf",
-            mime="application/pdf"
-        )
-    
-    if st.button("Realizar otro registro"):
-        # Limpiamos datos sensibles antes de reiniciar
-        keys_to_reset = ['cedula', 'persona', 'pdf_doc', 'foto_data', 'finalizado']
-        for key in keys_to_reset:
-            if key in st.session_state:
-                del st.session_state[key]
+    if password == "campofert2026": 
+        tab1, tab2 = st.tabs(["🚀 Generar Capacitación", "📊 Monitor de Asistencias"])
         
-        st.session_state.paso = 1
-        st.rerun()
+        with tab1:
+            st.subheader("Generador de Links y QR")
+            nombre_cap = st.text_input("Nombre del nuevo Tema (Ej: Induccion SST):")
+            if nombre_cap:
+                link_final = f"https://asistencia-campofert.streamlit.app/?tema={nombre_cap.replace(' ', '+')}"
+                st.info("Copia este link o muestra el QR:")
+                st.code(link_final)
+                st.qrcode(link_final)
+
+        with tab2:
+            st.subheader("Registros en Google Sheets")
+            try:
+                df_reporte = conn.read(worksheet="Hoja", ttl=0)
+                st.dataframe(df_reporte, use_container_width=True)
+            except:
+                st.error("No se pudo conectar con Google Sheets.")
+    elif password != "":
+        st.error("Clave incorrecta")
