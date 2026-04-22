@@ -35,7 +35,7 @@ EMAIL_PASS = "bhbwshtosozexhcr"
 def obtener_datos():
     """Carga la base de datos de empleados"""
     try:
-        return conn.read(worksheet="Empleados", ttl=600)
+        return conn.read(worksheet="empleados", ttl=600)
     except Exception as e:
         st.error(f"Error al cargar base de empleados: {e}")
         return pd.DataFrame()
