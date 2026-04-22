@@ -33,12 +33,16 @@ EMAIL_PASS = "bhbwshtosozexhcr"
 # =============================================================================
 
 def obtener_datos():
-    """Carga la base de datos de empleados"""
-    try:
-        return conn.read(worksheet="empleados", ttl=600)
-    except Exception as e:
-        st.error(f"Error al cargar base de empleados: {e}")
-        return pd.DataFrame()
+    """Lee la base de empleados local para validación rápida"""
+    ruta = "empleados.xlsx"
+    if os.path.exists(ruta):
+        try:
+            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
+            df.columns = df.columns.str.strip()
+            return df
+        except Exception as e:
+            st.error(f"Error al leer empleados.xlsx: {e}")
+    return None
 
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     """Envía el PDF por correo electrónico"""
