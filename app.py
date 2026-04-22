@@ -216,16 +216,42 @@ df_maestro = obtener_datos()
 if st.session_state.paso == 1:
     cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
     if cedula:
-        res = df_maestro[df_maestro['ID'] == cedula] if df_maestro is not None else pd.DataFrame()
+        # Intentamos buscar en el Excel local
+        res = df_maestro[df_maestro['ID'].astype(str) == cedula] if df_maestro is not None else pd.DataFrame()
+        
         if not res.empty:
-            st.session_state.persona = res.iloc[0]
+            # CASO 1: El empleado existe en la base de datos
+            st.session_state.persona = res.iloc[0].to_dict()
             st.session_state.cedula = cedula
             st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}. ¡Bienvenido!")
             if st.button("Continuar al registro ➡️"):
                 st.session_state.paso = 2
                 st.rerun()
         else:
-            st.error("Cédula no encontrada en la base de datos.")
+            # CASO 2: El empleado NO existe - Mostramos formulario de registro
+            st.warning("⚠️ Cédula no encontrada. Si eres nuevo, regístrate a continuación:")
+            
+            # Usamos un formulario para agrupar los datos del nuevo empleado
+            with st.form("registro_nuevo_empleado"):
+                nombre_nuevo = st.text_input("Nombres y Apellidos Completos:")
+                empresa_nueva = st.selectbox("Selecciona tu Empresa:", ["CAMPOFERT", "CAMPOLAB"])
+                cargo_nuevo = st.text_input("Tu Cargo:")
+                
+                boton_registro = st.form_submit_button("Registrarme y Continuar ➡️")
+                
+                if boton_registro:
+                    if nombre_nuevo and cargo_nuevo:
+                        # Guardamos los datos manualmente en la sesión
+                        st.session_state.persona = {
+                            'Apellidos y Nombres': nombre_nuevo.upper(),
+                            'Empresa': empresa_nueva,
+                            'Cargo': cargo_nuevo.upper()
+                        }
+                        st.session_state.cedula = cedula
+                        st.session_state.paso = 2
+                        st.rerun()
+                    else:
+                        st.error("Por favor, completa todos los campos para poder continuar.")
 
 elif st.session_state.paso == 2:
     st.subheader("📸 Captura de Identidad")
