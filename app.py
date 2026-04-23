@@ -166,18 +166,18 @@ if 'rol' not in st.session_state:
     st.markdown('<div class="card-login">', unsafe_allow_html=True)
     
     # LOGOS
-    c1, c2 = st.columns(2)
+    c1,c2,c3,c4,c5 = st.columns([1,1,1,1,1])
     
     with c1:
         if os.path.exists("logo_campofert.png"):
             img = Image.open("logo_campofert.png")
-            img.thumbnail((280,150))
+            img.thumbnail((140,80))
             st.image(img)
     
     with c2:
         if os.path.exists("logo_campolab.png"):
             img2 = Image.open("logo_campolab.png")
-            img2.thumbnail((280,150))
+            img2.thumbnail((140,80))
             st.image(img2)
     
     # TITULOS
