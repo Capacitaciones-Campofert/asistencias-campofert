@@ -100,24 +100,103 @@ if rol_url == "Empleado":
     st.session_state.rol = "Empleado"
 
 if 'rol' not in st.session_state:
+
     st.markdown("""
-        <div style='text-align:center; padding: 2rem 0 1rem 0;'>
-            <h1 style='color:#1B5E20; font-size:2rem;'>🌱 Sistema de Gestión Humana</h1>
-            <p style='color:#555; font-size:1.1rem;'>Campofert S.A.S / Campolab</p>
-            <hr style='border-color:#2E7D32; margin: 1rem 0;'>
-            <p style='color:#777;'>¿Cómo deseas ingresar?</p>
+    <style>
+    .hero-box{
+        background: linear-gradient(135deg,#1B5E20,#2E7D32);
+        padding: 2rem;
+        border-radius: 18px;
+        color: white;
+        text-align:center;
+        margin-bottom: -55px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .card-login{
+        background:white;
+        padding:2rem;
+        border-radius:22px;
+        box-shadow:0 10px 35px rgba(0,0,0,0.10);
+        border:1px solid #efefef;
+        margin-left:40px;
+        margin-right:40px;
+    }
+
+    .titulo-login{
+        font-size:2rem;
+        font-weight:700;
+        color:#1B5E20;
+        text-align:center;
+        margin-top:0.5rem;
+    }
+
+    .sub-login{
+        text-align:center;
+        color:#666;
+        margin-bottom:1rem;
+    }
+
+    .mini{
+        text-align:center;
+        color:#888;
+        font-size:0.85rem;
+        margin-top:1rem;
+    }
+
+    .stButton > button{
+        height:58px;
+        font-size:16px;
+        font-weight:700;
+        border-radius:14px;
+        border:none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # HERO SUPERIOR
+    st.markdown("""
+        <div class="hero-box">
+            <h2>🌱 Bienvenido a Campofert People</h2>
+            <p>Gestión Humana Digital • Asistencia • Certificados • Control Interno</p>
         </div>
     """, unsafe_allow_html=True)
 
-    col_r1, col_r2 = st.columns(2)
-    with col_r1:
-        if st.button("👤 SOY EMPLEADO\n(Registro de Asistencia)", use_container_width=True):
+    # TARJETA CENTRAL
+    st.markdown('<div class="card-login">', unsafe_allow_html=True)
+
+    c1,c2,c3 = st.columns([1,2,1])
+
+    with c1:
+        if os.path.exists("logo_campofert.png"):
+            img = Image.open("logo_campofert.png")
+            img.thumbnail((260,140))
+            st.image(img)
+
+    with c3:
+        if os.path.exists("logo_campolab.png"):
+            img2 = Image.open("logo_campolab.png")
+            img.thumbnail((260,140))
+            st.image(img2)
+
+    st.markdown('<div class="titulo-login">Acceso Corporativo</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-login">Sistema Corporativo Campofert S.A.S</div>', unsafe_allow_html=True)
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+        if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
             st.session_state.rol = "Empleado"
             st.rerun()
-    with col_r2:
-        if st.button("🛠️ SOY ADMINISTRADOR\n(Panel de Gestión)", use_container_width=True):
+
+    with col2:
+        if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
             st.session_state.rol = "Admin"
             st.rerun()
+
+    st.markdown('<div class="mini">Campofert • Campolab • 2026</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
     st.stop()
 
 if st.session_state.rol == "Empleado":
@@ -134,7 +213,7 @@ else:
     menu = st.sidebar.radio("Ir a:", ["🛠️ Panel Administrador", "📋 Registro Asistencia"])
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Cerrar Sesión"):
-        st.session_state.rol = None
+        del st.session_state["rol"]
         st.rerun()
 
 # =============================================================================
