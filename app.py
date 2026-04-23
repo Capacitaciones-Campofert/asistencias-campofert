@@ -218,100 +218,261 @@ def guardar_en_google_sheets(datos):
 # GENERACIÓN DE PDF CON DISEÑO CORPORATIVO
 # =============================================================================
 
+# =============================================================================
+# PDF MULTINACIONAL CAMPOFERT 2026 - VERSIÓN PREMIUM
+# =============================================================================
+
 def generar_pdf(datos, imagen_firma, imagen_foto):
+    import io
+    import os
+    import random
+    from PIL import Image, ImageDraw
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib.utils import ImageReader
+
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
+
     width, height = letter
 
-    # --- 1. FONDO Y MARCO CORPORATIVO ---
-    # Dibujamos un marco verde fino alrededor de toda la hoja
-    p.setStrokeColorRGB(0.18, 0.37, 0.13)
-    p.setLineWidth(1.5)
-    p.rect(30, 30, width-60, height-60)
+    # -------------------------------------------------------------------------
+    # COLORES
+    # -------------------------------------------------------------------------
+    verde = (0.10, 0.36, 0.16)
+    verde2 = (0.18, 0.52, 0.24)
+    verde3 = (0.83, 0.92, 0.84)
+    dorado = (0.95, 0.74, 0.12)
+    gris = (0.96, 0.96, 0.96)
 
-    # --- 2. ENCABEZADO (Franja Verde) ---
-    p.setFillColorRGB(0.18, 0.37, 0.13)    
-    p.rect(30, height - 120, width - 60, 90, fill=1, stroke=0)
+    # -------------------------------------------------------------------------
+    # CODIGO CERTIFICADO
+    # -------------------------------------------------------------------------
+    codigo = f"CPF-2026-{random.randint(100000,999999)}"
 
-    # --- 3. LOGOS EN LAS ESQUINAS DEL ENCABEZADO ---
+    # -------------------------------------------------------------------------
+    # FONDO
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(1,1,1)
+    p.rect(0,0,width,height,fill=1,stroke=0)
+
+    # -------------------------------------------------------------------------
+    # MARCO MODERNO
+    # -------------------------------------------------------------------------
+    p.setStrokeColorRGB(*verde)
+    p.setLineWidth(1.4)
+    p.roundRect(20,20,width-40,height-40,14)
+
+    # -------------------------------------------------------------------------
+    # MARCA DE AGUA
+    # -------------------------------------------------------------------------
+    p.saveState()
+    p.setFont("Helvetica-Bold", 60)
+    p.setFillGray(0.93)
+    p.rotate(35)
+    p.drawCentredString(420,120,"CAMPOFERT")
+    p.restoreState()
+
+    # -------------------------------------------------------------------------
+    # ENCABEZADO
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(*verde)
+    p.roundRect(20,height-125,width-40,105,14,fill=1,stroke=0)
+
+    p.setFillColorRGB(*dorado)
+    p.rect(20,height-125,width-40,5,fill=1,stroke=0)
+
+    # -------------------------------------------------------------------------
+    # LOGO CAMPOFERT
+    # -------------------------------------------------------------------------
     try:
-        # Logo Izquierdo
         if os.path.exists("logo_campofert.png"):
-            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 250, width=100, preserveAspectRatio=True, mask='auto')
-        # Logo Derecho
-        if os.path.exists("logo_campolab.png"):
-            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 250, width=100, preserveAspectRatio=True, mask='auto')
+            img = Image.open("logo_campofert.png").convert("RGBA")
+
+            data = img.getdata()
+            newData = []
+
+            for item in data:
+                if item[0] > 240 and item[1] > 240 and item[2] > 240:
+                    newData.append((255,255,255,0))
+                else:
+                    newData.append(item)
+
+            img.putdata(newData)
+
+            p.drawImage(
+                ImageReader(img),
+                35,
+                height-112,
+                width=95,
+                height=72,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
     except:
         pass
 
-    # --- 4. TÍTULOS DEL ENCABEZADO ---
-    p.setFillColorRGB(1, 1, 1) # Texto blanco
-    p.setFont("Helvetica-Bold", 16)
-    p.drawCentredString(width / 2, height - 75, "CERTIFICADO DE ASISTENCIA")
-    p.setFont("Helvetica", 10)
-    p.drawCentredString(width / 2, height - 95, "SISTEMA DE GESTIÓN HUMANA Y SEGURIDAD EN EL TRABAJO")
-
-    # --- 5. CUERPO DEL DOCUMENTO ---
-    p.setFillColorRGB(0, 0, 0) # Texto negro
-    p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 580, "Por medio de la presente se hace constar que:")
-    
-    # Nombre del trabajador resaltado
+    # -------------------------------------------------------------------------
+    # TITULOS
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(1,1,1)
     p.setFont("Helvetica-Bold", 18)
-    p.drawCentredString(width / 2, 550, datos['Nombre'].upper())
-    
-    p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 530, f"Identificado con C.C. {datos['ID']}")
+    p.drawCentredString(width/2,height-63,"CERTIFICADO DE ASISTENCIA")
 
-    # --- 6. BLOQUE DE LA CAPACITACIÓN ---
-    # Un recuadro gris muy claro para el tema
-    p.setFillColorRGB(0.95, 0.95, 0.95)
-    p.rect(80, 440, width - 160, 60, fill=1, stroke=0)
-    
-    p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.setFont("Helvetica-Bold", 11)
-    p.drawString(100, 480, "TEMA DE LA ACTIVIDAD:")
-    p.setFillColorRGB(0, 0, 0)
-    p.setFont("Helvetica", 12)
-    p.drawString(100, 460, datos['Tema'])
+    p.setFont("Helvetica",10)
+    p.drawCentredString(width/2,height-84,
+        "Sistema de Gestión Humana y Seguridad en el Trabajo")
 
-    # Otros datos
-    p.setFont("Helvetica-Bold", 11)
-    p.drawString(100, 420, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, 400, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
-    p.drawString(100, 380, f"Fecha de Registro: {datos['Fecha']}")
+    # -------------------------------------------------------------------------
+    # CODIGO SUPERIOR
+    # -------------------------------------------------------------------------
+    p.setFont("Helvetica-Bold",8)
+    p.drawRightString(width-35,height-38,codigo)
 
-    # --- 7. REGISTRO FOTOGRÁFICO Y FIRMA ---
-    # Lado izquierdo: Foto
+    # -------------------------------------------------------------------------
+    # TEXTO CENTRAL
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(0,0,0)
+    p.setFont("Helvetica",12)
+    p.drawCentredString(width/2,610,
+        "Por medio del presente documento se certifica que:")
+
+    # Nombre trabajador
+    p.setFillColorRGB(*verde)
+    p.setFont("Helvetica-Bold",24)
+    p.drawCentredString(width/2,570,datos["Nombre"].upper())
+
+    # Cedula
+    p.setFillColorRGB(0,0,0)
+    p.setFont("Helvetica",12)
+    p.drawCentredString(width/2,545,
+        f"Identificado(a) con documento No. {datos['ID']}")
+
+    # -------------------------------------------------------------------------
+    # BLOQUE TEMA
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(*gris)
+    p.roundRect(60,445,width-120,75,10,fill=1,stroke=0)
+
+    p.setFillColorRGB(*verde)
+    p.setFont("Helvetica-Bold",11)
+    p.drawString(80,495,"CAPACITACIÓN / ACTIVIDAD:")
+
+    p.setFillColorRGB(0,0,0)
+    p.setFont("Helvetica",12)
+    p.drawString(80,472,datos["Tema"])
+
+    # -------------------------------------------------------------------------
+    # DATOS
+    # -------------------------------------------------------------------------
+    p.setFont("Helvetica",11)
+    p.drawString(80,420,f"Empresa: {datos['Empresa']}")
+    p.drawString(80,400,f"Cargo: {datos.get('Cargo','NO REGISTRA')}")
+    p.drawString(80,380,f"Fecha Registro: {datos['Fecha']}")
+
+    # -------------------------------------------------------------------------
+    # FOTO REDONDA
+    # -------------------------------------------------------------------------
     if imagen_foto is not None:
         try:
-            p.drawImage(ImageReader(Image.open(imagen_foto)), 100, 180, width=140, height=105, preserveAspectRatio=True)
-            # SE ELIMINÓ LA LÍNEA DE: p.drawString(100, 170, "Evidencia fotográfica...")
-        except: pass
+            img = Image.open(imagen_foto).convert("RGB").resize((180,180))
 
-    # Lado derecho: Firma
+            mask = Image.new("L",(180,180),0)
+            draw = ImageDraw.Draw(mask)
+            draw.ellipse((0,0,180,180),fill=255)
+
+            circular = Image.new("RGBA",(180,180))
+            circular.paste(img,(0,0))
+            circular.putalpha(mask)
+
+            p.drawImage(
+                ImageReader(circular),
+                75,
+                165,
+                width=110,
+                height=110,
+                mask='auto'
+            )
+
+            p.setFont("Helvetica",8)
+            p.drawCentredString(130,152,"Validación Biométrica")
+
+        except:
+            pass
+
+    # -------------------------------------------------------------------------
+    # FIRMA ELEGANTE
+    # -------------------------------------------------------------------------
     if imagen_firma is not None:
         try:
-            img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-            p.drawImage(ImageReader(img_f), width - 250, 185, width=130, height=60, mask='auto')
-        except: pass
-    
-    # Línea de firma
-    p.setStrokeColorRGB(0.18, 0.37, 0.13)
-    p.line(width - 260, 180, width - 100, 180)
-    p.setFont("Helvetica-Bold", 10)
-    p.drawCentredString(width - 180, 165, "Firma del Trabajador")
+            img_f = Image.fromarray(imagen_firma.astype("uint8"),"RGBA")
 
-    # --- 8. PIE DE PÁGINA ---
-    p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.rect(30, 30, width - 60, 25, fill=1, stroke=0)
-    p.setFillColorRGB(1, 1, 1)
-    p.setFont("Helvetica-Oblique", 8)
-    p.drawCentredString(width / 2, 40, "Este certificado es un registro oficial de Campofert S.A.S / Campolab generado de forma digital.")
+            p.drawImage(
+                ImageReader(img_f),
+                width-255,
+                220,
+                width=145,
+                height=58,
+                mask='auto'
+            )
+        except:
+            pass
+
+    p.setStrokeColorRGB(*verde)
+    p.line(width-275,205,width-95,205)
+
+    p.setFont("Helvetica-Bold",10)
+    p.drawCentredString(width-185,190,"Firma del Trabajador")
+
+    # -------------------------------------------------------------------------
+    # QR DECORATIVO / VALIDACION
+    # -------------------------------------------------------------------------
+    try:
+        import qrcode
+
+        qr_data = f"""
+        CERTIFICADO CAMPOFERT
+        CODIGO: {codigo}
+        NOMBRE: {datos['Nombre']}
+        ID: {datos['ID']}
+        TEMA: {datos['Tema']}
+        FECHA: {datos['Fecha']}
+        """
+
+        qr = qrcode.make(qr_data)
+        qr_buffer = io.BytesIO()
+        qr.save(qr_buffer, format="PNG")
+        qr_buffer.seek(0)
+
+        p.drawImage(
+            ImageReader(qr_buffer),
+            width-130,
+            55,
+            width=65,
+            height=65
+        )
+
+    except:
+        pass
+
+    # -------------------------------------------------------------------------
+    # PIE PREMIUM
+    # -------------------------------------------------------------------------
+    p.setFillColorRGB(*verde2)
+    p.roundRect(20,20,width-40,25,0,fill=1,stroke=0)
+
+    p.setFillColorRGB(1,1,1)
+    p.setFont("Helvetica",8)
+    p.drawCentredString(
+        width/2,
+        30,
+        "Documento digital oficial emitido por Campofert S.A.S."
+    )
 
     p.showPage()
     p.save()
     buffer.seek(0)
+
     return buffer
 
 # =============================================================================
