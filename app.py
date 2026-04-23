@@ -380,6 +380,7 @@ else:
         menu = st.radio(
             "Seleccione módulo",
             [
+                "⚙️ Configurar Tema", # <--- Nueva opción
                 "📋 Registro Asistencia",
                 "👥 Empleados",
                 "📤 Cargar Archivo",
