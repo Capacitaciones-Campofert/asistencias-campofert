@@ -109,13 +109,13 @@ if 'rol' not in st.session_state:
         border-radius: 22px;
         color: white;
         text-align:center;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         box-shadow:0 10px 25px rgba(0,0,0,0.15);
     }
 
     .card-login{
         background:white;
-        padding:2rem;
+        padding:2.2rem;
         border-radius:22px;
         box-shadow:0 10px 30px rgba(0,0,0,0.10);
         border:1px solid #efefef;
@@ -164,39 +164,42 @@ if 'rol' not in st.session_state:
 
     # TARJETA CENTRAL
     st.markdown('<div class="card-login">', unsafe_allow_html=True)
-
-    c1,c2,c3 = st.columns([1,2,1])
-
+    
+    # LOGOS
+    c1, c2 = st.columns(2)
+    
     with c1:
         if os.path.exists("logo_campofert.png"):
             img = Image.open("logo_campofert.png")
-            img.thumbnail((260,140))
+            img.thumbnail((280,150))
             st.image(img)
-
-    with c3:
+    
+    with c2:
         if os.path.exists("logo_campolab.png"):
             img2 = Image.open("logo_campolab.png")
-            img.thumbnail((260,140))
+            img2.thumbnail((280,150))
             st.image(img2)
-
+    
+    # TITULOS
     st.markdown('<div class="titulo-login">Acceso Corporativo</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-login">Sistema Corporativo Campofert S.A.S</div>', unsafe_allow_html=True)
-
-    col1,col2 = st.columns(2)
-
+    
+    # BOTONES
+    col1, col2 = st.columns(2)
+    
     with col1:
         if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
             st.session_state.rol = "Empleado"
             st.rerun()
-
+    
     with col2:
         if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
             st.session_state.rol = "Admin"
             st.rerun()
-
+    
     st.markdown('<div class="mini">Campofert • Campolab • 2026</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
+    
     st.stop()
 
 if st.session_state.rol == "Empleado":
