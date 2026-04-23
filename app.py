@@ -93,6 +93,83 @@ tema_actual = tema_raw.replace("+", " ").upper()
 rol_url = params.get("rol")
 
 # =============================================================================
+# FUNCIONES DE APOYO
+# =============================================================================
+
+def obtener_datos():
+    ruta = "empleados.xlsx"
+    if os.path.exists(ruta):
+        try:
+            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
+            df.columns = df.columns.str.strip()
+            return df
+        except Exception as e:
+            st.error(f"Error al leer empleados.xlsx: {e}")
+    return None
+
+def enviar_respaldo_gestion_humana(datos, pdf_buffer):
+    mi_correo = "gestionhumanacpfert@gmail.com"
+    password = "bhbwshtosozexhcr"
+
+    msg = MIMEMultipart()
+    msg['From'] = mi_correo
+    msg['To'] = mi_correo
+    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+
+    cuerpo_html = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif;">
+            <div style="border: 1px solid #2e7d32; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #2e7d32;">Respaldo de Capacitación - Campofert</h2>
+                <p><strong>Empleado:</strong> {datos['Nombre']}</p>
+                <p><strong>Cédula:</strong> {datos['ID']}</p>
+                <p><strong>Empresa:</strong> {datos['Empresa']}</p>
+                <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
+                <p><strong>Tema:</strong> {datos['Tema']}</p>
+                <p><strong>Fecha:</strong> {datos['Fecha']}</p>
+            </div>
+        </body>
+    </html>
+    """
+    msg.attach(MIMEText(cuerpo_html, 'html'))
+
+    pdf_buffer.seek(0)
+    adjunto = MIMEBase('application', 'octet-stream')
+    adjunto.set_payload(pdf_buffer.read())
+    encoders.encode_base64(adjunto)
+    adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
+    msg.attach(adjunto)
+
+    try:
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(mi_correo, password)
+        server.sendmail(mi_correo, mi_correo, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error correo: {e}")
+        return False
+
+def guardar_en_google_sheets(datos):
+    try:
+        df_existente = conn.read(worksheet="Hoja", ttl=0)
+        df_nuevo = pd.DataFrame([{
+            "Fecha": datos['Fecha'],
+            "ID": datos['ID'],
+            "Nombre": datos['Nombre'],
+            "Empresa": datos['Empresa'],
+            "Cargo": datos.get('Cargo', 'NO REGISTRA'),
+            "Tema": datos['Tema']
+        }])
+        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+        conn.update(worksheet="Hoja", data=df_final)
+        return True
+    except Exception as e:
+        st.error(f"Error de conexión con Google Sheets: {e}")
+        return False
+
+# =============================================================================
 # LÓGICA DE SEGURIDAD Y ROLES - LOGIN MULTINACIONAL CAMPOFERT
 # =============================================================================
 
@@ -409,82 +486,6 @@ if st.session_state.rol == "Admin":
 
         except:
             st.warning("No hay información para exportar.")
-# =============================================================================
-# FUNCIONES DE APOYO
-# =============================================================================
-
-def obtener_datos():
-    ruta = "empleados.xlsx"
-    if os.path.exists(ruta):
-        try:
-            df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
-            df.columns = df.columns.str.strip()
-            return df
-        except Exception as e:
-            st.error(f"Error al leer empleados.xlsx: {e}")
-    return None
-
-def enviar_respaldo_gestion_humana(datos, pdf_buffer):
-    mi_correo = "gestionhumanacpfert@gmail.com"
-    password = "bhbwshtosozexhcr"
-
-    msg = MIMEMultipart()
-    msg['From'] = mi_correo
-    msg['To'] = mi_correo
-    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
-
-    cuerpo_html = f"""
-    <html>
-        <body style="font-family: Arial, sans-serif;">
-            <div style="border: 1px solid #2e7d32; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #2e7d32;">Respaldo de Capacitación - Campofert</h2>
-                <p><strong>Empleado:</strong> {datos['Nombre']}</p>
-                <p><strong>Cédula:</strong> {datos['ID']}</p>
-                <p><strong>Empresa:</strong> {datos['Empresa']}</p>
-                <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
-                <p><strong>Tema:</strong> {datos['Tema']}</p>
-                <p><strong>Fecha:</strong> {datos['Fecha']}</p>
-            </div>
-        </body>
-    </html>
-    """
-    msg.attach(MIMEText(cuerpo_html, 'html'))
-
-    pdf_buffer.seek(0)
-    adjunto = MIMEBase('application', 'octet-stream')
-    adjunto.set_payload(pdf_buffer.read())
-    encoders.encode_base64(adjunto)
-    adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
-    msg.attach(adjunto)
-
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(mi_correo, password)
-        server.sendmail(mi_correo, mi_correo, msg.as_string())
-        server.quit()
-        return True
-    except Exception as e:
-        print(f"Error correo: {e}")
-        return False
-
-def guardar_en_google_sheets(datos):
-    try:
-        df_existente = conn.read(worksheet="Hoja", ttl=0)
-        df_nuevo = pd.DataFrame([{
-            "Fecha": datos['Fecha'],
-            "ID": datos['ID'],
-            "Nombre": datos['Nombre'],
-            "Empresa": datos['Empresa'],
-            "Cargo": datos.get('Cargo', 'NO REGISTRA'),
-            "Tema": datos['Tema']
-        }])
-        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
-        conn.update(worksheet="Hoja", data=df_final)
-        return True
-    except Exception as e:
-        st.error(f"Error de conexión con Google Sheets: {e}")
-        return False
 
 # =============================================================================
 # PDF MULTINACIONAL CAMPOFERT 2026 - AJUSTADO
