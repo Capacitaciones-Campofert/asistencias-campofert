@@ -99,133 +99,120 @@ rol_url = params.get("rol")
 if rol_url == "Empleado":
     st.session_state.rol = "Empleado"
 
-# =============================================================================
-# LOGIN CAMPOFERT - VERSIÓN LIMPIA PREMIUM
-# Reemplaza TODO:
-# if 'rol' not in st.session_state:
-# =============================================================================
-
 if 'rol' not in st.session_state:
 
-    # -------------------------------------------------------------------------
-    # ESTILO PREMIUM LIMPIO
-    # -------------------------------------------------------------------------
     st.markdown("""
     <style>
 
     .stApp{
-        background: linear-gradient(180deg,#f4f7f2,#ffffff);
+        background: linear-gradient(180deg,#f4f6f2,#eef3ef);
     }
 
-    .top-banner{
-        background: linear-gradient(135deg,#145A32,#2E7D32);
-        padding: 2.2rem;
-        border-radius: 22px;
+    .hero-gerencia{
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+        padding: 38px 25px;
+        border-radius: 26px;
+        text-align:center;
         color:white;
-        text-align:center;
-        box-shadow:0 12px 28px rgba(0,0,0,0.12);
-        margin-bottom:1.2rem;
+        box-shadow:0 18px 40px rgba(0,0,0,.16);
+        margin-bottom:18px;
     }
 
-    .top-title{
-        font-size:2.2rem;
+    .hero-gerencia h1{
+        margin:0;
+        font-size:44px;
         font-weight:800;
-        margin-bottom:0.3rem;
     }
 
-    .top-sub{
-        font-size:1rem;
-        opacity:0.95;
+    .hero-gerencia p{
+        margin-top:10px;
+        font-size:19px;
     }
 
-    .card-main{
-        background:white;
-        padding:2.2rem;
-        border-radius:22px;
-        border:1px solid #ececec;
-        box-shadow:0 12px 28px rgba(0,0,0,0.08);
+    .hero-mini{
+        margin-top:8px;
+        font-size:15px;
+        opacity:.92;
     }
 
-    .titulo{
+    .titulo-acceso{
         text-align:center;
-        font-size:1.8rem;
-        font-weight:800;
         color:#1B5E20;
-        margin-top:1rem;
+        font-size:36px;
+        font-weight:800;
+        margin-top:8px;
     }
 
-    .subtitulo{
+    .sub-acceso{
         text-align:center;
-        color:#666;
-        margin-bottom:1.4rem;
-    }
-
-    .mini{
-        text-align:center;
-        color:#888;
-        font-size:0.85rem;
-        margin-top:1rem;
+        color:#6b7280;
+        font-size:16px;
+        margin-bottom:18px;
     }
 
     .stButton > button{
-        height:62px;
-        border-radius:14px;
-        font-size:16px;
-        font-weight:800;
-        border:none;
-        box-shadow:0 6px 14px rgba(0,0,0,.08);
+        height:70px !important;
+        border-radius:18px !important;
+        font-size:22px !important;
+        font-weight:800 !important;
+        border:none !important;
+        background:linear-gradient(135deg,#1b5e20,#2e7d32) !important;
+        color:white !important;
+        box-shadow:0 10px 22px rgba(27,94,32,.20);
     }
 
     .stButton > button:hover{
-        transform:translateY(-1px);
+        transform:translateY(-2px);
+    }
+
+    .footer-premium{
+        text-align:center;
+        color:#7b7b7b;
+        margin-top:18px;
+        font-size:15px;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
-    # -------------------------------------------------------------------------
-    # ENCABEZADO
-    # -------------------------------------------------------------------------
     st.markdown("""
-        <div class='top-banner'>
-            <div class='top-title'>🌱 Campofert People</div>
-            <div class='top-sub'>Plataforma Oficial de Gestión Humana</div>
+    <div class="hero-gerencia">
+        <h1>🌱 Campofert People</h1>
+        <p>Bienvenido a la Plataforma Oficial de Gestión Humana</p>
+        <div class="hero-mini">
+            Asistencia • Certificados • Administración • Indicadores • Control Interno
         </div>
+    </div>
     """, unsafe_allow_html=True)
 
-    # -------------------------------------------------------------------------
-    # TARJETA CENTRAL REAL
-    # -------------------------------------------------------------------------
     with st.container(border=True):
 
-        c1, c2, c3 = st.columns([1,2,1])
+        l1,l2,l3 = st.columns([1,2,1])
 
-        with c2:
+        with l1:
             if os.path.exists("logo_campofert.png"):
-                st.image("logo_campofert.png", width=230)
+                st.image("logo_campofert.png", width=150)
 
-        c4, c5, c6 = st.columns([1.4,1,1.4])
-
-        with c5:
+        with l3:
             if os.path.exists("logo_campolab.png"):
-                st.image("logo_campolab.png", width=110)
+                st.image("logo_campolab.png", width=150)
 
-        st.markdown("<div class='titulo'>Acceso Corporativo</div>", unsafe_allow_html=True)
-        st.markdown("<div class='subtitulo'>Seleccione el tipo de ingreso al sistema</div>", unsafe_allow_html=True)
+        st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
 
-        b1, b2 = st.columns(2)
+        c1,c2 = st.columns(2)
 
-        with b1:
-            if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
+        with c1:
+            if st.button("👷 COLABORADOR", use_container_width=True):
                 st.session_state.rol = "Empleado"
                 st.rerun()
 
-        with b2:
-            if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
+        with c2:
+            if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
                 st.session_state.rol = "Admin"
                 st.rerun()
 
-        st.markdown("<div class='mini'>Campofert S.A.S • Campolab • 2026</div>", unsafe_allow_html=True)
+        st.markdown('<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>', unsafe_allow_html=True)
 
     st.stop()
 # =============================================================================
