@@ -216,11 +216,14 @@ if 'rol' not in st.session_state:
 
     st.stop()
 # =============================================================================
-# MENÚ SEGÚN ROL
+# MENÚ SEGÚN ROL + PANEL ADMIN V3.0 FINAL (SIN CONFLICTOS)
+# Reemplaza TODO tu bloque actual desde "MENÚ SEGÚN ROL"
+# hasta antes de las funciones.
 # =============================================================================
 
 if st.session_state.rol == "Empleado":
 
+    # Oculta menú lateral para empleados
     st.markdown("""
     <style>
         [data-testid="stSidebar"] {display:none;}
@@ -233,11 +236,16 @@ if st.session_state.rol == "Empleado":
 
 else:
 
+    # ===============================
+    # SIDEBAR ADMINISTRADOR
+    # ===============================
     with st.sidebar:
+
         if os.path.exists("logo_campofert.png"):
             st.image("logo_campofert.png", width=180)
 
-        st.markdown("### Panel Administrativo")
+        st.markdown("## 🛡️ Panel Administrativo")
+        st.markdown("Gestión Humana • Campofert")
         st.markdown("---")
 
         menu = st.radio(
@@ -258,6 +266,149 @@ else:
             del st.session_state["rol"]
             st.rerun()
 
+
+# =============================================================================
+# BLOQUES ADMINISTRATIVOS V3.0
+# =============================================================================
+
+if st.session_state.rol == "Admin":
+
+    # -------------------------------------------------
+    # MÓDULO EMPLEADOS
+    # -------------------------------------------------
+    if menu == "👥 Empleados":
+
+        st.markdown("## 👥 Base de Empleados")
+
+        df_emp = obtener_datos()
+
+        if df_emp is not None and not df_emp.empty:
+
+            st.success(f"Total empleados cargados: {len(df_emp)}")
+
+            buscar = st.text_input("🔎 Buscar empleado")
+
+            if buscar:
+                filtro = df_emp.astype(str).apply(
+                    lambda x: x.str.contains(buscar, case=False, na=False)
+                ).any(axis=1)
+
+                df_emp = df_emp[filtro]
+
+            st.dataframe(df_emp, use_container_width=True)
+
+            excel = BytesIO()
+            with pd.ExcelWriter(excel, engine="openpyxl") as writer:
+                df_emp.to_excel(writer, index=False, sheet_name="Empleados")
+
+            st.download_button(
+                "📥 Descargar Excel",
+                excel.getvalue(),
+                "empleados.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+        else:
+            st.warning("No existe archivo empleados.xlsx")
+
+    # -------------------------------------------------
+    # CARGAR ARCHIVO
+    # -------------------------------------------------
+    elif menu == "📤 Cargar Archivo":
+
+        st.markdown("## 📤 Actualizar Base de Personal")
+
+        archivo = st.file_uploader(
+            "Subir archivo Excel actualizado",
+            type=["xlsx"]
+        )
+
+        if archivo is not None:
+
+            with open("empleados.xlsx", "wb") as f:
+                f.write(archivo.getbuffer())
+
+            st.success("✅ Archivo actualizado correctamente.")
+            st.balloons()
+
+    # -------------------------------------------------
+    # DASHBOARD
+    # -------------------------------------------------
+    elif menu == "📊 Dashboard":
+
+        st.markdown("## 📊 Dashboard Ejecutivo")
+
+        try:
+            df = conn.read(worksheet="Hoja", ttl=0)
+
+            total = len(df)
+            personas = df["ID"].nunique()
+            temas = df["Tema"].nunique()
+
+            c1, c2, c3 = st.columns(3)
+
+            c1.metric("Registros", total)
+            c2.metric("Personas", personas)
+            c3.metric("Capacitaciones", temas)
+
+            st.markdown("### Últimos registros")
+            st.dataframe(df.tail(20), use_container_width=True)
+
+        except:
+            st.warning("Sin datos disponibles.")
+
+    # -------------------------------------------------
+    # HISTORIAL
+    # -------------------------------------------------
+    elif menu == "📄 Historial":
+
+        st.markdown("## 📄 Historial de Asistencias")
+
+        try:
+            df = conn.read(worksheet="Hoja", ttl=0)
+
+            ced = st.text_input("Buscar por cédula")
+
+            if ced:
+                df = df[df["ID"].astype(str) == ced]
+
+            st.dataframe(df, use_container_width=True)
+
+        except:
+            st.warning("Sin historial disponible.")
+
+    # -------------------------------------------------
+    # REPORTES
+    # -------------------------------------------------
+    elif menu == "📁 Reportes":
+
+        st.markdown("## 📁 Reportes")
+
+        try:
+            df = conn.read(worksheet="Hoja", ttl=0)
+
+            csv = df.to_csv(index=False).encode("utf-8")
+
+            st.download_button(
+                "📥 Descargar Reporte CSV",
+                csv,
+                "reporte_asistencia.csv",
+                "text/csv"
+            )
+
+            excel = BytesIO()
+            with pd.ExcelWriter(excel, engine="openpyxl") as writer:
+                df.to_excel(writer, index=False, sheet_name="Reporte")
+
+            st.download_button(
+                "📥 Descargar Reporte Excel",
+                excel.getvalue(),
+                "reporte_asistencia.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+        except:
+            st.warning("No hay información para exportar.")
 # =============================================================================
 # FUNCIONES DE APOYO
 # =============================================================================
