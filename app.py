@@ -276,15 +276,30 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             img = Image.open("logo_campofert.png")
             p.drawImage(
                 ImageReader(img),
-                35,
-                height-112,
+                35,            # posición izquierda
+                height-112,    # altura dentro franja
                 width=95,
                 height=72,
                 preserveAspectRatio=True
             )
     except:
         pass
-
+    
+    # LOGO CAMPOLAB
+    try:
+        if os.path.exists("logo_campolab.png"):
+            img2 = Image.open("logo_campolab.png")
+            p.drawImage(
+                ImageReader(img2),
+                width - 130,        # posición derecha
+                height - 112,       # misma altura
+                width=95,
+                height=72,
+                preserveAspectRatio=True
+        )
+    except:
+        pass
+    
     # -------------------------------------------------------------------------
     # TITULOS
     # -------------------------------------------------------------------------
