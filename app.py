@@ -244,8 +244,10 @@ else:
             "Seleccione módulo",
             [
                 "📋 Registro Asistencia",
-                "📊 Dashboard",
                 "👥 Empleados",
+                "📤 Cargar Archivo",
+                "📊 Dashboard",
+                "📄 Historial",
                 "📁 Reportes"
             ]
         )
@@ -714,7 +716,7 @@ if menu == "📋 Registro Asistencia":
 # =============================================================================
 # OPCIÓN 2: PANEL ADMINISTRADOR
 # =============================================================================
-elif menu == "🛠️ Panel Administrador":
+elif st.session_state.rol == "Admin":
     st.markdown("<h2 style='color:#1B5E20;'>🛠️ Panel de Gestión Humana</h2>", unsafe_allow_html=True)
     password = st.text_input("Introduce la clave de acceso:", type="password")
 
