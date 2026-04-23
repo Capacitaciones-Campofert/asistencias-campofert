@@ -237,10 +237,10 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     try:
         # Logo Izquierdo
         if os.path.exists("logo_campofert.png"):
-            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 450, width=100, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 250, width=100, preserveAspectRatio=True, mask='auto')
         # Logo Derecho
         if os.path.exists("logo_campolab.png"):
-            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 450, width=100, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 250, width=100, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
