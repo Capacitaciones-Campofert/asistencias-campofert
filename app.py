@@ -357,6 +357,9 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # -------------------------------------------------------------------------
     # FOTO REDONDA
     # -------------------------------------------------------------------------
+
+    base_y = 185   # altura base común
+    
     if imagen_foto is not None:
         try:
             img = Image.open(imagen_foto).convert("RGB").resize((180,180))
@@ -372,14 +375,14 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             p.drawImage(
                 ImageReader(circular),
                 75,
-                165,
+                base_y,
                 width=110,
                 height=110,
                 mask='auto'
             )
 
             p.setFont("Helvetica",8)
-            p.drawCentredString(130,152,"Validación Biométrica")
+            p.drawCentredString(130, base_y - 12, "Validación Biométrica")
 
         except:
             pass
@@ -394,19 +397,19 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             p.drawImage(
                 ImageReader(img_f),
                 width-255,
-                220,
+                base_y + 28,
                 width=145,
-                height=58,
+                height=55,
                 mask='auto'
             )
         except:
             pass
 
     p.setStrokeColorRGB(*verde)
-    p.line(width-275,205,width-95,205)
+    p.line(width-275, base_y + 18, width-95, base_y + 18)
 
     p.setFont("Helvetica-Bold",10)
-    p.drawCentredString(width-185,190,"Firma del Trabajador")
+    p.drawCentredString(width-185, base_y + 3, "Firma del Trabajador")
 
     # -------------------------------------------------------------------------
     # QR
