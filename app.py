@@ -230,17 +230,17 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.rect(30, 30, width-60, height-60)
 
     # --- 2. ENCABEZADO (Franja Verde) ---
-    p.setFillColorRGB(0.18, 0.37, 0.13)
+    p.setFillColorRGB(0.18, 0.37, 0.13)    
     p.rect(30, height - 120, width - 60, 90, fill=1, stroke=0)
 
     # --- 3. LOGOS EN LAS ESQUINAS DEL ENCABEZADO ---
     try:
         # Logo Izquierdo
         if os.path.exists("logo_campofert.png"):
-            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 105, width=100, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 150, width=100, preserveAspectRatio=True, mask='auto')
         # Logo Derecho
         if os.path.exists("logo_campolab.png"):
-            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 105, width=100, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 150, width=100, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
@@ -286,8 +286,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     if imagen_foto is not None:
         try:
             p.drawImage(ImageReader(Image.open(imagen_foto)), 100, 180, width=140, height=105, preserveAspectRatio=True)
-            p.setFont("Helvetica-Oblique", 8)
-            p.drawString(100, 170, "Evidencia fotográfica de asistencia")
+            # SE ELIMINÓ LA LÍNEA DE: p.drawString(100, 170, "Evidencia fotográfica...")
         except: pass
 
     # Lado derecho: Firma
