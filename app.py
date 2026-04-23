@@ -215,11 +215,11 @@ def guardar_en_google_sheets(datos):
         return False
 
 # =============================================================================
-# GENERACIÓN DE PDF CON DISEÑO CORPORATIVO
-# =============================================================================
-
-# =============================================================================
-# PDF MULTINACIONAL CAMPOFERT 2026 - VERSIÓN PREMIUM
+# PDF MULTINACIONAL CAMPOFERT 2026 - AJUSTADO
+# Cambios solicitados:
+# ✅ Logo normal con fondo blanco
+# ✅ Sin marca de agua
+# ✅ Nombre de capacitación en negrilla
 # =============================================================================
 
 def generar_pdf(datos, imagen_firma, imagen_foto):
@@ -241,13 +241,9 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # -------------------------------------------------------------------------
     verde = (0.10, 0.36, 0.16)
     verde2 = (0.18, 0.52, 0.24)
-    verde3 = (0.83, 0.92, 0.84)
     dorado = (0.95, 0.74, 0.12)
     gris = (0.96, 0.96, 0.96)
 
-    # -------------------------------------------------------------------------
-    # CODIGO CERTIFICADO
-    # -------------------------------------------------------------------------
     codigo = f"CPF-2026-{random.randint(100000,999999)}"
 
     # -------------------------------------------------------------------------
@@ -257,21 +253,11 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.rect(0,0,width,height,fill=1,stroke=0)
 
     # -------------------------------------------------------------------------
-    # MARCO MODERNO
+    # MARCO
     # -------------------------------------------------------------------------
     p.setStrokeColorRGB(*verde)
     p.setLineWidth(1.4)
     p.roundRect(20,20,width-40,height-40,14)
-
-    # -------------------------------------------------------------------------
-    # MARCA DE AGUA
-    # -------------------------------------------------------------------------
-    p.saveState()
-    p.setFont("Helvetica-Bold", 60)
-    p.setFillGray(0.93)
-    p.rotate(35)
-    p.drawCentredString(420,120,"CAMPOFERT")
-    p.restoreState()
 
     # -------------------------------------------------------------------------
     # ENCABEZADO
@@ -283,31 +269,18 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.rect(20,height-125,width-40,5,fill=1,stroke=0)
 
     # -------------------------------------------------------------------------
-    # LOGO CAMPOFERT
+    # LOGO NORMAL (SIN TRANSPARENCIA)
     # -------------------------------------------------------------------------
     try:
         if os.path.exists("logo_campofert.png"):
-            img = Image.open("logo_campofert.png").convert("RGBA")
-
-            data = img.getdata()
-            newData = []
-
-            for item in data:
-                if item[0] > 240 and item[1] > 240 and item[2] > 240:
-                    newData.append((255,255,255,0))
-                else:
-                    newData.append(item)
-
-            img.putdata(newData)
-
+            img = Image.open("logo_campofert.png")
             p.drawImage(
                 ImageReader(img),
                 35,
                 height-112,
                 width=95,
                 height=72,
-                preserveAspectRatio=True,
-                mask='auto'
+                preserveAspectRatio=True
             )
     except:
         pass
@@ -316,16 +289,13 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # TITULOS
     # -------------------------------------------------------------------------
     p.setFillColorRGB(1,1,1)
-    p.setFont("Helvetica-Bold", 18)
+    p.setFont("Helvetica-Bold",18)
     p.drawCentredString(width/2,height-63,"CERTIFICADO DE ASISTENCIA")
 
     p.setFont("Helvetica",10)
     p.drawCentredString(width/2,height-84,
         "Sistema de Gestión Humana y Seguridad en el Trabajo")
 
-    # -------------------------------------------------------------------------
-    # CODIGO SUPERIOR
-    # -------------------------------------------------------------------------
     p.setFont("Helvetica-Bold",8)
     p.drawRightString(width-35,height-38,codigo)
 
@@ -337,19 +307,17 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawCentredString(width/2,610,
         "Por medio del presente documento se certifica que:")
 
-    # Nombre trabajador
     p.setFillColorRGB(*verde)
     p.setFont("Helvetica-Bold",24)
     p.drawCentredString(width/2,570,datos["Nombre"].upper())
 
-    # Cedula
     p.setFillColorRGB(0,0,0)
     p.setFont("Helvetica",12)
     p.drawCentredString(width/2,545,
         f"Identificado(a) con documento No. {datos['ID']}")
 
     # -------------------------------------------------------------------------
-    # BLOQUE TEMA
+    # BLOQUE CAPACITACION
     # -------------------------------------------------------------------------
     p.setFillColorRGB(*gris)
     p.roundRect(60,445,width-120,75,10,fill=1,stroke=0)
@@ -358,8 +326,9 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFont("Helvetica-Bold",11)
     p.drawString(80,495,"CAPACITACIÓN / ACTIVIDAD:")
 
+    # NEGRILLA SOLICITADA
     p.setFillColorRGB(0,0,0)
-    p.setFont("Helvetica",12)
+    p.setFont("Helvetica-Bold",12)
     p.drawString(80,472,datos["Tema"])
 
     # -------------------------------------------------------------------------
@@ -401,7 +370,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             pass
 
     # -------------------------------------------------------------------------
-    # FIRMA ELEGANTE
+    # FIRMA
     # -------------------------------------------------------------------------
     if imagen_firma is not None:
         try:
@@ -425,7 +394,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawCentredString(width-185,190,"Firma del Trabajador")
 
     # -------------------------------------------------------------------------
-    # QR DECORATIVO / VALIDACION
+    # QR
     # -------------------------------------------------------------------------
     try:
         import qrcode
@@ -451,12 +420,11 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             width=65,
             height=65
         )
-
     except:
         pass
 
     # -------------------------------------------------------------------------
-    # PIE PREMIUM
+    # PIE
     # -------------------------------------------------------------------------
     p.setFillColorRGB(*verde2)
     p.roundRect(20,20,width-40,25,0,fill=1,stroke=0)
@@ -474,7 +442,6 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     buffer.seek(0)
 
     return buffer
-
 # =============================================================================
 # INTERFAZ
 # =============================================================================
