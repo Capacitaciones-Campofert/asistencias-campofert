@@ -317,6 +317,18 @@ if 'rol' not in st.session_state:
 # INTERFAZ
 # =============================================================================
 
+# Creamos una fila para el botón de salir/volver
+col_volver, col_vacia = st.columns([1, 4])
+with col_volver:
+    if st.button("⬅️ Inicio", use_container_width=True):
+        # Limpiamos el rol y cualquier estado para volver a la pantalla de acceso
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.rerun()
+
+# Espacio después del botón
+st.write("")
+
 col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
 with col_logo1:
     if os.path.exists("logo_campofert.png"):
