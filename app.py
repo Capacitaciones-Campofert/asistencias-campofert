@@ -100,15 +100,15 @@ if rol_url == "Empleado":
     st.session_state.rol = "Empleado"
 
 # =============================================================================
-# LOGIN / HOME GERENCIAL 2.0 - CAMPOFERT PEOPLE
-# Reemplaza TODO tu bloque:
+# LOGIN CAMPOFERT - VERSIÓN LIMPIA PREMIUM
+# Reemplaza TODO:
 # if 'rol' not in st.session_state:
 # =============================================================================
 
 if 'rol' not in st.session_state:
 
     # -------------------------------------------------------------------------
-    # CSS PREMIUM
+    # ESTILO PREMIUM LIMPIO
     # -------------------------------------------------------------------------
     st.markdown("""
     <style>
@@ -117,68 +117,47 @@ if 'rol' not in st.session_state:
         background: linear-gradient(180deg,#f4f7f2,#ffffff);
     }
 
-    .hero-main{
+    .top-banner{
         background: linear-gradient(135deg,#145A32,#2E7D32);
         padding: 2.2rem;
         border-radius: 22px;
         color:white;
-        box-shadow:0 14px 35px rgba(0,0,0,.12);
         text-align:center;
+        box-shadow:0 12px 28px rgba(0,0,0,0.12);
         margin-bottom:1.2rem;
     }
 
-    .hero-title{
+    .top-title{
         font-size:2.2rem;
         font-weight:800;
-        margin-bottom:0.2rem;
+        margin-bottom:0.3rem;
     }
 
-    .hero-sub{
+    .top-sub{
         font-size:1rem;
         opacity:0.95;
     }
 
-    .kpi-card{
+    .card-main{
         background:white;
-        border-radius:18px;
-        padding:1rem;
-        box-shadow:0 8px 20px rgba(0,0,0,.06);
-        text-align:center;
-        border:1px solid #eef0ee;
-    }
-
-    .kpi-num{
-        font-size:1.6rem;
-        font-weight:800;
-        color:#1B5E20;
-    }
-
-    .kpi-text{
-        font-size:0.92rem;
-        color:#666;
-    }
-
-    .box-login{
-        background:white;
-        padding:2rem;
+        padding:2.2rem;
         border-radius:22px;
-        box-shadow:0 14px 35px rgba(0,0,0,.08);
-        border:1px solid #eeeeee;
-        margin-top:1rem;
+        border:1px solid #ececec;
+        box-shadow:0 12px 28px rgba(0,0,0,0.08);
     }
 
-    .ttl{
+    .titulo{
         text-align:center;
         font-size:1.8rem;
         font-weight:800;
         color:#1B5E20;
-        margin-top:.3rem;
+        margin-top:1rem;
     }
 
-    .subttl{
+    .subtitulo{
         text-align:center;
         color:#666;
-        margin-bottom:1rem;
+        margin-bottom:1.4rem;
     }
 
     .mini{
@@ -205,86 +184,48 @@ if 'rol' not in st.session_state:
     """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------------------
-    # HERO PRINCIPAL
+    # ENCABEZADO
     # -------------------------------------------------------------------------
     st.markdown("""
-        <div class='hero-main'>
-            <div class='hero-title'>🌱 Campofert People</div>
-            <div class='hero-sub'>
-                Bienvenido, Plataforma Oficial de Gestión Humana
-            </div>
+        <div class='top-banner'>
+            <div class='top-title'>🌱 Campofert People</div>
+            <div class='top-sub'>Plataforma Oficial de Gestión Humana</div>
         </div>
     """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------------------
-    # KPIS VISUALES
+    # TARJETA CENTRAL REAL
     # -------------------------------------------------------------------------
-    k1,k2,k3,k4 = st.columns(4)
+    with st.container(border=True):
 
-    with k1:
-        st.markdown("""
-        <div class='kpi-card'>
-            <div class='kpi-num'>420+</div>
-            <div class='kpi-text'>Colaboradores</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c1, c2, c3 = st.columns([1,2,1])
 
-    with k2:
-        st.markdown("""
-        <div class='kpi-card'>
-            <div class='kpi-num'>28</div>
-            <div class='kpi-text'>Registros Hoy</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with c2:
+            if os.path.exists("logo_campofert.png"):
+                st.image("logo_campofert.png", width=230)
 
-    with k3:
-        st.markdown("""
-        <div class='kpi-card'>
-            <div class='kpi-num'>12</div>
-            <div class='kpi-text'>Capacitaciones Mes</div>
-        </div>
-        """, unsafe_allow_html=True)
+        c4, c5, c6 = st.columns([1.4,1,1.4])
 
-    with k4:
-        st.markdown("""
-        <div class='kpi-card'>
-            <div class='kpi-num'>530</div>
-            <div class='kpi-text'>Certificados</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with c5:
+            if os.path.exists("logo_campolab.png"):
+                st.image("logo_campolab.png", width=110)
 
-    # -------------------------------------------------------------------------
-    # CAJA CENTRAL LOGIN
-    # -------------------------------------------------------------------------
-    st.markdown("<div class='box-login'>", unsafe_allow_html=True)
+        st.markdown("<div class='titulo'>Acceso Corporativo</div>", unsafe_allow_html=True)
+        st.markdown("<div class='subtitulo'>Seleccione el tipo de ingreso al sistema</div>", unsafe_allow_html=True)
 
-    c1,c2,c3 = st.columns([1,2,1])
+        b1, b2 = st.columns(2)
 
-    with c1:
-        if os.path.exists("logo_campofert.png"):
-            st.image("logo_campofert.png", width=160)
+        with b1:
+            if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
+                st.session_state.rol = "Empleado"
+                st.rerun()
 
-    with c3:
-        if os.path.exists("logo_campolab.png"):
-            st.image("logo_campolab.png", width=160)
+        with b2:
+            if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
+                st.session_state.rol = "Admin"
+                st.rerun()
 
-    st.markdown("<div class='ttl'>Acceso Corporativo</div>", unsafe_allow_html=True)
-    st.markdown("<div class='subttl'>Seleccione el tipo de ingreso al sistema</div>", unsafe_allow_html=True)
-
-    b1,b2 = st.columns(2)
-
-    with b1:
-        if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
-            st.session_state.rol = "Empleado"
-            st.rerun()
-
-    with b2:
-        if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
-            st.session_state.rol = "Admin"
-            st.rerun()
-
-    st.markdown("<div class='mini'>Campofert S.A.S • Campolab • Versión 2026</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='mini'>Campofert S.A.S • Campolab • 2026</div>", unsafe_allow_html=True)
 
     st.stop()
 # =============================================================================
