@@ -467,7 +467,9 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
 with col_logo1:
     if os.path.exists("logo_campofert.png"):
-        st.image(Image.open("logo_campofert.png"), width=160)
+        img = Image.open("logo_campofert.png")
+        img = img.resize((320,180), Image.LANCZOS)
+        st.image(img, width=140)
 with col_logo3:
     if os.path.exists("logo_campolab.png"):
         st.image(Image.open("logo_campolab.png"), width=160)
