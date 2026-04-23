@@ -468,13 +468,13 @@ col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
 with col_logo1:
     if os.path.exists("logo_campofert.png"):
         img = Image.open("logo_campofert.png")
-        img = img.resize((320,180), Image.LANCZOS)
-        st.image(img, width=140)
+        img.thumbnail((260, 120), Image.LANCZOS)
+        st.image(img)
 with col_logo3:
     if os.path.exists("logo_campolab.png"):
         img2 = Image.open("logo_campolab.png")
-        img2 = img2.resize((320,180), Image.LANCZOS)
-        st.image(img2, width=140)
+        img2.thumbnail((260, 120), Image.LANCZOS)
+        st.image(img2)
 
 st.markdown("<h1 style='text-align:center; color:#1B5E20;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
