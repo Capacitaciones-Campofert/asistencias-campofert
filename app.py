@@ -93,7 +93,7 @@ tema_actual = tema_raw.replace("+", " ").upper()
 rol_url = params.get("rol")
 
 # =============================================================================
-# LÓGICA DE SEGURIDAD Y ROLES
+# LÓGICA DE SEGURIDAD Y ROLES - LOGIN MULTINACIONAL CAMPOFERT
 # =============================================================================
 
 if rol_url == "Empleado":
@@ -101,124 +101,178 @@ if rol_url == "Empleado":
 
 if 'rol' not in st.session_state:
 
+    # -------------------------------------------------------------------------
+    # ESTILOS PREMIUM
+    # -------------------------------------------------------------------------
     st.markdown("""
     <style>
-    .hero-box{
-        background: linear-gradient(135deg,#1B5E20,#2E7D32);
-        padding: 2rem;
-        border-radius: 22px;
+
+    .block-container{
+        padding-top: 1.5rem;
+        padding-bottom: 1rem;
+        max-width: 1100px;
+    }
+
+    .hero-title{
+        font-size: 2.2rem;
+        font-weight: 800;
         color: white;
+        margin-bottom: 0.4rem;
+    }
+
+    .hero-sub{
+        font-size: 1rem;
+        color: rgba(255,255,255,0.92);
+    }
+
+    .card-title{
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1B5E20;
         text-align:center;
-        margin-bottom: 20px;
-        box-shadow:0 10px 25px rgba(0,0,0,0.15);
+        margin-top: .4rem;
     }
 
-    .card-login{
-        background:white;
-        padding:2.2rem;
-        border-radius:22px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.10);
-        border:1px solid #efefef;
-        margin-left:40px;
-        margin-right:40px;
-    }
-
-    .titulo-login{
-        font-size:2rem;
-        font-weight:700;
-        color:#1B5E20;
-        text-align:center;
-        margin-top:0.5rem;
-    }
-
-    .sub-login{
+    .card-sub{
         text-align:center;
         color:#666;
+        font-size:0.95rem;
         margin-bottom:1rem;
     }
 
     .mini{
         text-align:center;
-        color:#888;
-        font-size:0.85rem;
+        color:#8a8a8a;
+        font-size:0.82rem;
         margin-top:1rem;
     }
 
     .stButton > button{
         height:58px;
-        font-size:16px;
+        font-size:15px;
         font-weight:700;
         border-radius:14px;
         border:none;
+        transition:0.2s;
     }
+
+    .stButton > button:hover{
+        transform: translateY(-2px);
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
+    # -------------------------------------------------------------------------
     # HERO SUPERIOR
-    st.markdown("""
-        <div class="hero-box">
-            <h2>🌱 Bienvenido a Campofert People</h2>
-            <p>Gestión Humana Digital • Asistencia • Certificados • Control Interno</p>
-        </div>
-    """, unsafe_allow_html=True)
+    # -------------------------------------------------------------------------
+    with st.container(border=True):
 
-    # TARJETA CENTRAL
-    st.markdown('<div class="card-login">', unsafe_allow_html=True)
-    
-    # LOGOS
-    c1,c2,c3,c4,c5 = st.columns([1,1,1,1,1])
-    
-    with c1:
-        if os.path.exists("logo_campofert.png"):
-            img = Image.open("logo_campofert.png")
-            img.thumbnail((140,80))
-            st.image(img)
-    
-    with c2:
-        if os.path.exists("logo_campolab.png"):
-            img2 = Image.open("logo_campolab.png")
-            img2.thumbnail((140,80))
-            st.image(img2)
-    
-    # TITULOS
-    st.markdown('<div class="titulo-login">Acceso Corporativo</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-login">Sistema Corporativo Campofert S.A.S</div>', unsafe_allow_html=True)
-    
-    # BOTONES
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("👷 COLABORADOR\nRegistro de asistencia", use_container_width=True):
-            st.session_state.rol = "Empleado"
-            st.rerun()
-    
-    with col2:
-        if st.button("🛡️ ADMINISTRADOR\nPanel de gestión", use_container_width=True):
-            st.session_state.rol = "Admin"
-            st.rerun()
-    
-    st.markdown('<div class="mini">Campofert • Campolab • 2026</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    
+        st.markdown("""
+        <div style="
+            background:linear-gradient(135deg,#1B5E20,#2E7D32);
+            padding:2.2rem;
+            border-radius:18px;
+            text-align:center;
+        ">
+            <div class="hero-title">🌱 Campofert People</div>
+            <div class="hero-sub">
+                Plataforma Corporativa de Gestión Humana
+                <br>
+                Asistencia • Certificados • Administración • Control Interno
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("")
+
+    # -------------------------------------------------------------------------
+    # TARJETA LOGIN REAL
+    # -------------------------------------------------------------------------
+    with st.container(border=True):
+
+        # LOGOS
+        c1, c2, c3 = st.columns([1,2,1])
+
+        with c1:
+            if os.path.exists("logo_campofert.png"):
+                img = Image.open("logo_campofert.png")
+                img.thumbnail((130,75))
+                st.image(img)
+
+        with c3:
+            if os.path.exists("logo_campolab.png"):
+                img2 = Image.open("logo_campolab.png")
+                img2.thumbnail((130,75))
+                st.image(img2)
+
+        # TITULOS
+        st.markdown(
+            '<div class="card-title">Acceso Corporativo</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="card-sub">Seleccione el tipo de ingreso al sistema</div>',
+            unsafe_allow_html=True
+        )
+
+        st.write("")
+
+        # BOTONES
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if st.button(
+                "👷 COLABORADOR\nRegistro de asistencia",
+                use_container_width=True
+            ):
+                st.session_state.rol = "Empleado"
+                st.rerun()
+
+        with col2:
+            if st.button(
+                "🛡️ ADMINISTRADOR\nPanel de gestión",
+                use_container_width=True
+            ):
+                st.session_state.rol = "Admin"
+                st.rerun()
+
+        st.markdown(
+            '<div class="mini">Campofert S.A.S • Campolab • Versión 2026</div>',
+            unsafe_allow_html=True
+        )
+
     st.stop()
+
+# =============================================================================
+# DESPUÉS DEL LOGIN
+# =============================================================================
 
 if st.session_state.rol == "Empleado":
     st.markdown("""
         <style>
-            [data-testid="stSidebar"] {display: none;}
-            #MainMenu {visibility: hidden;}
+            [data-testid="stSidebar"] {display:none;}
+            #MainMenu {visibility:hidden;}
         </style>
     """, unsafe_allow_html=True)
+
     menu = "📋 Registro Asistencia"
+
 else:
     st.sidebar.markdown("## 🌱 Campofert")
     st.sidebar.markdown("---")
-    menu = st.sidebar.radio("Ir a:", ["🛠️ Panel Administrador", "📋 Registro Asistencia"])
+
+    menu = st.sidebar.radio(
+        "Ir a:",
+        ["🛠️ Panel Administrador", "📋 Registro Asistencia"]
+    )
+
     st.sidebar.markdown("---")
+
     if st.sidebar.button("🚪 Cerrar Sesión"):
         del st.session_state["rol"]
         st.rerun()
-
 # =============================================================================
 # FUNCIONES DE APOYO
 # =============================================================================
