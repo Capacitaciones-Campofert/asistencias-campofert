@@ -87,10 +87,13 @@ EMAIL_USER = "gestionhumanacpfert@gmail.com"
 EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr")
 
 # --- LEER TEMA DESDE EL URL ---
+# Busca esto al principio de tu código y cámbialo:
 params = st.query_params
-tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
-tema_actual = tema_raw.replace("+", " ").upper()
-rol_url = params.get("rol")
+tema_from_url = params.get("tema") or params.get("Tema")
+if tema_from_url:
+    tema_actual = tema_from_url.replace("+", " ").upper()
+else:
+    tema_actual = st.session_state.get('tema_actual', "CAPACITACIÓN GENERAL")
 
 # =============================================================================
 # FUNCIONES DE APOYO
