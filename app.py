@@ -404,6 +404,55 @@ else:
 if st.session_state.rol == "Admin":
 
     # -------------------------------------------------
+    # MÓDULO CONFIGURAR TEMA (EL QUE TE FALTA)
+    # -------------------------------------------------
+    if menu == "⚙️ Configurar Tema":
+        st.markdown("## ⚙️ Configuración de la Capacitación")
+        
+        with st.container(border=True):
+            st.markdown("### 1. Definir Tema")
+            # El input para que escribas el nombre
+            nuevo_tema = st.text_input("Nombre de la capacitación o inducción:", 
+                                      placeholder="Ej: INDUCCIÓN SEGURIDAD Y SALUD 2026")
+            
+            if st.button("💾 Guardar y Activar Tema"):
+                if nuevo_tema:
+                    # Esto sobreescribe el tema para todos los que entren
+                    st.session_state.tema_actual = nuevo_tema.upper()
+                    st.success(f"✅ Tema actualizado: **{nuevo_tema.upper()}**")
+                else:
+                    st.error("⚠️ Por favor escribe un nombre antes de guardar.")
+
+        # --- GENERADOR DE ENLACE Y QR ---
+        if 'tema_actual' in st.session_state:
+            st.markdown("---")
+            st.markdown("### 🔗 Enlace de Acceso para Colaboradores")
+            
+            # Construimos la URL. Si ya tienes la URL de Streamlit Cloud, cámbiala aquí:
+            # Si no, esta URL genérica sirve de guía.
+            tema_url = st.session_state.tema_actual.replace(" ", "+")
+            base_url = "https://campofert-asistencia.streamlit.app" # <--- Cambia por tu URL real
+            url_final = f"{base_url}/?tema={tema_url}&rol=Empleado"
+            
+            st.info(f"Copia este enlace y envíalo por WhatsApp:\n\n**{url_final}**")
+            
+            col_qr1, col_qr2 = st.columns([1, 2])
+            with col_qr1:
+                # Generamos un código QR automático
+                qr = qrcode.make(url_final)
+                buf = io.BytesIO()
+                qr.save(buf, format="PNG")
+                st.image(buf.getvalue(), caption="QR para proyectar en sala", width=200)
+            
+            with col_qr2:
+                st.markdown("""
+                **Instrucciones:**
+                1. El tema guardado aparecerá automáticamente en el certificado.
+                2. Los empleados que usen el QR o el link entrarán directo al registro.
+                3. No necesitas volver a configurar nada hasta la siguiente capacitación.
+                """)
+    
+    # -------------------------------------------------
     # MÓDULO EMPLEADOS
     # -------------------------------------------------
     if menu == "👥 Empleados":
