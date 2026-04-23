@@ -88,8 +88,20 @@ EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr")
 
 # --- LEER TEMA DESDE EL URL ---
 params = st.query_params
-tema_raw = params.get("tema") or params.get("Tema") or "CAPACITACIÓN GENERAL"
-tema_actual = tema_raw.replace("+", " ").upper()
+# 1. Intentamos obtener el tema del link (URL)
+tema_desde_url = params.get("tema") or params.get("Tema")
+
+if tema_desde_url:
+    # Si viene en el link, lo usamos (quitando los "+" y pasando a mayúsculas)
+    st.session_state.tema_actual = tema_desde_url.replace("+", " ").upper()
+elif 'tema_actual' not in st.session_state:
+    # Si no hay link y no hay nada guardado, ponemos el genérico
+    st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
+
+# Definimos la variable que usará todo el programa
+tema_actual = st.session_state.tema_actual
+
+# 2. Obtenemos el rol del link (para entrar directo como empleado)
 rol_url = params.get("rol")
 
 # =============================================================================
