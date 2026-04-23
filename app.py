@@ -223,86 +223,92 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Franja verde superior (más alta para logos + título)
+    # --- 1. FONDO Y MARCO CORPORATIVO ---
+    # Dibujamos un marco verde fino alrededor de toda la hoja
+    p.setStrokeColorRGB(0.18, 0.37, 0.13)
+    p.setLineWidth(1.5)
+    p.rect(30, 30, width-60, height-60)
+
+    # --- 2. ENCABEZADO (Franja Verde) ---
     p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.rect(0, height - 130, width, 130, fill=1, stroke=0)
+    p.rect(30, height - 120, width - 60, 90, fill=1, stroke=0)
 
-    # Franja amarilla delgada debajo
-    p.setFillColorRGB(0.98, 0.66, 0.15)
-    p.rect(0, height - 138, width, 8, fill=1, stroke=0)
-
-    # Logos dentro de la franja (bien centrados verticalmente)
+    # --- 3. LOGOS EN LAS ESQUINAS DEL ENCABEZADO ---
     try:
+        # Logo Izquierdo
         if os.path.exists("logo_campofert.png"):
-            img_cf = Image.open("logo_campofert.png")
-            p.drawImage(ImageReader(img_cf), 20, height - 180, width=120, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campofert.png")), 45, height - 105, width=100, preserveAspectRatio=True, mask='auto')
+        # Logo Derecho
         if os.path.exists("logo_campolab.png"):
-            img_cl = Image.open("logo_campolab.png")
-            p.drawImage(ImageReader(img_cl), 430, height - 180, width=120, preserveAspectRatio=True, mask='auto')
+            p.drawImage(ImageReader(Image.open("logo_campolab.png")), width - 145, height - 105, width=100, preserveAspectRatio=True, mask='auto')
     except:
         pass
 
-    # Título blanco sobre verde (centrado en la franja)
-    p.setFillColorRGB(1, 1, 1)
-    p.setFont("Helvetica-Bold", 15)
-    p.drawCentredString(width / 2, height - 65, "CERTIFICADO DE ASISTENCIA Y AUDITORÍA")
-    p.setFont("Helvetica", 11)
-    p.drawCentredString(width / 2, height - 85, "CAMPOFERT S.A.S / CAMPOLAB")
+    # --- 4. TÍTULOS DEL ENCABEZADO ---
+    p.setFillColorRGB(1, 1, 1) # Texto blanco
+    p.setFont("Helvetica-Bold", 16)
+    p.drawCentredString(width / 2, height - 75, "CERTIFICADO DE ASISTENCIA")
+    p.setFont("Helvetica", 10)
+    p.drawCentredString(width / 2, height - 95, "SISTEMA DE GESTIÓN HUMANA Y SEGURIDAD EN EL TRABAJO")
 
-    # Datos del participante
-    p.setFillColorRGB(0, 0, 0)
-    p.setFont("Helvetica", 11)
-    y_info = 520
-    p.drawString(100, y_info,      f"Participante: {datos['Nombre']}")
-    p.drawString(100, y_info - 22, f"Identificación: {datos['ID']}")
-    p.drawString(100, y_info - 44, f"Empresa: {datos['Empresa']}")
-    p.drawString(100, y_info - 66, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
+    # --- 5. CUERPO DEL DOCUMENTO ---
+    p.setFillColorRGB(0, 0, 0) # Texto negro
+    p.setFont("Helvetica", 12)
+    p.drawCentredString(width / 2, 580, "Por medio de la presente se hace constar que:")
+    
+    # Nombre del trabajador resaltado
+    p.setFont("Helvetica-Bold", 18)
+    p.drawCentredString(width / 2, 550, datos['Nombre'].upper())
+    
+    p.setFont("Helvetica", 12)
+    p.drawCentredString(width / 2, 530, f"Identificado con C.C. {datos['ID']}")
 
-    # Tema en verde
+    # --- 6. BLOQUE DE LA CAPACITACIÓN ---
+    # Un recuadro gris muy claro para el tema
+    p.setFillColorRGB(0.95, 0.95, 0.95)
+    p.rect(80, 440, width - 160, 60, fill=1, stroke=0)
+    
     p.setFillColorRGB(0.18, 0.37, 0.13)
     p.setFont("Helvetica-Bold", 11)
-    p.drawString(100, y_info - 88, f"Tema: {datos['Tema']}")
-
+    p.drawString(100, 480, "TEMA DE LA ACTIVIDAD:")
     p.setFillColorRGB(0, 0, 0)
-    p.setFont("Helvetica", 11)
-    p.drawString(100, y_info - 110, f"Fecha/Hora: {datos['Fecha']}")
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 460, datos['Tema'])
 
-    # Línea divisoria verde
-    p.setStrokeColorRGB(0.18, 0.37, 0.13)
-    p.setLineWidth(1.5)
-    p.line(100, y_info - 120, 510, y_info - 120)
+    # Otros datos
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(100, 420, f"Empresa: {datos['Empresa']}")
+    p.drawString(100, 400, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
+    p.drawString(100, 380, f"Fecha de Registro: {datos['Fecha']}")
 
-    # Foto
+    # --- 7. REGISTRO FOTOGRÁFICO Y FIRMA ---
+    # Lado izquierdo: Foto
     if imagen_foto is not None:
         try:
-            img_foto = Image.open(imagen_foto)
-            p.drawImage(ImageReader(img_foto), (width/2)-90, 240, width=180, height=135, preserveAspectRatio=True)
-        except:
-            pass
+            p.drawImage(ImageReader(Image.open(imagen_foto)), 100, 180, width=140, height=105, preserveAspectRatio=True)
+            p.setFont("Helvetica-Oblique", 8)
+            p.drawString(100, 170, "Evidencia fotográfica de asistencia")
+        except: pass
 
-    # Firma
+    # Lado derecho: Firma
     if imagen_firma is not None:
         try:
             img_f = Image.fromarray(imagen_firma.astype('uint8'), 'RGBA')
-            p.drawImage(ImageReader(img_f), (width/2)-75, 155, width=150, height=70, mask='auto')
-        except:
-            pass
+            p.drawImage(ImageReader(img_f), width - 250, 185, width=130, height=60, mask='auto')
+        except: pass
+    
+    # Línea de firma
+    p.setStrokeColorRGB(0.18, 0.37, 0.13)
+    p.line(width - 260, 180, width - 100, 180)
+    p.setFont("Helvetica-Bold", 10)
+    p.drawCentredString(width - 180, 165, "Firma del Trabajador")
 
-    # Línea firma amarilla
-    p.setStrokeColorRGB(0.98, 0.66, 0.15)
-    p.setLineWidth(2)
-    p.line((width/2)-80, 155, (width/2)+80, 155)
-
+    # --- 8. PIE DE PÁGINA ---
     p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.setFont("Helvetica-Oblique", 10)
-    p.drawCentredString(width/2, 140, "Firma Digital Autenticada")
-
-    # Franja verde inferior
-    p.setFillColorRGB(0.18, 0.37, 0.13)
-    p.rect(0, 0, width, 40, fill=1, stroke=0)
+    p.rect(30, 30, width - 60, 25, fill=1, stroke=0)
     p.setFillColorRGB(1, 1, 1)
-    p.setFont("Helvetica", 8)
-    p.drawCentredString(width/2, 15, "Campofert S.A.S / Campolab — Documento generado digitalmente")
+    p.setFont("Helvetica-Oblique", 8)
+    p.drawCentredString(width / 2, 40, "Este certificado es un registro oficial de Campofert S.A.S / Campolab generado de forma digital.")
 
     p.showPage()
     p.save()
