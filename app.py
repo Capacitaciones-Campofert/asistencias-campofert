@@ -178,7 +178,7 @@ if 'rol' not in st.session_state:
     st.markdown("""
     <div class="hero-gerencia">
         <h1>🌱 Campofert People</h1>
-        <p>Bienvenido a la Plataforma Oficial de Gestión Humana</p>
+        <p>Plataforma de Gestión Humana</p>
         <div class="hero-mini">
             Asistencia • Certificados • Administración • Indicadores • Control Interno
         </div>
