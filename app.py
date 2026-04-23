@@ -737,6 +737,8 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 # INTERFAZ
 # =============================================================================
 
+st.markdown("<h1 style='text-align:center; color:#1B5E20;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
+
 col_logo1, col_logo2, col_logo3 = st.columns([1, 1, 1])
 with col_logo1:
     if os.path.exists("logo_campofert.png"):
@@ -749,7 +751,6 @@ with col_logo3:
         img2.thumbnail((260, 120), Image.LANCZOS)
         st.image(img2)
 
-st.markdown("<h1 style='text-align:center; color:#1B5E20;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # =============================================================================
