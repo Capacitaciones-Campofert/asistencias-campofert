@@ -216,6 +216,47 @@ if 'rol' not in st.session_state:
 
     st.stop()
 # =============================================================================
+# MENÚ SEGÚN ROL
+# =============================================================================
+
+if st.session_state.rol == "Empleado":
+
+    st.markdown("""
+    <style>
+        [data-testid="stSidebar"] {display:none;}
+        #MainMenu {visibility:hidden;}
+        header {visibility:hidden;}
+    </style>
+    """, unsafe_allow_html=True)
+
+    menu = "📋 Registro Asistencia"
+
+else:
+
+    with st.sidebar:
+        if os.path.exists("logo_campofert.png"):
+            st.image("logo_campofert.png", width=180)
+
+        st.markdown("### Panel Administrativo")
+        st.markdown("---")
+
+        menu = st.radio(
+            "Seleccione módulo",
+            [
+                "📋 Registro Asistencia",
+                "📊 Dashboard",
+                "👥 Empleados",
+                "📁 Reportes"
+            ]
+        )
+
+        st.markdown("---")
+
+        if st.button("🚪 Cerrar Sesión", use_container_width=True):
+            del st.session_state["rol"]
+            st.rerun()
+
+# =============================================================================
 # FUNCIONES DE APOYO
 # =============================================================================
 
