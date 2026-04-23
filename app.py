@@ -106,18 +106,18 @@ if 'rol' not in st.session_state:
     .hero-box{
         background: linear-gradient(135deg,#1B5E20,#2E7D32);
         padding: 2rem;
-        border-radius: 18px;
+        border-radius: 22px;
         color: white;
         text-align:center;
-        margin-bottom: -55px;
-        box-shadow:0 10px 30px rgba(0,0,0,0.15);
+        margin-bottom: 10px;
+        box-shadow:0 10px 25px rgba(0,0,0,0.15);
     }
 
     .card-login{
         background:white;
         padding:2rem;
         border-radius:22px;
-        box-shadow:0 10px 35px rgba(0,0,0,0.10);
+        box-shadow:0 10px 30px rgba(0,0,0,0.10);
         border:1px solid #efefef;
         margin-left:40px;
         margin-right:40px;
