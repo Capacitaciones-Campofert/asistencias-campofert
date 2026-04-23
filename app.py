@@ -286,9 +286,29 @@ if 'rol' not in st.session_state:
 
         with c2:
             if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
-                st.session_state.rol = "Admin"
+                # En lugar de entrar directo, activamos un formulario de clave
+                st.session_state.esperando_clave = True
                 st.rerun()
-
+        
+        # --- VALIDACIÓN DE CLAVE ---
+        if st.session_state.get('esperando_clave'):
+            st.markdown("---")
+            clave = st.text_input("🔑 Ingrese Clave de Administrador:", type="password")
+            
+            col_bt1, col_bt2 = st.columns(2)
+            with col_bt1:
+                if st.button("✅ Entrar"):
+                    if clave == "1234":  # <--- CAMBIA "1234" POR TU CLAVE REAL
+                        st.session_state.rol = "Admin"
+                        del st.session_state["esperando_clave"]
+                        st.rerun()
+                    else:
+                        st.error("Clave incorrecta ❌")
+            with col_bt2:
+                if st.button("❌ Cancelar"):
+                    del st.session_state["esperando_clave"]
+                    st.rerun()
+        
         st.markdown('<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>', unsafe_allow_html=True)
 
     st.stop()
