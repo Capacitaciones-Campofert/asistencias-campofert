@@ -472,7 +472,9 @@ with col_logo1:
         st.image(img, width=140)
 with col_logo3:
     if os.path.exists("logo_campolab.png"):
-        st.image(Image.open("logo_campolab.png"), width=160)
+        img2 = Image.open("logo_campolab.png")
+        img2 = img2.resize((320,180), Image.LANCZOS)
+        st.image(img2, width=140)
 
 st.markdown("<h1 style='text-align:center; color:#1B5E20;'>Registro de Capacitación</h1>", unsafe_allow_html=True)
 st.markdown("---")
