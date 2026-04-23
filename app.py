@@ -101,147 +101,118 @@ if rol_url == "Empleado":
 
 if 'rol' not in st.session_state:
 
-    # -------------------------------------------------------------------------
-    # ESTILOS PREMIUM
-    # -------------------------------------------------------------------------
     st.markdown("""
     <style>
 
-    .block-container{
-        padding-top: 1.5rem;
-        padding-bottom: 1rem;
-        max-width: 1100px;
+    .stApp{
+        background: linear-gradient(180deg,#f4f6f2,#eef3ef);
     }
 
-    .hero-title{
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: white;
-        margin-bottom: 0.4rem;
-    }
-
-    .hero-sub{
-        font-size: 1rem;
-        color: rgba(255,255,255,0.92);
-    }
-
-    .card-title{
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #1B5E20;
+    .hero-gerencia{
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+        padding: 38px 25px;
+        border-radius: 26px;
         text-align:center;
-        margin-top: .4rem;
+        color:white;
+        box-shadow:0 18px 40px rgba(0,0,0,.16);
+        margin-bottom:18px;
     }
 
-    .card-sub{
-        text-align:center;
-        color:#666;
-        font-size:0.95rem;
-        margin-bottom:1rem;
+    .hero-gerencia h1{
+        margin:0;
+        font-size:44px;
+        font-weight:800;
     }
 
-    .mini{
+    .hero-gerencia p{
+        margin-top:10px;
+        font-size:19px;
+    }
+
+    .hero-mini{
+        margin-top:8px;
+        font-size:15px;
+        opacity:.92;
+    }
+
+    .titulo-acceso{
         text-align:center;
-        color:#8a8a8a;
-        font-size:0.82rem;
-        margin-top:1rem;
+        color:#1B5E20;
+        font-size:36px;
+        font-weight:800;
+        margin-top:8px;
+    }
+
+    .sub-acceso{
+        text-align:center;
+        color:#6b7280;
+        font-size:16px;
+        margin-bottom:18px;
     }
 
     .stButton > button{
-        height:58px;
-        font-size:15px;
-        font-weight:700;
-        border-radius:14px;
-        border:none;
-        transition:0.2s;
+        height:70px !important;
+        border-radius:18px !important;
+        font-size:22px !important;
+        font-weight:800 !important;
+        border:none !important;
+        background:linear-gradient(135deg,#1b5e20,#2e7d32) !important;
+        color:white !important;
+        box-shadow:0 10px 22px rgba(27,94,32,.20);
     }
 
     .stButton > button:hover{
-        transform: translateY(-2px);
+        transform:translateY(-2px);
+    }
+
+    .footer-premium{
+        text-align:center;
+        color:#7b7b7b;
+        margin-top:18px;
+        font-size:15px;
     }
 
     </style>
     """, unsafe_allow_html=True)
 
-    # -------------------------------------------------------------------------
-    # HERO SUPERIOR
-    # -------------------------------------------------------------------------
-    with st.container(border=True):
-
-        st.markdown("""
-        <div style="
-            background:linear-gradient(135deg,#1B5E20,#2E7D32);
-            padding:2.2rem;
-            border-radius:18px;
-            text-align:center;
-        ">
-            <div class="hero-title">🌱 Campofert People</div>
-            <div class="hero-sub">
-                Plataforma Corporativa de Gestión Humana
-                <br>
-                Asistencia • Certificados • Administración • Control Interno
-            </div>
+    st.markdown("""
+    <div class="hero-gerencia">
+        <h1>🌱 Campofert People</h1>
+        <p>Bienvenido a la Plataforma Oficial de Gestión Humana</p>
+        <div class="hero-mini">
+            Asistencia • Certificados • Administración • Indicadores • Control Interno
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.write("")
-
-    # -------------------------------------------------------------------------
-    # TARJETA LOGIN REAL
-    # -------------------------------------------------------------------------
     with st.container(border=True):
 
-        # LOGOS
-        c1, c2, c3 = st.columns([1,2,1])
+        l1,l2,l3 = st.columns([1,2,1])
+
+        with l1:
+            if os.path.exists("logo_campofert.png"):
+                st.image("logo_campofert.png", width=150)
+
+        with l3:
+            if os.path.exists("logo_campolab.png"):
+                st.image("logo_campolab.png", width=150)
+
+        st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
+
+        c1,c2 = st.columns(2)
 
         with c1:
-            if os.path.exists("logo_campofert.png"):
-                img = Image.open("logo_campofert.png")
-                img.thumbnail((130,75))
-                st.image(img)
-
-        with c3:
-            if os.path.exists("logo_campolab.png"):
-                img2 = Image.open("logo_campolab.png")
-                img2.thumbnail((130,75))
-                st.image(img2)
-
-        # TITULOS
-        st.markdown(
-            '<div class="card-title">Acceso Corporativo</div>',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            '<div class="card-sub">Seleccione el tipo de ingreso al sistema</div>',
-            unsafe_allow_html=True
-        )
-
-        st.write("")
-
-        # BOTONES
-        col1, col2 = st.columns(2)
-
-        with col1:
-            if st.button(
-                "👷 COLABORADOR\nRegistro de asistencia",
-                use_container_width=True
-            ):
+            if st.button("👷 COLABORADOR", use_container_width=True):
                 st.session_state.rol = "Empleado"
                 st.rerun()
 
-        with col2:
-            if st.button(
-                "🛡️ ADMINISTRADOR\nPanel de gestión",
-                use_container_width=True
-            ):
+        with c2:
+            if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
                 st.session_state.rol = "Admin"
                 st.rerun()
 
-        st.markdown(
-            '<div class="mini">Campofert S.A.S • Campolab • Versión 2026</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown('<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>', unsafe_allow_html=True)
 
     st.stop()
 
