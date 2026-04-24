@@ -924,9 +924,15 @@ if menu == "📋 Registro Asistencia":
                     if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
                         empresa_externa = st.text_input("¿A qué empresa perteneces?")
                     cargo_nuevo = st.text_input("Tu Cargo:")
+                    
                     if st.form_submit_button("Registrarme y Continuar ➡️"):
                         if nombre_nuevo and cargo_nuevo:
-                            nom_emp = empresa_externa.upper() if empresa_seleccionada == "TEMPORAL / CONTRATISTA" else empresa_seleccionada
+                        
+                        if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
+                            nom_emp = empresa_externa.upper() if empresa_externa else "CONTRATISTA"
+                        else:
+                            nom_emp = empresa_seleccionada  # 👈 FIX CLAVE
+                            
                             st.session_state.persona = {
                                 'Apellidos y Nombres': nombre_nuevo.upper(),
                                 'Empresa': nom_emp,
