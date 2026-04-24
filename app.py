@@ -204,6 +204,11 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
 def guardar_en_google_sheets(datos):
     try:
         df_existente = leer_asistencias()
+        
+        # Si la hoja está vacía
+        if df_existente is None or df_existente.empty:
+            df_existente = pd.DataFrame()
+
         df_nuevo = pd.DataFrame([{
             "Fecha": datos['Fecha'],
             "ID": datos['ID'],
@@ -212,11 +217,16 @@ def guardar_en_google_sheets(datos):
             "Cargo": datos.get('Cargo', 'NO REGISTRA'),
             "Tema": datos['Tema']
         }])
+
         df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
-        conn.update(worksheet="Hoja", data=df_final)
-        
+
+        conn.update(
+            worksheet="Hoja",
+            data=df_final
+        )
+
         return True
-    
+
     except Exception as e:
         st.error(f"Error de conexión con Google Sheets: {e}")
         return False
@@ -716,14 +726,16 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     try:
         if os.path.exists("logo_campolab.png"):
             img2 = Image.open("logo_campolab.png")
+    
             p.drawImage(
                 ImageReader(img2),
-                width - 130,        # posición derecha
-                height - 112,       # misma altura
+                width - 130,      # posición derecha
+                height - 112,     # misma altura
                 width=95,
                 height=72,
                 preserveAspectRatio=True
             )
+    
     except:
         pass
     
@@ -782,35 +794,29 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawString(80,380,f"Fecha Registro: {datos['Fecha']}")
 
     # -------------------------------------------------------------------------
-    # FOTO REDONDA
+    # FOTO NORMAL (OPTIMIZADA)
     # -------------------------------------------------------------------------
-
-    base_y = 185   # altura base común
+    
+    base_y = 185
     
     if imagen_foto is not None:
         try:
-            img = Image.open(imagen_foto).convert("RGB").resize((180,180))
-
-            mask = Image.new("L",(180,180),0)
-            draw = ImageDraw.Draw(mask)
-            draw.ellipse((0,0,180,180),fill=255)
-
-            circular = Image.new("RGBA",(180,180))
-            circular.paste(img,(0,0))
-            circular.putalpha(mask)
-
+            img = Image.open(imagen_foto).convert("RGB")
+    
+            # reduce tamaño real para acelerar
+            img.thumbnail((220,220))
+    
             p.drawImage(
-                ImageReader(circular),
+                ImageReader(img),
                 75,
                 base_y,
                 width=110,
-                height=110,
-                mask='auto'
+                height=110
             )
-
+    
             p.setFont("Helvetica",8)
-            p.drawCentredString(130, base_y - 12, "Validación Biométrica")
-
+            p.drawCentredString(130, base_y - 12, "Validación de Identidad")
+    
         except:
             pass
 
@@ -837,36 +843,6 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 
     p.setFont("Helvetica-Bold",10)
     p.drawCentredString(width-185, base_y + 3, "Firma del Trabajador")
-
-    # -------------------------------------------------------------------------
-    # QR
-    # -------------------------------------------------------------------------
-    try:
-        import qrcode
-
-        qr_data = f"""
-        CERTIFICADO CAMPOFERT
-        CODIGO: {codigo}
-        NOMBRE: {datos['Nombre']}
-        ID: {datos['ID']}
-        TEMA: {datos['Tema']}
-        FECHA: {datos['Fecha']}
-        """
-
-        qr = qrcode.make(qr_data)
-        qr_buffer = io.BytesIO()
-        qr.save(qr_buffer, format="PNG")
-        qr_buffer.seek(0)
-
-        p.drawImage(
-            ImageReader(qr_buffer),
-            width-130,
-            55,
-            width=65,
-            height=65
-        )
-    except:
-        pass
 
     # -------------------------------------------------------------------------
     # PIE
@@ -1025,6 +1001,11 @@ if menu == "📋 Registro Asistencia":
         if st.button("Finalizar y Generar Certificado ✅"):
 
             if canvas_res.image_data is not None:
+        
+                # VALIDAR QUE HAYA FIRMA REAL
+                if canvas_res.image_data.sum() < 8000:
+                    st.warning("Debe firmar antes de continuar.")
+                    st.stop()
 
                 datos_asistencia = {
                     "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
