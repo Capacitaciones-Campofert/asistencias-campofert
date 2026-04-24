@@ -22,14 +22,18 @@ from email import encoders
 st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="centered", page_icon="🌱")
 
 # =============================================================================
-# SESSION STATE ROBUSTO (FIX CRÍTICO PRODUCCIÓN)
+# SESSION STATE ROBUSTO (FIX PRODUCCIÓN)
 # =============================================================================
 
+# Inicialización segura de session state
 st.session_state.setdefault("rol", None)
 st.session_state.setdefault("paso", 1)
-st.session_state.setdefault("tema_actual", "CAPACITACIÓN GENERAL")
+st.session_state.setdefault("tema_actual", None)
 
-# --- COLORES CORPORATIVOS CAMPOFERT ---
+# =============================================================================
+# COLORES CORPORATIVOS CAMPOFERT (SIN CAMBIOS)
+# =============================================================================
+
 CSS_CORPORATIVO = """
 <style>
     .stApp { background-color: #F5F5F0; }
@@ -85,30 +89,52 @@ CSS_CORPORATIVO = """
     }
 </style>
 """
+
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
 
-# --- CONEXIÓN A GOOGLE SHEETS ---
+# =============================================================================
+# CONEXIÓN A DATOS
+# =============================================================================
+
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- CONFIGURACIÓN DE CORREO ---
+# =============================================================================
+# CONFIGURACIÓN DE CORREO
+# =============================================================================
+
 EMAIL_USER = "gestionhumanacpfert@gmail.com"
 EMAIL_PASS = st.secrets.get("email_password", "bhbwshtosozexhcr")
 
-# --- LEER TEMA DESDE EL URL ---
+# =============================================================================
+# PARÁMETROS URL (ROBUSTO)
+# =============================================================================
+
 params = st.query_params
 
+# Tema desde URL (más seguro y normalizado)
 tema_desde_url = params.get("tema") or params.get("Tema")
 
 if tema_desde_url:
-    st.session_state.tema_actual = tema_desde_url.replace("+", " ").upper()
+    st.session_state.tema_actual = tema_desde_url.replace("+", " ").strip().upper()
 
-elif not st.session_state.tema_actual:
+# Si no viene de URL, usar valor por defecto
+if not st.session_state.tema_actual:
     st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
 
 tema_actual = st.session_state.tema_actual
 
-# 2. Obtenemos el rol del link (para entrar directo como empleado)
+# =============================================================================
+# ROL DESDE URL (ACCESO DIRECTO EMPLEADO)
+# =============================================================================
+
 rol_url = params.get("rol")
+
+if rol_url and st.session_state.rol is None:
+    # normaliza valores
+    if rol_url.lower() == "empleado":
+        st.session_state.rol = "Empleado"
+    elif rol_url.lower() == "admin":
+        st.session_state.rol = "Admin"
 
 # =============================================================================
 # FUNCIONES DE APOYO
