@@ -29,6 +29,7 @@ st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="cent
 st.session_state.setdefault("rol", None)
 st.session_state.setdefault("paso", 1)
 st.session_state.setdefault("tema_actual", None)
+st.session_state.setdefault("modulo", None)
 
 # =============================================================================
 # COLORES CORPORATIVOS CAMPOFERT (SIN CAMBIOS)
@@ -902,7 +903,7 @@ if menu == "📋 Registro Asistencia":
     # ==========================================================
     # 🧠 RESET SEGURO (CONTROL ÚNICO)
     # ==========================================================
-    if st.session_state.modulo != "registro_asistencia":
+    if st.session_state.get("modulo") != "registro_asistencia":
 
         st.session_state.modulo = "registro_asistencia"
 
@@ -1074,9 +1075,20 @@ if menu == "📋 Registro Asistencia":
                 "application/pdf"
             )
 
-        if st.button("Realizar otro registro"):
+        if st.button("Realizar otro registro", use_container_width=True):
 
-            for key in ["cedula", "persona", "pdf_doc", "foto_data"]:
+            for key in [
+                "cedula",
+                "persona",
+                "pdf_doc",
+                "foto_data",
+                "cedula_input",
+                "firma_final"
+            ]:
                 st.session_state.pop(key, None)
-
+        
+            # Reinicio completo del flujo
+            st.session_state.paso = 1
+            st.session_state.modulo = "registro_asistencia"
+        
             st.rerun()
