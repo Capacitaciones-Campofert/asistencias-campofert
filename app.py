@@ -240,9 +240,6 @@ def guardar_en_google_sheets(datos):
         st.error(f"Error de conexión con Google Sheets: {e}")
         return False
 
-    except Exception as e:
-        st.error(f"Error de conexión con Google Sheets: {e}")
-        return False
 # =============================================================================
 # LÓGICA DE SEGURIDAD Y ROLES - LOGIN MULTINACIONAL CAMPOFERT
 # =============================================================================
