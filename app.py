@@ -144,6 +144,7 @@ if rol_url and st.session_state.rol is None:
 @st.cache_data(ttl=1800, show_spinner=False)
 def obtener_datos():
     ruta = "empleados.xlsx"
+    
     if os.path.exists(ruta):
         try:
             df = pd.read_excel(ruta, engine='openpyxl', dtype={'ID': str})
@@ -155,8 +156,12 @@ def obtener_datos():
 
 @st.cache_data(ttl=30, show_spinner=False)
 def leer_asistencias():
-    return conn.read(worksheet="Hoja", ttl=0)
-
+    try:
+        df = conn.read(worksheet="Hoja")
+        return df if df is not None else pd.DataFrame()
+    except:
+        return pd.DataFrame()
+        
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
     mi_correo = "gestionhumanacpfert@gmail.com"
     password = "bhbwshtosozexhcr"
@@ -562,8 +567,7 @@ if st.session_state.rol == "Admin":
                 f.write(archivo.getbuffer())
 
             st.success("✅ Archivo actualizado correctamente.")
-            st.balloons()
-
+            
     # -------------------------------------------------
     # DASHBOARD
     # -------------------------------------------------
@@ -572,7 +576,7 @@ if st.session_state.rol == "Admin":
         st.markdown("## 📊 Dashboard Ejecutivo")
 
         try:
-            df = conn.read(worksheet="Hoja", ttl=0)
+            df = leer_asistencias()
 
             total = len(df)
             personas = df["ID"].nunique()
@@ -598,8 +602,8 @@ if st.session_state.rol == "Admin":
         st.markdown("## 📄 Historial de Asistencias")
 
         try:
-            df = conn.read(worksheet="Hoja", ttl=0)
-
+            df = leer_asistencias()
+            
             ced = st.text_input("Buscar por cédula")
 
             if ced:
@@ -618,7 +622,7 @@ if st.session_state.rol == "Admin":
         st.markdown("## 📁 Reportes")
 
         try:
-            df = conn.read(worksheet="Hoja", ttl=0)
+            df = leer_asistencias()
 
             csv = df.to_csv(index=False).encode("utf-8")
 
