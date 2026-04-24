@@ -27,7 +27,7 @@ st.set_page_config(page_title="Campofert - Registro de Asistencia", layout="cent
 
 st.session_state.setdefault("rol", None)
 st.session_state.setdefault("paso", 1)
-st.session_state.setdefault("tema_actual", None)  # 👈 importante dejarlo en None primero
+st.session_state.setdefault("tema_actual", "CAPACITACIÓN GENERAL")
 
 # --- COLORES CORPORATIVOS CAMPOFERT ---
 CSS_CORPORATIVO = """
@@ -102,7 +102,7 @@ tema_desde_url = params.get("tema") or params.get("Tema")
 if tema_desde_url:
     st.session_state.tema_actual = tema_desde_url.replace("+", " ").upper()
 
-elif st.session_state.tema_actual is None:
+elif not st.session_state.tema_actual:
     st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
 
 tema_actual = st.session_state.tema_actual
@@ -198,10 +198,10 @@ def guardar_en_google_sheets(datos):
 # LÓGICA DE SEGURIDAD Y ROLES - LOGIN MULTINACIONAL CAMPOFERT
 # =============================================================================
 
-if rol_url == "Empleado":
+if rol_url and rol_url.lower() == "empleado":
     st.session_state.rol = "Empleado"
 
-if 'rol' not in st.session_state:
+if st.session_state.rol is None:
 
     st.markdown("""
     <style>
