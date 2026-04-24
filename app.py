@@ -141,7 +141,7 @@ if rol_url and st.session_state.rol is None:
 # FUNCIONES DE APOYO
 # =============================================================================
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=1800, show_spinner=False)
 def obtener_datos():
     ruta = "empleados.xlsx"
     if os.path.exists(ruta):
@@ -153,7 +153,7 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return pd.DataFrame()
 
-@st.cache_data(ttl=120, show_spinner=False)
+@st.cache_data(ttl=30, show_spinner=False)
 def leer_asistencias():
     return conn.read(worksheet="Hoja", ttl=0)
 
@@ -203,26 +203,31 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
 
 def guardar_en_google_sheets(datos):
     try:
+        # Leer existente
         df_existente = leer_asistencias()
-        
-        # Si la hoja está vacía
-        if df_existente is None or df_existente.empty:
-            df_existente = pd.DataFrame()
 
-        df_nuevo = pd.DataFrame([{
+        if df_existente is None or df_existente.empty:
+            df_existente = pd.DataFrame(columns=[
+                "Fecha", "ID", "Nombre", "Empresa", "Cargo", "Tema"
+            ])
+
+        # Nueva fila directa
+        nueva_fila = {
             "Fecha": datos['Fecha'],
-            "ID": datos['ID'],
+            "ID": str(datos['ID']),
             "Nombre": datos['Nombre'],
             "Empresa": datos['Empresa'],
             "Cargo": datos.get('Cargo', 'NO REGISTRA'),
             "Tema": datos['Tema']
-        }])
+        }
 
-        df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+        # Agregar fila sin concat pesado
+        df_existente.loc[len(df_existente)] = nueva_fila
 
+        # Actualizar hoja
         conn.update(
             worksheet="Hoja",
-            data=df_final
+            data=df_existente
         )
 
         return True
@@ -230,7 +235,6 @@ def guardar_en_google_sheets(datos):
     except Exception as e:
         st.error(f"Error de conexión con Google Sheets: {e}")
         return False
-
 # =============================================================================
 # LÓGICA DE SEGURIDAD Y ROLES - LOGIN MULTINACIONAL CAMPOFERT
 # =============================================================================
