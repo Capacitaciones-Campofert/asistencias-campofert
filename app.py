@@ -899,17 +899,22 @@ if menu == "📋 Registro Asistencia":
         </div>
     """, unsafe_allow_html=True)
 
-    # =============================================================================
-    # SESSION STATE (CONTROLADO Y SEGURO)
-    # =============================================================================
-    st.session_state.setdefault("paso", 1)
-    st.session_state.setdefault("persona", None)
-    st.session_state.setdefault("cedula", None)
-    st.session_state.setdefault("foto_data", None)
-    st.session_state.setdefault("pdf_doc", None)
+    # ==========================================================
+    # 🧠 RESET SEGURO (PUNTO 3 BIEN HECHO)
+    # ==========================================================
+    if st.session_state.get("modulo") != "registro_asistencia":
+
+        st.session_state.modulo = "registro_asistencia"
+
+        # SOLO AQUÍ LIMPIAS TODO
+        st.session_state.paso = 1
+        st.session_state.persona = None
+        st.session_state.cedula = None
+        st.session_state.foto_data = None
+        st.session_state.pdf_doc = None
 
     # =============================================================================
-    # PASO 1 → SOLO AQUÍ SE CARGA DATA (OPTIMIZADO)
+    # PASO 1 → SOLO AQUÍ SE CARGA DATA
     # =============================================================================
     if st.session_state.paso == 1:
 
@@ -965,10 +970,11 @@ if menu == "📋 Registro Asistencia":
 
                         if nombre_nuevo and cargo_nuevo:
 
-                            if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
-                                nom_emp = empresa_externa.upper() if empresa_externa else "CONTRATISTA"
-                            else:
-                                nom_emp = empresa_seleccionada
+                            nom_emp = (
+                                empresa_externa.upper()
+                                if empresa_seleccionada == "TEMPORAL / CONTRATISTA" and empresa_externa
+                                else empresa_seleccionada
+                            )
 
                             st.session_state.persona = {
                                 "Apellidos y Nombres": nombre_nuevo.upper(),
@@ -987,7 +993,7 @@ if menu == "📋 Registro Asistencia":
     # PASO 2 → FOTO
     # =============================================================================
     elif st.session_state.paso == 2:
-
+                  
         st.markdown("### 📸 Captura de Identidad")
         st.markdown(
             "<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>",
@@ -1100,5 +1106,4 @@ if menu == "📋 Registro Asistencia":
                 if key in st.session_state:
                     del st.session_state[key]
 
-            st.session_state.paso = 1
-            st.rerun()
+           st.rerun()
