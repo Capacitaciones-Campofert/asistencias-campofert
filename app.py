@@ -32,63 +32,6 @@ if "init" not in st.session_state:
 st.set_page_config(page_title="Campofert - Registro de Asistencia",
                    layout="centered",
                    page_icon="🌱")
-# --- COLORES CORPORATIVOS CAMPOFERT ---
-CSS_CORPORATIVO = """
-<style>
-    .stApp { background-color: #F5F5F0; }
-
-    [data-testid="stSidebar"] { background-color: #1B5E20; }
-    [data-testid="stSidebar"] * { color: #FFFFFF !important; }
-
-    .stButton > button {
-        background-color: #2E7D32;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        padding: 0.5rem 1rem;
-        transition: background-color 0.3s;
-    }
-    .stButton > button:hover {
-        background-color: #F9A825;
-        color: #1B5E20;
-    }
-
-    h1, h2, h3 { color: #1B5E20; }
-
-    .stTextInput > div > div > input {
-        border: 2px solid #2E7D32;
-        border-radius: 6px;
-    }
-    .stTextInput > div > div > input:focus {
-        border-color: #F9A825;
-        box-shadow: 0 0 0 2px rgba(249,168,37,0.3);
-    }
-
-    [data-testid="stMetricValue"] { color: #2E7D32; font-weight: bold; }
-
-    .stTabs [data-baseweb="tab"] { color: #2E7D32; font-weight: bold; }
-    .stTabs [aria-selected="true"] {
-        border-bottom: 3px solid #F9A825 !important;
-        color: #1B5E20 !important;
-    }
-
-    footer { visibility: hidden; }
-
-    .stDownloadButton > button {
-        background-color: #F9A825;
-        color: #1B5E20;
-        font-weight: bold;
-        border: none;
-        border-radius: 8px;
-    }
-    .stDownloadButton > button:hover {
-        background-color: #2E7D32;
-        color: white;
-    }
-</style>
-"""
-st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
 
 # =========================================================
 # ⚡ OPTIMIZACIÓN 2: CACHE DE EXCEL (CRÍTICO)
