@@ -56,7 +56,7 @@ def cargar_asistencias_google():
         return pd.DataFrame(columns=["Fecha", "ID", "Nombre", "Empresa", "Cargo", "Tema"])
 
 # =============================================================================
-# PDF MULTINACIONAL CAMPOFERT (SIN QR - OPTIMIZADO)
+# PDF MULTINACIONAL CAMPOFERT (OPTIMIZADO)
 # =============================================================================
 def generar_pdf_pro(datos, imagen_firma, imagen_foto):
     buffer = io.BytesIO()
@@ -69,15 +69,11 @@ def generar_pdf_pro(datos, imagen_firma, imagen_foto):
     gris_fondo = (0.96, 0.96, 0.96)
     codigo_verif = f"CPF-2026-{datetime.now().strftime('%M%S')}"
 
-    # Fondo y Borde
     p.setFillColorRGB(1, 1, 1); p.rect(0, 0, width, height, fill=1, stroke=0)
     p.setStrokeColorRGB(*verde_oscuro); p.setLineWidth(1.4); p.roundRect(20, 20, width-40, height-40, 14)
-
-    # Cabecera
     p.setFillColorRGB(*verde_oscuro); p.roundRect(20, height-125, width-40, 105, 14, fill=1, stroke=0)
     p.setFillColorRGB(*dorado); p.rect(20, height-125, width-40, 5, fill=1, stroke=0)
 
-    # Logos
     try:
         if os.path.exists("logo_campofert.png"):
             p.drawImage(ImageReader("logo_campofert.png"), 35, height-112, width=95, height=72, preserveAspectRatio=True, mask='auto')
@@ -85,17 +81,14 @@ def generar_pdf_pro(datos, imagen_firma, imagen_foto):
             p.drawImage(ImageReader("logo_campolab.png"), width-130, height-112, width=95, height=72, preserveAspectRatio=True, mask='auto')
     except: pass
 
-    # Títulos
     p.setFillColorRGB(1, 1, 1); p.setFont("Helvetica-Bold", 18); p.drawCentredString(width/2, height-63, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica", 10); p.drawCentredString(width/2, height-84, "Sistema de Gestión Humana y Seguridad en el Trabajo")
     p.setFont("Helvetica-Bold", 8); p.drawRightString(width-35, height-38, f"VERIF: {codigo_verif}")
 
-    # Cuerpo
     p.setFillColorRGB(0, 0, 0); p.setFont("Helvetica", 12); p.drawCentredString(width/2, 610, "Por medio del presente documento se certifica que:")
     p.setFillColorRGB(*verde_oscuro); p.setFont("Helvetica-Bold", 24); p.drawCentredString(width/2, 570, datos["Nombre"].upper())
     p.setFillColorRGB(0, 0, 0); p.setFont("Helvetica", 12); p.drawCentredString(width/2, 545, f"Identificado(a) con documento No. {datos['ID']}")
 
-    # Cuadro Tema
     p.setFillColorRGB(*gris_fondo); p.roundRect(60, 445, width-120, 75, 10, fill=1, stroke=0)
     p.setFillColorRGB(*verde_oscuro); p.setFont("Helvetica-Bold", 11); p.drawString(80, 495, "CAPACITACIÓN / ACTIVIDAD:")
     p.setFillColorRGB(0, 0, 0); p.setFont("Helvetica-Bold", 12); p.drawString(80, 472, datos["Tema"])
@@ -105,35 +98,30 @@ def generar_pdf_pro(datos, imagen_firma, imagen_foto):
     p.drawString(80, 400, f"Cargo: {datos.get('Cargo','N/A')}")
     p.drawString(80, 380, f"Fecha Registro: {datos['Fecha']}")
 
-    # Foto Circular
-    base_y = 185
     if imagen_foto:
         try:
             img_raw = Image.open(imagen_foto).convert("RGB").resize((180, 180))
             mask = Image.new("L", (180, 180), 0)
             draw = ImageDraw.Draw(mask); draw.ellipse((0, 0, 180, 180), fill=255)
             circular = Image.new("RGBA", (180, 180)); circular.paste(img_raw, (0, 0)); circular.putalpha(mask)
-            p.drawImage(ImageReader(circular), 75, base_y, width=110, height=110, mask='auto')
+            p.drawImage(ImageReader(circular), 75, 185, width=110, height=110, mask='auto')
         except: pass
 
-    # Firma
     if imagen_firma is not None:
         try:
             img_firma = Image.fromarray(imagen_firma.astype("uint8"), "RGBA")
-            p.drawImage(ImageReader(img_firma), width-255, base_y + 28, width=145, height=55, mask='auto')
+            p.drawImage(ImageReader(img_firma), width-255, 213, width=145, height=55, mask='auto')
         except: pass
     
-    p.setStrokeColorRGB(*verde_oscuro); p.line(width-275, base_y + 18, width-95, base_y + 18)
-    p.setFont("Helvetica-Bold", 10); p.drawCentredString(width-185, base_y + 3, "Firma del Trabajador")
+    p.setStrokeColorRGB(*verde_oscuro); p.line(width-275, 203, width-95, 203)
+    p.setFont("Helvetica-Bold", 10); p.drawCentredString(width-185, 188, "Firma del Trabajador")
 
-    # Pie
     p.setFillColorRGB(*verde_claro); p.roundRect(20, 20, width-40, 25, 0, fill=1, stroke=0)
     p.setFillColorRGB(1, 1, 1); p.setFont("Helvetica", 8); p.drawCentredString(width/2, 30, "Documento digital oficial Campofert S.A.S.")
     
     p.showPage(); p.save(); buffer.seek(0)
     return buffer
 
-# --- PROCESO SEGUNDO PLANO PARA CORREO ---
 def enviar_correo_background(datos, firma, foto):
     try:
         pdf_file = generar_pdf_pro(datos, firma, foto)
@@ -141,7 +129,7 @@ def enviar_correo_background(datos, firma, foto):
         clave_app = "bhbwshtosozexhcr"
         msg = MIMEMultipart()
         msg['Subject'] = f"✅ Registro: {datos['Nombre']}"; msg['From'] = remitente; msg['To'] = remitente
-        msg.attach(MIMEText(f"Nuevo registro de asistencia: {datos['Tema']}", 'plain'))
+        msg.attach(MIMEText(f"Nuevo registro: {datos['Tema']}", 'plain'))
         pdf_file.seek(0)
         adjunto = MIMEBase('application', 'octet-stream'); adjunto.set_payload(pdf_file.read())
         encoders.encode_base64(adjunto); adjunto.add_header('Content-Disposition', f"attachment; filename=Certificado.pdf")
@@ -171,8 +159,8 @@ df_asistencias = cargar_asistencias_google()
 if st.session_state.rol == "Admin":
     with st.sidebar:
         if os.path.exists("logo_campofert.png"): st.image("logo_campofert.png")
-        st.markdown("### Panel Administrativo")
-        menu = st.radio("Ir a:", ["📊 Dashboard", "🔗 Generador de Enlaces", "👥 Empleados", "📤 Cargar Archivo", "📄 Historial", "📋 Probar Registro"])
+        st.markdown("### Menú Administrativo")
+        menu = st.radio("Ir a:", ["📊 Dashboard", "🔗 Generador de Enlaces", "📋 Registro Asistencia", "👥 Empleados", "📤 Cargar Archivo", "📄 Historial"])
         st.markdown("---")
         if st.button("⬅️ REGRESAR AL INICIO"): st.session_state.clear(); st.rerun()
 else:
@@ -182,91 +170,78 @@ else:
 # MÓDULOS
 # =============================================================================
 
-# --- NUEVO: GENERADOR DE ENLACES ---
-if menu == "🔗 Generador de Enlaces":
-    st.title("🔗 Generador de URL de Capacitación")
-    st.markdown("Usa esta herramienta para crear el link que compartirás con los trabajadores.")
-    
-    nombre_cap = st.text_input("Nombre de la Capacitación:", placeholder="Ej: Seguridad en Alturas")
-    
+if menu == "📊 Dashboard":
+    st.title("📊 Resumen General")
+    st.dataframe(df_asistencias.tail(15), use_container_width=True)
+
+elif menu == "🔗 Generador de Enlaces":
+    st.title("🔗 Generador de URL")
+    nombre_cap = st.text_input("Nombre de la Capacitación:")
     if nombre_cap:
-        # Limpiar y codificar el texto para URL
-        tema_codificado = urllib.parse.quote_plus(nombre_cap.upper())
-        # Obtener la URL base (funciona tanto local como en la nube)
-        base_url = "https://campofert-asistencia.streamlit.app/" # Cambia esto por tu URL real de Streamlit Cloud
-        enlace_final = f"{base_url}?tema={tema_codificado}"
-        
-        st.info("✅ Enlace generado con éxito:")
-        st.code(enlace_final)
-        st.markdown(f"[Haga clic aquí para probar el enlace]({enlace_final})")
-        st.warning("Copia el código de arriba y envíalo por WhatsApp a los colaboradores.")
+        tema_cod = urllib.parse.quote_plus(nombre_cap.upper())
+        # Reemplazar con tu URL de Streamlit Cloud cuando la tengas
+        url_base = "https://tu-app-campofert.streamlit.app/" 
+        st.info("Copia este enlace para compartir:")
+        st.code(f"{url_base}?tema={tema_cod}")
 
-elif menu == "📊 Dashboard":
-    st.title("📊 Dashboard")
-    st.dataframe(df_asistencias.tail(10), use_container_width=True)
-
-elif menu == "👥 Empleados":
-    st.title("👥 Personal Registrado")
-    df_e = obtener_datos_empleados()
-    if df_e is not None: st.dataframe(df_e, use_container_width=True)
-    else: st.info("Sube 'empleados.xlsx' en el módulo de carga.")
-
-elif menu == "📋 Registro Asistencia" or menu == "📋 Probar Registro":
-    tema_url = st.query_params.get("tema", "CAPACITACIÓN GENERAL").replace("+", " ").upper()
+elif menu == "📋 Registro Asistencia":
+    tema_actual = st.query_params.get("tema", "CAPACITACIÓN GENERAL").replace("+", " ").upper()
     if 'paso' not in st.session_state: st.session_state.paso = 1
 
-    if st.session_state.paso in [2, 3]:
-        if st.button("⬅️ Corregir / Volver"): st.session_state.paso -= 1; st.rerun()
+    if st.session_state.paso in [2, 3] and st.button("⬅️ Volver"):
+        st.session_state.paso -= 1; st.rerun()
 
     if st.session_state.paso == 1:
-        st.markdown(f"<div class='highlight-box'><strong>Capacitación Actual:</strong><br>{tema_url}</div>", unsafe_allow_html=True)
-        ced = st.text_input("Ingrese su Cédula:")
+        st.markdown(f"<div class='highlight-box'><strong>Actividad:</strong> {tema_actual}</div>", unsafe_allow_html=True)
+        ced = st.text_input("Cédula:")
         if ced:
             df_m = obtener_datos_empleados()
             persona = df_m[df_m['ID'].astype(str) == ced] if df_m is not None else pd.DataFrame()
             if not persona.empty:
-                st.session_state.persona = persona.iloc[0].to_dict()
-                st.session_state.cedula = ced
-                st.success(f"Bienvenido, {st.session_state.persona['Apellidos y Nombres']}")
-                if st.button("Continuar"): st.session_state.paso = 2; st.rerun()
+                st.session_state.persona, st.session_state.cedula = persona.iloc[0].to_dict(), ced
+                st.success(f"Hola, {st.session_state.persona['Apellidos y Nombres']}")
+                if st.button("Siguiente"): st.session_state.paso = 2; st.rerun()
             else:
-                with st.form("nuevo_u"):
-                    nom = st.text_input("Nombre Completo"); emp = st.selectbox("Empresa", ["CAMPOFERT", "CAMPOLAB", "CONTRATISTA"]); car = st.text_input("Cargo")
-                    if st.form_submit_button("Registrar y Continuar"):
+                with st.form("nuevo"):
+                    nom = st.text_input("Nombre"); emp = st.selectbox("Empresa", ["CAMPOFERT", "CAMPOLAB", "CONTRATISTA"]); car = st.text_input("Cargo")
+                    if st.form_submit_button("Registrar"):
                         st.session_state.persona = {'Apellidos y Nombres': nom.upper(), 'Empresa': emp, 'Cargo': car.upper()}
                         st.session_state.cedula = ced; st.session_state.paso = 2; st.rerun()
-        if st.session_state.rol == "Empleado" and st.button("Salir"): st.session_state.clear(); st.rerun()
 
     elif st.session_state.paso == 2:
-        st.title("📸 Registro Fotográfico")
-        cam = st.camera_input("Foto")
+        st.title("📸 Foto")
+        cam = st.camera_input("Captura")
         if cam:
             st.session_state.foto_data = cam
             if st.button("Siguiente"): st.session_state.paso = 3; st.rerun()
 
     elif st.session_state.paso == 3:
-        st.title("✍️ Firma Digital")
-        canvas_f = st_canvas(stroke_width=3, stroke_color="#1B5E20", height=180, width=350, key="firma")
+        st.title("✍️ Firma")
+        canvas_f = st_canvas(stroke_width=3, stroke_color="#1B5E20", height=180, width=350, key="f")
         if st.button("Finalizar ✅"):
-            datos = {"Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"), "ID": st.session_state.cedula, "Nombre": st.session_state.persona['Apellidos y Nombres'], "Empresa": st.session_state.persona['Empresa'], "Cargo": st.session_state.persona.get('Cargo', 'N/A'), "Tema": tema_url}
+            datos = {"Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"), "ID": st.session_state.cedula, "Nombre": st.session_state.persona['Apellidos y Nombres'], "Empresa": st.session_state.persona['Empresa'], "Cargo": st.session_state.persona.get('Cargo', 'N/A'), "Tema": tema_actual}
             conn.update(worksheet="Hoja", data=pd.concat([df_asistencias, pd.DataFrame([datos])], ignore_index=True))
             st.session_state.pdf_doc = generar_pdf_pro(datos, canvas_f.image_data, st.session_state.foto_data)
             threading.Thread(target=enviar_correo_background, args=(datos, canvas_f.image_data, st.session_state.foto_data)).start()
             st.session_state.paso = 4; st.rerun()
 
     elif st.session_state.paso == 4:
-        st.balloons(); st.success("¡Registro Completado!")
-        st.download_button("📥 Descargar Certificado", st.session_state.pdf_doc.getvalue(), f"Certificado_{st.session_state.cedula}.pdf", "application/pdf")
-        if st.button("Nuevo Registro"):
+        st.success("¡Completado!")
+        st.download_button("📥 Descargar PDF", st.session_state.pdf_doc.getvalue(), "Certificado.pdf", "application/pdf")
+        if st.button("Nuevo"):
             for k in ['cedula','persona','pdf_doc','foto_data']: st.session_state.pop(k, None)
             st.session_state.paso = 1; st.rerun()
 
+elif menu == "👥 Empleados":
+    st.title("👥 Base de Datos")
+    st.dataframe(obtener_datos_empleados(), use_container_width=True)
+
 elif menu == "📤 Cargar Archivo":
-    st.title("📤 Actualizar Personal")
-    file_up = st.file_uploader("Subir empleados.xlsx", type=["xlsx"])
-    if file_up:
-        with open("empleados.xlsx", "wb") as f: f.write(file_up.getbuffer())
-        st.success("Archivo guardado correctamente.")
+    st.title("📤 Cargar Personal")
+    f = st.file_uploader("Subir empleados.xlsx", type=["xlsx"])
+    if f:
+        with open("empleados.xlsx", "wb") as fi: fi.write(f.getbuffer())
+        st.success("Actualizado")
 
 elif menu == "📄 Historial":
     st.title("📄 Historial")
