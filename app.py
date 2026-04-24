@@ -891,6 +891,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 # OPCIÓN 1: REGISTRO DE ASISTENCIA
 # =============================================================================
 if menu == "📋 Registro Asistencia":
+
     st.markdown(f"""
         <div style='background-color:#E8F5E9; border-left:5px solid #2E7D32;
                     padding:12px 16px; border-radius:6px; margin-bottom:1rem;'>
@@ -898,65 +899,121 @@ if menu == "📋 Registro Asistencia":
         </div>
     """, unsafe_allow_html=True)
 
-    if 'paso' not in st.session_state:
-        st.session_state.paso = 1
+    # =============================================================================
+    # SESSION STATE (CONTROLADO Y SEGURO)
+    # =============================================================================
+    st.session_state.setdefault("paso", 1)
+    st.session_state.setdefault("persona", None)
+    st.session_state.setdefault("cedula", None)
+    st.session_state.setdefault("foto_data", None)
+    st.session_state.setdefault("pdf_doc", None)
 
-    df_maestro = obtener_datos()
-
+    # =============================================================================
+    # PASO 1 → SOLO AQUÍ SE CARGA DATA (OPTIMIZADO)
+    # =============================================================================
     if st.session_state.paso == 1:
-        cedula = st.text_input("Por favor, ingresa tu Cédula:").strip()
+
+        df_maestro = obtener_datos()
+
+        cedula = st.text_input(
+            "Por favor, ingresa tu Cédula:",
+            key="cedula_input"
+        ).strip()
+
         if cedula:
-            res = df_maestro[df_maestro['ID'].astype(str) == cedula] if df_maestro is not None else pd.DataFrame()
+
+            res = (
+                df_maestro[df_maestro['ID'].astype(str) == cedula]
+                if df_maestro is not None
+                else pd.DataFrame()
+            )
 
             if not res.empty:
+
                 st.session_state.persona = res.iloc[0].to_dict()
                 st.session_state.cedula = cedula
-                st.success(f"✅ Hola, **{st.session_state.persona['Apellidos y Nombres']}**. ¡Bienvenido!")
+
+                st.success(
+                    f"✅ Hola, **{st.session_state.persona['Apellidos y Nombres']}**. ¡Bienvenido!"
+                )
+
                 if st.button("Continuar al registro ➡️"):
                     st.session_state.paso = 2
                     st.rerun()
+
             else:
-                st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
+                st.warning(
+                    "⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:"
+                )
+
                 with st.form("registro_nuevo_empleado"):
+
                     nombre_nuevo = st.text_input("Nombres y Apellidos Completos:")
-                    empresa_seleccionada = st.selectbox("Empresa:", ["CAMPOFERT", "CAMPOLAB", "TEMPORAL / CONTRATISTA"])
+                    empresa_seleccionada = st.selectbox(
+                        "Empresa:",
+                        ["CAMPOFERT", "CAMPOLAB", "TEMPORAL / CONTRATISTA"]
+                    )
+
                     empresa_externa = ""
+
                     if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
                         empresa_externa = st.text_input("¿A qué empresa perteneces?")
+
                     cargo_nuevo = st.text_input("Tu Cargo:")
-                    
+
                     if st.form_submit_button("Registrarme y Continuar ➡️"):
+
                         if nombre_nuevo and cargo_nuevo:
-                        
-                        if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
-                            nom_emp = empresa_externa.upper() if empresa_externa else "CONTRATISTA"
-                        else:
-                            nom_emp = empresa_seleccionada  # 👈 FIX CLAVE
-                            
+
+                            if empresa_seleccionada == "TEMPORAL / CONTRATISTA":
+                                nom_emp = empresa_externa.upper() if empresa_externa else "CONTRATISTA"
+                            else:
+                                nom_emp = empresa_seleccionada
+
                             st.session_state.persona = {
-                                'Apellidos y Nombres': nombre_nuevo.upper(),
-                                'Empresa': nom_emp,
-                                'Cargo': cargo_nuevo.upper()
+                                "Apellidos y Nombres": nombre_nuevo.upper(),
+                                "Empresa": nom_emp,
+                                "Cargo": cargo_nuevo.upper()
                             }
+
                             st.session_state.cedula = cedula
                             st.session_state.paso = 2
                             st.rerun()
+
                         else:
                             st.error("Completa todos los campos.")
 
+    # =============================================================================
+    # PASO 2 → FOTO
+    # =============================================================================
     elif st.session_state.paso == 2:
+
         st.markdown("### 📸 Captura de Identidad")
-        st.markdown("<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>",
+            unsafe_allow_html=True
+        )
+
         foto = st.camera_input("Foto de validación")
+
         if foto:
             st.session_state.foto_data = foto
+
             if st.button("Ir a la firma ✍️"):
                 st.session_state.paso = 3
                 st.rerun()
 
+    # =============================================================================
+    # PASO 3 → FIRMA
+    # =============================================================================
     elif st.session_state.paso == 3:
+
         st.markdown("### ✍️ Firma Digital")
-        st.markdown("<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>", unsafe_allow_html=True)
+        st.markdown(
+            "<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>",
+            unsafe_allow_html=True
+        )
+
         canvas_res = st_canvas(
             stroke_width=3,
             stroke_color="#1B5E20",
@@ -965,26 +1022,56 @@ if menu == "📋 Registro Asistencia":
             width=350,
             key="firma_final"
         )
+
         if st.button("Finalizar y Generar Certificado ✅"):
+
             if canvas_res.image_data is not None:
+
                 datos_asistencia = {
-                    "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
+                    "Fecha": datetime.now(
+                        pytz.timezone('America/Bogota')
+                    ).strftime("%d/%m/%Y %H:%M:%S"),
+
                     "ID": st.session_state.cedula,
+
                     "Nombre": st.session_state.persona['Apellidos y Nombres'],
-                    "Empresa": st.session_state.persona['Empresa'],
-                    "Cargo": st.session_state.persona.get('Cargo', 'NO REGISTRA'),
+
+                    "Empresa": st.session_state.persona.get(
+                        "Empresa",
+                        "NO REGISTRA"
+                    ),
+
+                    "Cargo": st.session_state.persona.get(
+                        "Cargo",
+                        "NO REGISTRA"
+                    ),
+
                     "Tema": tema_actual
                 }
+
                 if guardar_en_google_sheets(datos_asistencia):
-                    pdf = generar_pdf(datos_asistencia, canvas_res.image_data, st.session_state.get('foto_data'))
+
+                    pdf = generar_pdf(
+                        datos_asistencia,
+                        canvas_res.image_data,
+                        st.session_state.get("foto_data")
+                    )
+
                     enviar_respaldo_gestion_humana(datos_asistencia, pdf)
+
                     pdf.seek(0)
+
                     st.session_state.pdf_doc = pdf
                     st.session_state.paso = 4
                     st.rerun()
 
+    # =============================================================================
+    # PASO 4 → RESULTADO
+    # =============================================================================
     elif st.session_state.paso == 4:
+
         st.balloons()
+
         st.markdown("""
             <div style='background-color:#E8F5E9; border:2px solid #2E7D32;
                         padding:20px; border-radius:10px; text-align:center;'>
@@ -992,17 +1079,26 @@ if menu == "📋 Registro Asistencia":
                 <p>Tu asistencia ha sido guardada correctamente.</p>
             </div>
         """, unsafe_allow_html=True)
-        if st.session_state.get('pdf_doc'):
+
+        if st.session_state.get("pdf_doc"):
+
             st.download_button(
                 "📥 Descargar mi Certificado (PDF)",
                 st.session_state.pdf_doc.getvalue(),
                 f"Certificado_{st.session_state.cedula}.pdf",
                 "application/pdf"
             )
+
         if st.button("Realizar otro registro"):
-            for key in ['cedula', 'persona', 'pdf_doc', 'foto_data']:
+
+            for key in [
+                "cedula",
+                "persona",
+                "pdf_doc",
+                "foto_data"
+            ]:
                 if key in st.session_state:
                     del st.session_state[key]
+
             st.session_state.paso = 1
             st.rerun()
-
