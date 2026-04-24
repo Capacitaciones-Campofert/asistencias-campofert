@@ -723,7 +723,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 width=95,
                 height=72,
                 preserveAspectRatio=True
-        )
+            )
     except:
         pass
     
@@ -1077,17 +1077,20 @@ if menu == "📋 Registro Asistencia":
 
         if st.button("Realizar otro registro", use_container_width=True):
 
-            for key in [
+            claves_reset = [
                 "cedula",
                 "persona",
                 "pdf_doc",
                 "foto_data",
                 "cedula_input",
                 "firma_final"
-            ]:
-                st.session_state.pop(key, None)
+            ]
         
-            # Reinicio completo del flujo
+            for key in claves_reset:
+                if key in st.session_state:
+                    del st.session_state[key]
+        
+            # Reinicio limpio del flujo
             st.session_state.paso = 1
             st.session_state.modulo = "registro_asistencia"
         
