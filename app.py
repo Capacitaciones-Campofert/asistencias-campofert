@@ -2,307 +2,181 @@ import streamlit as st
 import pandas as pd
 import os
 import io
-import threading
 import pytz
+import qrcode
 from datetime import datetime
-from io import BytesIO
 from streamlit_drawable_canvas import st_canvas
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 from streamlit_gsheets import GSheetsConnection
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
-# =============================================================================
-# CONFIG
-# =============================================================================
-
+# =========================
+# CONFIG RENDIMIENTO
+# =========================
 st.set_page_config(
-    page_title="Campofert Enterprise",
+    page_title="Campofert - Asistencia",
     layout="centered",
     page_icon="🌱",
     initial_sidebar_state="collapsed"
 )
 
+st.cache_data.clear()
+
+# =========================
+# CONEXIÓN SHEETS
+# =========================
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-EMAIL_USER = "gestionhumanacpfert@gmail.com"
-EMAIL_PASS = st.secrets.get("email_password", "xxxxx")
-
-# =============================================================================
-# CACHE LAYER (CRÍTICO PARA ESCALA)
-# =============================================================================
-
-@st.cache_data(ttl=3600)
-def get_empleados():
+# =========================
+# CACHE EMPLEADOS (CLAVE)
+# =========================
+@st.cache_data(ttl=600)
+def obtener_empleados():
     if os.path.exists("empleados.xlsx"):
-        df = pd.read_excel("empleados.xlsx", engine="openpyxl", dtype={"ID": str})
+        df = pd.read_excel("empleados.xlsx", dtype={"ID": str})
         df.columns = df.columns.str.strip()
         return df
     return pd.DataFrame()
 
-
-@st.cache_data(ttl=10)
-def get_registros():
-    try:
-        return conn.read(worksheet="Hoja", ttl=0)
-    except:
-        return pd.DataFrame()
-
-# =============================================================================
-# BACKGROUND QUEUE (EMAIL + PROCESOS PESADOS)
-# =============================================================================
-
-def send_email(data, pdf_buffer):
-
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = EMAIL_USER
-        msg['To'] = EMAIL_USER
-        msg['Subject'] = f"Asistencia {data['Nombre']}"
-
-        body = f"""
-        <h3>Registro exitoso</h3>
-        <p><b>Nombre:</b> {data['Nombre']}</p>
-        <p><b>ID:</b> {data['ID']}</p>
-        <p><b>Tema:</b> {data['Tema']}</p>
-        """
-
-        msg.attach(MIMEText(body, 'html'))
-
-        pdf_buffer.seek(0)
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(pdf_buffer.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename=cert.pdf')
-
-        msg.attach(part)
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
-        server.quit()
-
-    except Exception as e:
-        print("EMAIL ERROR:", e)
-
-
-def async_email(data, pdf):
-    threading.Thread(
-        target=send_email,
-        args=(data, pdf),
-        daemon=True
-    ).start()
-
-# =============================================================================
-# SHEETS WRITER OPTIMIZADO (ANTI COLAPSO)
-# =============================================================================
-
-def save_to_sheets(data):
-
-    try:
-        new_row = pd.DataFrame([{
-            "Fecha": data['Fecha'],
-            "ID": data['ID'],
-            "Nombre": data['Nombre'],
-            "Empresa": data['Empresa'],
-            "Cargo": data.get('Cargo', ''),
-            "Tema": data['Tema']
-        }])
-
-        df_old = get_registros()
-
-        df_final = pd.concat([df_old, new_row], ignore_index=True)
-
-        conn.update(worksheet="Hoja", data=df_final)
-
-        get_registros.clear()
-
-        return True
-
-    except Exception as e:
-        st.error(e)
-        return False
-
-# =============================================================================
-# DATA
-# =============================================================================
-
-df_emp = get_empleados()
-
-# =============================================================================
-# TEMA GLOBAL
-# =============================================================================
-
-params = st.query_params
-tema_actual = params.get("tema", "CAPACITACIÓN GENERAL").replace("+", " ").upper()
-
-# =============================================================================
-# LOGIN SYSTEM
-# =============================================================================
-
+# =========================
+# ESTADO GLOBAL
+# =========================
 if "rol" not in st.session_state:
+    st.session_state.rol = None
 
-    st.title("🌱 Campofert Enterprise")
+if "tema" not in st.session_state:
+    st.session_state.tema = "CAPACITACIÓN GENERAL"
 
-    c1, c2 = st.columns(2)
+# =========================
+# LOGIN ADMIN (ENTER ENABLED)
+# =========================
+def login_admin():
+    st.markdown("### 🔐 Acceso Admin")
 
-    with c1:
-        if st.button("👷 Colaborador", use_container_width=True):
-            st.session_state.rol = "Empleado"
+    clave = st.text_input(
+        "Clave",
+        type="password",
+        key="admin_key",
+        on_change=None
+    )
+
+    if clave:
+        if clave == "campofert2026":
+            st.session_state.rol = "admin"
+            st.rerun()
+        else:
+            st.error("Clave incorrecta")
+
+# =========================
+# LOGIN KIOSCO
+# =========================
+if st.session_state.rol is None:
+
+    st.title("🌱 Campofert People")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("👷 COLABORADOR", use_container_width=True):
+            st.session_state.rol = "empleado"
             st.rerun()
 
-    with c2:
-        if st.button("🛡️ Admin", use_container_width=True):
-            st.session_state.admin_login = True
-            st.rerun()
-
-    # ================= ADMIN LOGIN =================
-    if st.session_state.get("admin_login"):
-
-        st.subheader("🔐 Acceso Admin")
-
-        clave = st.text_input("Clave", type="password")
-
-        if clave:
-
-            if clave == "campofert2026":
-                st.session_state.rol = "Admin"
-                st.rerun()
-            elif len(clave) > 0:
-                st.error("Clave incorrecta")
+    with col2:
+        if st.button("🛡️ ADMIN", use_container_width=True):
+            login_admin()
 
     st.stop()
 
-# =============================================================================
+# =========================
 # EMPLEADO FLOW
-# =============================================================================
+# =========================
+if st.session_state.rol == "empleado":
 
-if st.session_state.rol == "Empleado":
+    st.title("📋 Registro Asistencia")
 
-    st.subheader("📋 Registro Asistencia")
-    st.info(f"Tema: {tema_actual}")
+    empleados = obtener_empleados()
 
-    if "step" not in st.session_state:
-        st.session_state.step = 1
+    cedula = st.text_input("Cédula")
 
-    if st.session_state.step == 1:
+    persona = empleados[empleados["ID"] == cedula] if not empleados.empty else None
 
-        ced = st.text_input("Cédula")
+    if cedula and not persona.empty:
 
-        if ced:
+        datos = persona.iloc[0]
 
-            user = df_emp[df_emp["ID"].astype(str) == ced]
+        st.success(f"Hola {datos['Apellidos y Nombres']}")
 
-            if not user.empty:
-                st.session_state.user = user.iloc[0].to_dict()
-                st.session_state.ced = ced
-
-                if st.button("Continuar"):
-                    st.session_state.step = 2
-                    st.rerun()
-
-    elif st.session_state.step == 2:
-
-        photo = st.camera_input("Foto")
-
-        if photo:
-            st.session_state.photo = photo
-
-            if st.button("Firma"):
-                st.session_state.step = 3
-                st.rerun()
-
-    elif st.session_state.step == 3:
+        foto = st.camera_input("Foto")
 
         firma = st_canvas(
             stroke_width=3,
             stroke_color="#1B5E20",
             background_color="#fff",
-            height=180
+            height=160,
+            width=300
         )
 
         if st.button("Finalizar"):
 
-            data = {
+            datos_asistencia = {
                 "Fecha": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                "ID": st.session_state.ced,
-                "Nombre": st.session_state.user["Apellidos y Nombres"],
-                "Empresa": st.session_state.user["Empresa"],
-                "Cargo": st.session_state.user.get("Cargo", ""),
-                "Tema": tema_actual
+                "ID": cedula,
+                "Nombre": datos["Apellidos y Nombres"],
+                "Empresa": datos["Empresa"],
+                "Cargo": datos.get("Cargo", ""),
+                "Tema": st.session_state.tema
             }
 
-            if save_to_sheets(data):
+            df_exist = conn.read(worksheet="Hoja", ttl=0)
+            df_new = pd.DataFrame([datos_asistencia])
+            conn.update(worksheet="Hoja", data=pd.concat([df_exist, df_new]))
 
-                pdf = BytesIO()
-                pdf.write(b"PDF_CERTIFICADO_SIMPLIFICADO")
-                pdf.seek(0)
+            st.success("Registro guardado")
+            st.balloons()
 
-                async_email(data, pdf)
+    st.stop()
 
-                st.success("Registro exitoso")
-                st.download_button("Descargar PDF", pdf, "certificado.pdf")
+# =========================
+# ADMIN PANEL (RESTO COMPLETO)
+# =========================
+if st.session_state.rol == "admin":
 
-                st.session_state.step = 1
+    st.sidebar.title("🛡️ ADMIN")
 
-# =============================================================================
-# ADMIN FULL SYSTEM
-# =============================================================================
+    menu = st.sidebar.radio("Menu", [
+        "⚙️ Tema",
+        "👥 Empleados",
+        "📊 Dashboard",
+        "📄 Historial",
+        "📁 Reportes"
+    ])
 
-elif st.session_state.rol == "Admin":
+    # -------------------------
+    if menu == "⚙️ Tema":
+        nuevo = st.text_input("Tema capacitación")
 
-    with st.sidebar:
+        if st.button("Guardar"):
+            st.session_state.tema = nuevo.upper()
+            st.success("Actualizado")
 
-        st.title("🛡️ Admin Panel")
+    # -------------------------
+    elif menu == "👥 Empleados":
+        df = obtener_empleados()
+        st.dataframe(df, use_container_width=True)
 
-        menu = st.radio(
-            "Opciones",
-            [
-                "⚙️ Tema",
-                "👥 Empleados",
-                "📤 Cargar",
-                "📊 Dashboard",
-                "📄 Historial",
-                "📁 Reportes"
-            ]
-        )
-
-        if st.button("Logout"):
-            st.session_state.clear()
-            st.rerun()
-
-    # ================= MÓDULOS =================
-
-    if menu == "👥 Empleados":
-        st.dataframe(df_emp)
-
-    elif menu == "📄 Historial":
-        st.dataframe(get_registros())
-
+    # -------------------------
     elif menu == "📊 Dashboard":
-
-        df = get_registros()
-
+        df = conn.read(worksheet="Hoja", ttl=0)
         st.metric("Registros", len(df))
-        st.metric("Personas", df["ID"].nunique() if not df.empty else 0)
 
+    # -------------------------
+    elif menu == "📄 Historial":
+        df = conn.read(worksheet="Hoja", ttl=0)
+        st.dataframe(df)
+
+    # -------------------------
     elif menu == "📁 Reportes":
-
-        df = get_registros()
-
-        st.download_button(
-            "Descargar CSV",
-            df.to_csv(index=False),
-            "reporte.csv"
-        )
-
-# =============================================================================
-# END SYSTEM
-# =============================================================================
+        df = conn.read(worksheet="Hoja", ttl=0)
+        st.download_button("Descargar", df.to_csv(index=False))
