@@ -159,7 +159,8 @@ def leer_asistencias():
     try:
         df = conn.read(worksheet="Hoja")
         return df if df is not None else pd.DataFrame()
-    except:
+    except Exception as e:
+        st.error(f"Error leyendo asistencias: {e}")
         return pd.DataFrame()
         
 def enviar_respaldo_gestion_humana(datos, pdf_buffer):
@@ -217,13 +218,27 @@ def guardar_en_google_sheets(datos):
             "Tema": datos['Tema']
         }])
 
+        # Leer hoja actual
+        actual = conn.read(worksheet="Hoja")
+
+        if actual is None or actual.empty:
+            df_final = nueva_fila
+        else:
+            df_final = pd.concat([actual, nueva_fila], ignore_index=True)
+
+        # Guardar completa
         conn.update(
             worksheet="Hoja",
-            data=nueva_fila,
-            append=True
+            data=df_final
         )
 
+        leer_asistencias.clear()
+
         return True
+
+    except Exception as e:
+        st.error(f"Error de conexión con Google Sheets: {e}")
+        return False
 
     except Exception as e:
         st.error(f"Error de conexión con Google Sheets: {e}")
@@ -591,9 +606,9 @@ if st.session_state.rol == "Admin":
             st.markdown("### Últimos registros")
             st.dataframe(df.tail(20), use_container_width=True)
 
-        except:
-            st.warning("Sin datos disponibles.")
-
+        except Exception as e:
+            st.warning(f"Error Dashboard: {e}")
+    
     # -------------------------------------------------
     # HISTORIAL
     # -------------------------------------------------
@@ -611,8 +626,8 @@ if st.session_state.rol == "Admin":
 
             st.dataframe(df, use_container_width=True)
 
-        except:
-            st.warning("Sin historial disponible.")
+        except Exception as e:
+            st.warning(f"Error historial: {e}")
 
     # -------------------------------------------------
     # REPORTES
@@ -644,8 +659,8 @@ if st.session_state.rol == "Admin":
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-        except:
-            st.warning("No hay información para exportar.")
+        except Exception as e:
+            st.warning(f"Error reportes: {e}")
 
 # =============================================================================
 # PDF MULTINACIONAL CAMPOFERT 2026 - AJUSTADO
@@ -715,7 +730,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 height=72,
                 preserveAspectRatio=True
             )
-    except:
+    except Exception:
         pass
     
     # LOGO CAMPOLAB
@@ -732,7 +747,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 preserveAspectRatio=True
             )
     
-    except:
+    except Exception:
         pass
     
     # -------------------------------------------------------------------------
