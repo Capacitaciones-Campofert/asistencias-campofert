@@ -203,31 +203,19 @@ def enviar_respaldo_gestion_humana(datos, pdf_buffer):
 
 def guardar_en_google_sheets(datos):
     try:
-        # Leer existente
-        df_existente = leer_asistencias()
-
-        if df_existente is None or df_existente.empty:
-            df_existente = pd.DataFrame(columns=[
-                "Fecha", "ID", "Nombre", "Empresa", "Cargo", "Tema"
-            ])
-
-        # Nueva fila directa
-        nueva_fila = {
+        nueva_fila = pd.DataFrame([{
             "Fecha": datos['Fecha'],
             "ID": str(datos['ID']),
             "Nombre": datos['Nombre'],
             "Empresa": datos['Empresa'],
             "Cargo": datos.get('Cargo', 'NO REGISTRA'),
             "Tema": datos['Tema']
-        }
+        }])
 
-        # Agregar fila sin concat pesado
-        df_existente.loc[len(df_existente)] = nueva_fila
-
-        # Actualizar hoja
         conn.update(
             worksheet="Hoja",
-            data=df_existente
+            data=nueva_fila,
+            append=True
         )
 
         return True
