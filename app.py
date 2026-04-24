@@ -900,13 +900,13 @@ if menu == "📋 Registro Asistencia":
     """, unsafe_allow_html=True)
 
     # ==========================================================
-    # 🧠 RESET SEGURO (PUNTO 3 BIEN HECHO)
+    # 🧠 RESET SEGURO (CONTROL ÚNICO)
     # ==========================================================
-    if st.session_state.get("modulo") != "registro_asistencia":
+    if st.session_state.modulo != "registro_asistencia":
 
         st.session_state.modulo = "registro_asistencia"
 
-        # SOLO AQUÍ LIMPIAS TODO
+        # SOLO LIMPIA AL ENTRAR AL MÓDULO
         st.session_state.paso = 1
         st.session_state.persona = None
         st.session_state.cedula = None
@@ -947,9 +947,7 @@ if menu == "📋 Registro Asistencia":
                     st.rerun()
 
             else:
-                st.warning(
-                    "⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:"
-                )
+                st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
 
                 with st.form("registro_nuevo_empleado"):
 
@@ -993,12 +991,9 @@ if menu == "📋 Registro Asistencia":
     # PASO 2 → FOTO
     # =============================================================================
     elif st.session_state.paso == 2:
-                  
+
         st.markdown("### 📸 Captura de Identidad")
-        st.markdown(
-            "<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>", unsafe_allow_html=True)
 
         foto = st.camera_input("Foto de validación")
 
@@ -1015,10 +1010,7 @@ if menu == "📋 Registro Asistencia":
     elif st.session_state.paso == 3:
 
         st.markdown("### ✍️ Firma Digital")
-        st.markdown(
-            "<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>", unsafe_allow_html=True)
 
         canvas_res = st_canvas(
             stroke_width=3,
@@ -1034,24 +1026,11 @@ if menu == "📋 Registro Asistencia":
             if canvas_res.image_data is not None:
 
                 datos_asistencia = {
-                    "Fecha": datetime.now(
-                        pytz.timezone('America/Bogota')
-                    ).strftime("%d/%m/%Y %H:%M:%S"),
-
+                    "Fecha": datetime.now(pytz.timezone('America/Bogota')).strftime("%d/%m/%Y %H:%M:%S"),
                     "ID": st.session_state.cedula,
-
                     "Nombre": st.session_state.persona['Apellidos y Nombres'],
-
-                    "Empresa": st.session_state.persona.get(
-                        "Empresa",
-                        "NO REGISTRA"
-                    ),
-
-                    "Cargo": st.session_state.persona.get(
-                        "Cargo",
-                        "NO REGISTRA"
-                    ),
-
+                    "Empresa": st.session_state.persona.get("Empresa", "NO REGISTRA"),
+                    "Cargo": st.session_state.persona.get("Cargo", "NO REGISTRA"),
                     "Tema": tema_actual
                 }
 
@@ -1097,13 +1076,7 @@ if menu == "📋 Registro Asistencia":
 
         if st.button("Realizar otro registro"):
 
-            for key in [
-                "cedula",
-                "persona",
-                "pdf_doc",
-                "foto_data"
-            ]:
-                if key in st.session_state:
-                    del st.session_state[key]
+            for key in ["cedula", "persona", "pdf_doc", "foto_data"]:
+                st.session_state.pop(key, None)
 
-           st.rerun()
+            st.rerun()
