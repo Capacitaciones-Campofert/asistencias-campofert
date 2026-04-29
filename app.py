@@ -302,9 +302,15 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # Firma
     if imagen_firma is not None:
         try:
-            img_f = Image.fromarray(imagen_firma.astype("uint8"), "RGBA")
-            p.drawImage(ImageReader(img_f), width - 255, base_y + 28,
-                        width=145, height=55, mask="auto")
+            p.drawImage(
+                ImageReader(imagen_firma),
+                width - 255,
+                base_y + 28,
+                width=145,
+                height=55,
+                preserveAspectRatio=True,
+                mask='auto'
+            )
         except Exception as ex:
             print(f"[PDF FIRMA] {ex}")
 
