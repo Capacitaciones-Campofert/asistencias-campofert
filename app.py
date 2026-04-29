@@ -632,18 +632,23 @@ if menu == "📋 Registro Asistencia":
             font-family: Arial, sans-serif;
         '>
             <h3 style='text-align:center; color:#1B5E20; font-size:17px; font-weight:800; margin-bottom:16px;'>
-                AUTORIZACIÓN DE USO DE DERECHOS DE IMAGEN<br>SOBRE FOTOGRAFÍAS Y DERECHOS AUDIOVISUALES
+                AUTORIZACIÓN DE USO DE DATOS PERSONALES, DERECHOS DE IMAGEN Y FIRMA DIGITAL
             </h3>
             <p style='font-size:14px; color:#222; line-height:1.7; text-align:justify;'>
-                Autorizo a <strong>Campofert S.A.S.</strong>, para que haga y realice el uso y
-                tratamiento de mis derechos de imagen sobre fotografías y producciones audiovisuales
-                (videos) y su finalidad está exclusivamente enfocada a la realización de
-                <strong>capacitaciones y actividades corporativas</strong>.
+                Autorizo a <strong>Campofert S.A.S.</strong>, en calidad de responsable del
+                tratamiento de datos personales, para que recopile, almacene y utilice la
+                siguiente información: <strong>fotografía</strong> para validación de identidad,
+                <strong>firma manuscrita digitalizada</strong> como constancia de asistencia, y
+                <strong>datos de identificación</strong> (nombre, cédula, cargo, empresa).
             </p>
             <p style='font-size:14px; color:#222; line-height:1.7; text-align:justify; margin-top:12px;'>
-                Esta autorización se otorga de forma <strong>voluntaria, libre y espontánea</strong>,
-                conforme a lo dispuesto en la Ley 1581 de 2012 (Protección de Datos Personales)
-                y demás normas concordantes vigentes en Colombia.
+                La finalidad del tratamiento es <strong>exclusivamente</strong> el registro y
+                certificación de asistencia a capacitaciones y actividades corporativas, conforme
+                a las obligaciones del SG-SST. Esta autorización se otorga de forma
+                <strong>voluntaria, libre y espontánea</strong>, conforme a la
+                <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>.
+                El titular podrá ejercer sus derechos de acceso, corrección y supresión
+                escribiendo a: <strong>gestionhumanacpfert@gmail.com</strong>
             </p>
             <p style='font-size:13px; color:#555; margin-top:16px; text-align:center;'>
                 Al hacer clic en <em>"Acepto y Continuar"</em> confirmo que he leído y entendido
