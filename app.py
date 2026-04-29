@@ -746,10 +746,13 @@ if menu == "📋 Registro Asistencia":
     # PASO 3 → FIRMA
     # ─────────────────────────────────────────────────────────────────────────
     elif st.session_state.paso == 3:
+    
         st.markdown("### ✍️ Firma Digital")
-        st.markdown("<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>",
-                    unsafe_allow_html=True)
-
+        st.markdown(
+            "<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>",
+            unsafe_allow_html=True
+        )
+    
         canvas_res = st_canvas(
             stroke_width=3,
             stroke_color="#1B5E20",
@@ -758,91 +761,90 @@ if menu == "📋 Registro Asistencia":
             width=350,
             key="firma_final"
         )
-
+    
         if st.button("Finalizar y Generar Certificado ✅"):
+    
             if canvas_res.image_data is None:
                 st.warning("Debe firmar antes de continuar.")
                 st.stop()
-
-            # Validación mejorada: canal alpha
+    
             alpha = canvas_res.image_data[:, :, 3]
+    
             if int(alpha.sum()) < 3000:
                 st.warning("Debe firmar antes de continuar.")
                 st.stop()
-
+    
             datos_asistencia = {
-                "Fecha":   datetime.now(pytz.timezone("America/Bogota")).strftime("%d/%m/%Y %H:%M:%S"),
-                "ID":      st.session_state.cedula,
-                "Nombre":  st.session_state.persona["Apellidos y Nombres"],
+                "Fecha": datetime.now(
+                    pytz.timezone("America/Bogota")
+                ).strftime("%d/%m/%Y %H:%M:%S"),
+                "ID": st.session_state.cedula,
+                "Nombre": st.session_state.persona["Apellidos y Nombres"],
                 "Empresa": st.session_state.persona.get("Empresa", "NO REGISTRA"),
-                "Cargo":   st.session_state.persona.get("Cargo",   "NO REGISTRA"),
-                "Tema":    tema_actual,
+                "Cargo": st.session_state.persona.get("Cargo", "NO REGISTRA"),
+                "Tema": tema_actual,
             }
-
+    
             with st.spinner("Guardando registro..."):
                 guardado = guardar_en_google_sheets(datos_asistencia)
-
+    
             if guardado:
+    
                 with st.spinner("Generando certificado..."):
-                    # ==========================================
+    
                     # FOTO OPTIMIZADA
-                    # ==========================================
                     foto_comprimida = None
-            
+    
                     if st.session_state.get("foto_data"):
                         try:
                             img_raw = Image.open(
                                 st.session_state.get("foto_data")
                             ).convert("RGB")
-            
+    
                             img_raw.thumbnail((160, 160))
-            
+    
                             buf_foto = BytesIO()
-            
+    
                             img_raw.save(
                                 buf_foto,
                                 format="JPEG",
                                 quality=75,
                                 optimize=True
                             )
-            
+    
                             buf_foto.seek(0)
-            
+    
                             foto_comprimida = buf_foto
-            
+    
                         except Exception as ex:
                             print(f"[FOTO ERROR] {ex}")
-
-        # ==========================================
-        # FIRMA PREPARADA
-        # ==========================================
-        firma_img = None
-
-        try:
-            firma_img = Image.fromarray(
-                canvas_res.image_data.astype("uint8"),
-                "RGBA"
-            )
-
-        except Exception as ex:
-            print(f"[FIRMA ERROR] {ex}")
-
-        # ==========================================
-        # PDF
-        # ==========================================
-        pdf = generar_pdf(
-            datos_asistencia,
-            firma_img,
-            foto_comprimida
-        )
-
-    # Correo en background
-    enviar_respaldo_async(datos_asistencia, pdf)
-
-    pdf.seek(0)
-    st.session_state.pdf_doc = pdf
-    st.session_state.paso = 4
-    st.rerun()
+    
+                    # FIRMA PREPARADA
+                    firma_img = None
+    
+                    try:
+                        firma_img = Image.fromarray(
+                            canvas_res.image_data.astype("uint8"),
+                            "RGBA"
+                        )
+    
+                    except Exception as ex:
+                        print(f"[FIRMA ERROR] {ex}")
+    
+                    # PDF
+                    pdf = generar_pdf(
+                        datos_asistencia,
+                        firma_img,
+                        foto_comprimida
+                    )
+    
+                # Correo en background
+                enviar_respaldo_async(datos_asistencia, pdf)
+    
+                pdf.seek(0)
+                st.session_state.pdf_doc = pdf
+                st.session_state.paso = 4
+                st.rerun()
 
     # ─────────────────────────────────────────────────────────────────────────
     # PASO 4 → RESULTADO
