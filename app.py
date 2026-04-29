@@ -823,10 +823,13 @@ if menu == "📋 Registro Asistencia":
                     firma_img = None
     
                     try:
-                        firma_img = Image.fromarray(
+                        firma_rgba = Image.fromarray(
                             canvas_res.image_data.astype("uint8"),
                             "RGBA"
                         )
+                        
+                        firma_img = Image.new("RGB", firma_rgba.size, "white")
+                        firma_img.paste(firma_rgba, mask=firma_rgba.split()[3])
     
                     except Exception as ex:
                         print(f"[FIRMA ERROR] {ex}")
