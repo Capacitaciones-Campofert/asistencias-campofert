@@ -6,6 +6,7 @@ import pytz
 import qrcode
 import threading
 import random
+import plotly.express as px
 from io import BytesIO
 from datetime import datetime
 from streamlit_drawable_canvas import st_canvas
@@ -562,18 +563,109 @@ if st.session_state.rol == "Admin":
             st.success("✅ Archivo actualizado correctamente.")
 
     elif menu == "📊 Dashboard":
+
         st.markdown("## 📊 Dashboard Ejecutivo")
+    
         try:
             df = leer_asistencias()
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Registros",     len(df))
-            c2.metric("Personas",       df["ID"].nunique())
-            c3.metric("Capacitaciones", df["Tema"].nunique())
-            st.markdown("### Últimos registros")
-            st.dataframe(df.tail(20), use_container_width=True)
+    
+            if df.empty:
+                st.warning("No hay registros.")
+                st.stop()
+    
+            # -----------------------------
+            # LIMPIEZA
+            # -----------------------------
+            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
+    
+            # -----------------------------
+            # KPI CARDS
+            # -----------------------------
+            total = len(df)
+            personas = df["ID"].nunique()
+            temas = df["Tema"].nunique()
+            empresas = df["Empresa"].nunique()
+    
+            k1, k2, k3, k4 = st.columns(4)
+    
+            k1.metric("📋 Registros", total)
+            k2.metric("👥 Personas", personas)
+            k3.metric("📚 Capacitaciones", temas)
+            k4.metric("🏢 Empresas", empresas)
+    
+            st.markdown("---")
+    
+            # -----------------------------
+            # GRÁFICOS
+            # -----------------------------
+            col1, col2 = st.columns(2)
+    
+            # 📊 Asistencias por empresa
+            with col1:
+                empresa_df = df["Empresa"].value_counts().reset_index()
+                empresa_df.columns = ["Empresa", "Cantidad"]
+    
+                fig_empresa = px.bar(
+                    empresa_df,
+                    x="Empresa",
+                    y="Cantidad",
+                    title="Asistencias por Empresa"
+                )
+    
+                st.plotly_chart(fig_empresa, use_container_width=True)
+    
+            # 🥧 Distribución
+            with col2:
+                fig_pie = px.pie(
+                    empresa_df,
+                    names="Empresa",
+                    values="Cantidad",
+                    title="Participación por Empresa"
+                )
+    
+                st.plotly_chart(fig_pie, use_container_width=True)
+    
+            st.markdown("---")
+    
+            # 📈 Tendencia por fecha
+            df_fecha = df.groupby(df["Fecha"].dt.date).size().reset_index()
+            df_fecha.columns = ["Fecha", "Registros"]
+    
+            fig_line = px.line(
+                df_fecha,
+                x="Fecha",
+                y="Registros",
+                title="Tendencia de Asistencias"
+            )
+    
+            st.plotly_chart(fig_line, use_container_width=True)
+    
+            st.markdown("---")
+    
+            # 📊 Top capacitaciones
+            tema_df = df["Tema"].value_counts().head(10).reset_index()
+            tema_df.columns = ["Tema", "Cantidad"]
+    
+            fig_tema = px.bar(
+                tema_df,
+                x="Cantidad",
+                y="Tema",
+                orientation="h",
+                title="Top Capacitaciones"
+            )
+    
+            st.plotly_chart(fig_tema, use_container_width=True)
+    
+            st.markdown("---")
+    
+            # 📋 TABLA FINAL
+            st.subheader("📋 Últimos registros")
+            st.dataframe(df.sort_values("Fecha", ascending=False).head(20),
+                         use_container_width=True)
+    
         except Exception as e:
-            st.warning(f"Error Dashboard: {e}")
-
+            st.error(f"Error Dashboard: {e}")
+            
     elif menu == "📄 Historial":
         st.markdown("## 📄 Historial de Asistencias")
         try:
