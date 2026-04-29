@@ -784,19 +784,65 @@ if menu == "📋 Registro Asistencia":
 
             if guardado:
                 with st.spinner("Generando certificado..."):
-                    pdf = generar_pdf(
-                        datos_asistencia,
-                        canvas_res.image_data,
-                        st.session_state.get("foto_data")
-                    )
+                    # ==========================================
+                    # FOTO OPTIMIZADA
+                    # ==========================================
+                    foto_comprimida = None
+            
+                    if st.session_state.get("foto_data"):
+                        try:
+                            img_raw = Image.open(
+                                st.session_state.get("foto_data")
+                            ).convert("RGB")
+            
+                            img_raw.thumbnail((160, 160))
+            
+                            buf_foto = BytesIO()
+            
+                            img_raw.save(
+                                buf_foto,
+                                format="JPEG",
+                                quality=75,
+                                optimize=True
+                            )
+            
+                            buf_foto.seek(0)
+            
+                            foto_comprimida = buf_foto
+            
+                        except Exception as ex:
+                            print(f"[FOTO ERROR] {ex}")
 
-                # Correo en background — no bloquea
-                enviar_respaldo_async(datos_asistencia, pdf)
+        # ==========================================
+        # FIRMA PREPARADA
+        # ==========================================
+        firma_img = None
 
-                pdf.seek(0)
-                st.session_state.pdf_doc = pdf
-                st.session_state.paso    = 4
-                st.rerun()
+        try:
+            firma_img = Image.fromarray(
+                canvas_res.image_data.astype("uint8"),
+                "RGBA"
+            )
+
+        except Exception as ex:
+            print(f"[FIRMA ERROR] {ex}")
+
+        # ==========================================
+        # PDF
+        # ==========================================
+        pdf = generar_pdf(
+            datos_asistencia,
+            firma_img,
+            foto_comprimida
+        )
+
+    # Correo en background
+    enviar_respaldo_async(datos_asistencia, pdf)
+
+    pdf.seek(0)
+    st.session_state.pdf_doc = pdf
+    st.session_state.paso = 4
+    st.rerun()
 
     # ─────────────────────────────────────────────────────────────────────────
     # PASO 4 → RESULTADO
