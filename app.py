@@ -730,23 +730,41 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 df_fecha = df_filtrado.groupby(df_filtrado["Fecha"].dt.date).size().reset_index()
                 df_fecha.columns = ["Fecha", "Registros"]
-    
-                fig_line = px.line(df_fecha, x="Fecha", y="Registros", markers=True)
-    
-                fig_line.update_traces(
-                    line=dict(color="#2E7D32", width=3),
-                    marker=dict(size=8)
+                
+                fig_line = px.line(
+                    df_fecha,
+                    x="Fecha",
+                    y="Registros",
+                    markers=True,
+                    text="Registros"  # 👈 etiquetas en la línea
                 )
-    
+                
+                fig_line.update_traces(
+                    line=dict(color="#2E7D32", width=4),
+                    marker=dict(size=10),
+                    textposition="top center",  # 👈 texto encima
+                    textfont=dict(size=14, color="#1B5E20")
+                )
+                
                 fig_line.update_layout(
                     title="📈 Evolución de Asistencias",
                     plot_bgcolor="white",
                     paper_bgcolor="white",
                     font=dict(color="#1B5E20"),
-                    xaxis=dict(showgrid=False),
-                    yaxis=dict(gridcolor="#E5E7EB")
+                
+                    # ❌ QUITAR LÍNEAS Y EJES
+                    xaxis=dict(
+                        showgrid=False,
+                        showline=False,
+                        showticklabels=True  # puedes poner False si quieres ultra limpio
+                    ),
+                    yaxis=dict(
+                        showgrid=False,
+                        showline=False,
+                        showticklabels=False  # 👈 quita números lado izquierdo
+                    )
                 )
-    
+                
                 st.plotly_chart(fig_line, use_container_width=True)
     
                 st.markdown("---")
