@@ -604,7 +604,7 @@ if st.session_state.rol == "Admin":
                         )
     
                 # -----------------------------
-                # APLICAR FILTROS
+                # FILTRADO
                 # -----------------------------
                 df_filtrado = df[
                     (df["Empresa"].isin(empresa_sel)) &
@@ -623,7 +623,7 @@ if st.session_state.rol == "Admin":
                     st.stop()
     
                 # -----------------------------
-                # KPI ACTUALES
+                # KPIs
                 # -----------------------------
                 total = len(df_filtrado)
                 personas = df_filtrado["ID"].nunique()
@@ -650,29 +650,101 @@ if st.session_state.rol == "Admin":
                 delta_total = total - total_ant
     
                 # -----------------------------
-                # KPI VISUAL
+                # 🎨 CSS TARJETAS
+                # -----------------------------
+                st.markdown("""
+                <style>
+                .card {
+                    background: white;
+                    padding: 18px;
+                    border-radius: 16px;
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+                    border-left: 6px solid #2E7D32;
+                    text-align: center;
+                }
+                .card h3 {
+                    margin: 0;
+                    font-size: 14px;
+                    color: #6B7280;
+                }
+                .card h1 {
+                    margin: 5px 0;
+                    font-size: 30px;
+                    color: #1B5E20;
+                }
+                .up { color:#2E7D32; font-weight:bold; }
+                .down { color:#C62828; font-weight:bold; }
+                </style>
+                """, unsafe_allow_html=True)
+    
+                def delta_html(valor):
+                    if valor > 0:
+                        return f"<span class='up'>▲ {valor}</span>"
+                    elif valor < 0:
+                        return f"<span class='down'>▼ {valor}</span>"
+                    else:
+                        return "<span>0</span>"
+    
+                # -----------------------------
+                # KPI VISUAL PRO
                 # -----------------------------
                 k1, k2, k3, k4 = st.columns(4)
     
-                k1.metric("📋 Registros", total, delta_total)
-                k2.metric("👥 Personas", personas)
-                k3.metric("📚 Capacitaciones", temas)
-                k4.metric("🏢 Empresas", empresas)
+                with k1:
+                    st.markdown(f"""
+                    <div class="card">
+                        <h3>📋 Registros</h3>
+                        <h1>{total}</h1>
+                        {delta_html(delta_total)}
+                    </div>
+                    """, unsafe_allow_html=True)
     
-                st.markdown("---")
+                with k2:
+                    st.markdown(f"""
+                    <div class="card">
+                        <h3>👥 Personas</h3>
+                        <h1>{personas}</h1>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+                with k3:
+                    st.markdown(f"""
+                    <div class="card">
+                        <h3>📚 Capacitaciones</h3>
+                        <h1>{temas}</h1>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+                with k4:
+                    st.markdown(f"""
+                    <div class="card">
+                        <h3>🏢 Empresas</h3>
+                        <h1>{empresas}</h1>
+                    </div>
+                    """, unsafe_allow_html=True)
+    
+                st.markdown("<br>", unsafe_allow_html=True)
     
                 # -----------------------------
-                # 📈 TENDENCIA (CLAVE GERENCIAL)
+                # 📈 TENDENCIA
                 # -----------------------------
                 df_fecha = df_filtrado.groupby(df_filtrado["Fecha"].dt.date).size().reset_index()
                 df_fecha.columns = ["Fecha", "Registros"]
     
-                fig_line = px.line(
-                    df_fecha,
-                    x="Fecha",
-                    y="Registros",
+                fig_line = px.line(df_fecha, x="Fecha", y="Registros", markers=True)
+    
+                fig_line.update_traces(
+                    line=dict(color="#2E7D32", width=3),
+                    marker=dict(size=8)
+                )
+    
+                fig_line.update_layout(
                     title="📈 Evolución de Asistencias",
-                    markers=True
+                    plot_bgcolor="white",
+                    paper_bgcolor="white",
+                    font=dict(color="#1B5E20"),
+                    xaxis=dict(showgrid=False),
+                    yaxis=dict(gridcolor="#E5E7EB")
                 )
     
                 st.plotly_chart(fig_line, use_container_width=True)
@@ -680,17 +752,20 @@ if st.session_state.rol == "Admin":
                 st.markdown("---")
     
                 # -----------------------------
-                # 📊 DISTRIBUCIÓN POR EMPRESA
+                # 📊 DISTRIBUCIÓN
                 # -----------------------------
                 empresa_df = df_filtrado["Empresa"].value_counts().reset_index()
                 empresa_df.columns = ["Empresa", "Cantidad"]
     
-                fig_bar = px.bar(
-                    empresa_df,
-                    x="Empresa",
-                    y="Cantidad",
-                    text="Cantidad",
-                    title="📊 Distribución de Asistencias"
+                fig_bar = px.bar(empresa_df, x="Empresa", y="Cantidad", text="Cantidad")
+    
+                fig_bar.update_traces(marker_color="#F9A825")
+    
+                fig_bar.update_layout(
+                    title="📊 Distribución por Empresa",
+                    plot_bgcolor="white",
+                    paper_bgcolor="white",
+                    font=dict(color="#1B5E20")
                 )
     
                 st.plotly_chart(fig_bar, use_container_width=True)
@@ -698,7 +773,7 @@ if st.session_state.rol == "Admin":
                 st.markdown("---")
     
                 # -----------------------------
-                # RESUMEN EJECUTIVO
+                # 📋 RESUMEN
                 # -----------------------------
                 st.subheader("📋 Resumen Ejecutivo")
     
