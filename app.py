@@ -568,10 +568,10 @@ if st.session_state.rol == "Admin":
     
         try:
             df = leer_asistencias()
-    
-                if df.empty:
+
+            if df.empty:
                     st.warning("No hay registros.")
-                else:
+                    st.stop()
         
                 # -----------------------------
                 # LIMPIEZA
@@ -594,6 +594,7 @@ if st.session_state.rol == "Admin":
                 k4.metric("🏢 Empresas", empresas)
         
                 st.markdown("---")
+                
     
             # -----------------------------
             # GRÁFICOS
