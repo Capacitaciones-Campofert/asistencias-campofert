@@ -571,7 +571,7 @@ if st.session_state.rol == "Admin":
     
             if df.empty:
                 st.warning("No hay registros.")
-            else
+            else:
     
             # -----------------------------
             # LIMPIEZA
