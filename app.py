@@ -1118,6 +1118,20 @@ if menu == "📋 Registro Asistencia":
             </div>
         """, unsafe_allow_html=True)
 
+        # DIAGNÓSTICO CORREO
+        if not st.session_state.get("correo_enviado"):
+            st.write("🔵 Intentando enviar correo...")
+            try:
+                srv = smtplib.SMTP("smtp.gmail.com", 587)
+                srv.starttls()
+                st.write(f"🔵 Usuario: {EMAIL_USER} | Pass: {EMAIL_PASS[:4]}****")
+                srv.login(EMAIL_USER, EMAIL_PASS)
+                st.write("✅ Login exitoso")
+                srv.quit()
+                st.session_state.correo_enviado = True
+            except Exception as e:
+                st.error(f"❌ ERROR: {e}")
+
         if st.session_state.get("pdf_doc"):
             st.download_button(
                 "📥 Descargar mi Certificado (PDF)",
@@ -1128,8 +1142,8 @@ if menu == "📋 Registro Asistencia":
 
         if st.button("Realizar otro registro", use_container_width=True):
             for key in ["cedula", "persona", "pdf_doc", "foto_data",
-                        "cedula_input", "firma_final"]:
+                        "cedula_input", "firma_final", "correo_enviado"]:
                 st.session_state.pop(key, None)
-            st.session_state.paso   = 0       # Vuelve a la autorización
+            st.session_state.paso   = 0
             st.session_state.modulo = "registro_asistencia"
             st.rerun()
