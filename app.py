@@ -578,31 +578,30 @@ if st.session_state.rol == "Admin":
                 df = df.dropna(subset=["Fecha"])
     
                 # -----------------------------
-                # FILTROS DINÁMICOS
+                # FILTROS
                 # -----------------------------
-                st.markdown("### 🎯 Filtros")
+                with st.expander("🎯 Filtros", expanded=False):
+                    colf1, colf2, colf3 = st.columns(3)
     
-                colf1, colf2, colf3 = st.columns(3)
+                    with colf1:
+                        empresa_sel = st.multiselect(
+                            "🏢 Empresa",
+                            options=sorted(df["Empresa"].dropna().unique()),
+                            default=sorted(df["Empresa"].dropna().unique())
+                        )
     
-                with colf1:
-                    empresa_sel = st.multiselect(
-                        "🏢 Empresa",
-                        options=sorted(df["Empresa"].dropna().unique()),
-                        default=sorted(df["Empresa"].dropna().unique())
-                    )
+                    with colf2:
+                        tema_sel = st.multiselect(
+                            "📚 Tema",
+                            options=sorted(df["Tema"].dropna().unique()),
+                            default=sorted(df["Tema"].dropna().unique())
+                        )
     
-                with colf2:
-                    tema_sel = st.multiselect(
-                        "📚 Tema",
-                        options=sorted(df["Tema"].dropna().unique()),
-                        default=sorted(df["Tema"].dropna().unique())
-                    )
-    
-                with colf3:
-                    fecha_sel = st.date_input(
-                        "📅 Rango de fechas",
-                        value=(df["Fecha"].min(), df["Fecha"].max())
-                    )
+                    with colf3:
+                        fecha_sel = st.date_input(
+                            "📅 Rango de fechas",
+                            value=(df["Fecha"].min(), df["Fecha"].max())
+                        )
     
                 # -----------------------------
                 # APLICAR FILTROS
@@ -619,6 +618,10 @@ if st.session_state.rol == "Admin":
                         (df_filtrado["Fecha"].dt.date <= fin)
                     ]
     
+                if df_filtrado.empty:
+                    st.warning("⚠️ No hay datos con los filtros seleccionados.")
+                    st.stop()
+    
                 # -----------------------------
                 # KPI ACTUALES
                 # -----------------------------
@@ -628,12 +631,10 @@ if st.session_state.rol == "Admin":
                 empresas = df_filtrado["Empresa"].nunique()
     
                 # -----------------------------
-                # KPI PERIODO ANTERIOR
+                # PERIODO ANTERIOR
                 # -----------------------------
                 if len(fecha_sel) == 2:
-                    inicio, fin = fecha_sel
-                    dias = (fin - inicio).days + 1  # incluir ambos extremos
-    
+                    dias = (fin - inicio).days + 1
                     inicio_ant = inicio - pd.Timedelta(days=dias)
                     fin_ant = inicio - pd.Timedelta(days=1)
     
@@ -646,9 +647,6 @@ if st.session_state.rol == "Admin":
                 else:
                     total_ant = 0
     
-                # -----------------------------
-                # DELTA
-                # -----------------------------
                 delta_total = total - total_ant
     
                 # -----------------------------
@@ -656,12 +654,7 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 k1, k2, k3, k4 = st.columns(4)
     
-                k1.metric(
-                    "📋 Registros",
-                    total,
-                    delta_total,
-                    delta_color="normal" if delta_total >= 0 else "inverse"
-                )
+                k1.metric("📋 Registros", total, delta_total)
                 k2.metric("👥 Personas", personas)
                 k3.metric("📚 Capacitaciones", temas)
                 k4.metric("🏢 Empresas", empresas)
@@ -669,36 +662,8 @@ if st.session_state.rol == "Admin":
                 st.markdown("---")
     
                 # -----------------------------
-                # GRÁFICOS
+                # 📈 TENDENCIA (CLAVE GERENCIAL)
                 # -----------------------------
-                col1, col2 = st.columns(2)
-    
-                # 📊 Asistencias por empresa
-                with col1:
-                    empresa_df = df_filtrado["Empresa"].value_counts().reset_index()
-                    empresa_df.columns = ["Empresa", "Cantidad"]
-    
-                    fig_empresa = px.bar(
-                        empresa_df,
-                        x="Empresa",
-                        y="Cantidad",
-                        title="Asistencias por Empresa"
-                    )
-                    st.plotly_chart(fig_empresa, use_container_width=True)
-    
-                # 🥧 Distribución
-                with col2:
-                    fig_pie = px.pie(
-                        empresa_df,
-                        names="Empresa",
-                        values="Cantidad",
-                        title="Participación por Empresa"
-                    )
-                    st.plotly_chart(fig_pie, use_container_width=True)
-    
-                st.markdown("---")
-    
-                # 📈 Tendencia por fecha
                 df_fecha = df_filtrado.groupby(df_filtrado["Fecha"].dt.date).size().reset_index()
                 df_fecha.columns = ["Fecha", "Registros"]
     
@@ -706,36 +671,44 @@ if st.session_state.rol == "Admin":
                     df_fecha,
                     x="Fecha",
                     y="Registros",
-                    title="Tendencia de Asistencias"
+                    title="📈 Evolución de Asistencias",
+                    markers=True
                 )
+    
                 st.plotly_chart(fig_line, use_container_width=True)
     
                 st.markdown("---")
     
-                # 📊 Top capacitaciones
-                tema_df = df_filtrado["Tema"].value_counts().head(10).reset_index()
-                tema_df.columns = ["Tema", "Cantidad"]
+                # -----------------------------
+                # 📊 DISTRIBUCIÓN POR EMPRESA
+                # -----------------------------
+                empresa_df = df_filtrado["Empresa"].value_counts().reset_index()
+                empresa_df.columns = ["Empresa", "Cantidad"]
     
-                fig_tema = px.bar(
-                    tema_df,
-                    x="Cantidad",
-                    y="Tema",
-                    orientation="h",
-                    title="Top Capacitaciones"
+                fig_bar = px.bar(
+                    empresa_df,
+                    x="Empresa",
+                    y="Cantidad",
+                    text="Cantidad",
+                    title="📊 Distribución de Asistencias"
                 )
-                st.plotly_chart(fig_tema, use_container_width=True)
+    
+                st.plotly_chart(fig_bar, use_container_width=True)
     
                 st.markdown("---")
     
                 # -----------------------------
-                # TABLA FINAL
+                # RESUMEN EJECUTIVO
                 # -----------------------------
-                st.subheader("📋 Últimos registros")
-                st.dataframe(
-                    df_filtrado.sort_values("Fecha", ascending=False).head(20),
-                    use_container_width=True
-                )
-
+                st.subheader("📋 Resumen Ejecutivo")
+    
+                resumen = df_filtrado.groupby("Empresa").agg(
+                    Registros=("ID", "count"),
+                    Personas=("ID", "nunique")
+                ).reset_index()
+    
+                st.dataframe(resumen, use_container_width=True)
+    
         except Exception as e:
             st.error(f"Error Dashboard: {e}")
             
