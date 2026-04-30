@@ -1093,12 +1093,7 @@ if menu == "📋 Registro Asistencia":
                         foto_comprimida
                     )
     
-                # Correo con error visible
-                try:
-                    enviar_respaldo_async(datos_asistencia, pdf)
-                    st.success("✅ Correo enviado")
-                except Exception as e:
-                    st.error(f"❌ Error correo: {e}")
+                pass
     
                 pdf.seek(0)
                 st.session_state.pdf_doc = pdf
@@ -1117,20 +1112,6 @@ if menu == "📋 Registro Asistencia":
                 <p>Tu asistencia ha sido guardada correctamente.</p>
             </div>
         """, unsafe_allow_html=True)
-
-        # DIAGNÓSTICO CORREO
-        if not st.session_state.get("correo_enviado"):
-            st.write("🔵 Intentando enviar correo...")
-            try:
-                srv = smtplib.SMTP("smtp.gmail.com", 587)
-                srv.starttls()
-                st.write(f"🔵 Usuario: {EMAIL_USER} | Pass: {EMAIL_PASS[:4]}****")
-                srv.login(EMAIL_USER, EMAIL_PASS)
-                st.write("✅ Login exitoso")
-                srv.quit()
-                st.session_state.correo_enviado = True
-            except Exception as e:
-                st.error(f"❌ ERROR: {e}")
 
         if st.session_state.get("pdf_doc"):
             st.download_button(
