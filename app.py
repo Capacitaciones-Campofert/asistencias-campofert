@@ -88,7 +88,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 #   admin_password = "campofert2026"
 # =============================================================================
 EMAIL_USER = st.secrets.get("email_user", "gestionhumanacpfert@gmail.com")
-EMAIL_PASS = st.secrets.get("email_password", "")
+EMAIL_PASS = st.secrets.get("email_password", "eliwdxcfoseragcn")
 ADMIN_PASS = st.secrets.get("admin_password", "campofert2026")
 
 # =============================================================================
@@ -174,16 +174,45 @@ def guardar_en_google_sheets(datos):
 # CORREO DIAGNÓSTICO
 # =============================================================================
 def enviar_respaldo_async(datos, pdf_buffer):
-    st.write("🔵 Intentando enviar correo...")
+    mi_correo = EMAIL_USER
+    password  = EMAIL_PASS
+
+    msg = MIMEMultipart()
+    msg['From']    = mi_correo
+    msg['To']      = mi_correo
+    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+
+    cuerpo_html = f"""
+    <html><body style="font-family: Arial, sans-serif;">
+        <div style="border: 1px solid #2e7d32; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #2e7d32;">Respaldo Capacitación - Campofert</h2>
+            <p><strong>Empleado:</strong> {datos['Nombre']}</p>
+            <p><strong>Cédula:</strong> {datos['ID']}</p>
+            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
+            <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
+            <p><strong>Tema:</strong> {datos['Tema']}</p>
+            <p><strong>Fecha:</strong> {datos['Fecha']}</p>
+        </div>
+    </body></html>
+    """
+    msg.attach(MIMEText(cuerpo_html, 'html'))
+
+    pdf_buffer.seek(0)
+    adjunto = MIMEBase('application', 'octet-stream')
+    adjunto.set_payload(pdf_buffer.read())
+    encoders.encode_base64(adjunto)
+    adjunto.add_header('Content-Disposition',
+                       f"attachment; filename=Asistencia_{datos['ID']}.pdf")
+    msg.attach(adjunto)
+
     try:
-        srv = smtplib.SMTP("smtp.gmail.com", 587)
-        srv.starttls()
-        st.write(f"🔵 Conectado. Usuario: {EMAIL_USER} | Pass: {EMAIL_PASS[:4]}****")
-        srv.login(EMAIL_USER, EMAIL_PASS)
-        st.write("✅ Login exitoso")
-        srv.quit()
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(mi_correo, password)
+        server.sendmail(mi_correo, mi_correo, msg.as_string())
+        server.quit()
     except Exception as e:
-        st.error(f"❌ ERROR: {e}")
+        print(f"[EMAIL ERROR] {e}")
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
