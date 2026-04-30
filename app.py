@@ -929,7 +929,7 @@ if menu == "📋 Registro Asistencia":
                 AUTORIZACIÓN DE USO DE DATOS PERSONALES, DERECHOS DE IMAGEN Y FIRMA DIGITAL
             </h3>
             <p style='font-size:14px; color:#222; line-height:1.7; text-align:justify;'>
-                Autorizo a la<strong>Organización, en calidad de responsable del
+                Autorizo a la <strong>Organización, en calidad de responsable del
                 tratamiento de datos personales, para que recopile, almacene y utilice la
                 siguiente información: <strong>fotografía</strong> para validación de identidad,
                 <strong>firma manuscrita digitalizada</strong> como constancia de asistencia, y
