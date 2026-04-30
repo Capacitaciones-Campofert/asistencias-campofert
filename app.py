@@ -166,30 +166,23 @@ def guardar_en_google_sheets(datos):
 # =============================================================================
 # FUNCIÓN DE ENVÍO DE CORREO (MEJORADA ESTILO CÓDIGO 45)
 # =============================================================================
-def enviar_respaldo_async(datos, pdf_buffer):
-    """Lógica de envío mejorada con manejo de sesión SMTP seguro"""
+def enviar_respaldo_async(datos, pdf_buffer):    
+
     def _proceso_envio():
-        print("📧 INICIANDO ENVÍO DE CORREO...")  # 👈 AQUÍ
+
+        print("📧 INICIANDO ENVÍO...")  # 👈 DEBUG
+
         try:
             msg = MIMEMultipart()
             msg['From'] = EMAIL_USER
-            msg['To'] = EMAIL_USER  # Se envía a sí mismo como respaldo
+            msg['To'] = EMAIL_USER
             msg['Subject'] = f"✅ Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
             cuerpo = f"""
-            <html><body style="font-family: Arial, sans-serif; color: #333;">
-                <div style="border: 2px solid #2e7d32; padding: 20px; border-radius: 12px; max-width: 600px;">
-                    <h2 style="color: #2e7d32; margin-top: 0;">Respaldo de Asistencia Digital</h2>
-                    <hr style="border: 0; border-top: 1px solid #eee;">
-                    <p><strong>Colaborador:</strong> {datos['Nombre']}</p>
-                    <p><strong>Cédula:</strong> {datos['ID']}</p>
-                    <p><strong>Empresa:</strong> {datos['Empresa']}</p>
-                    <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
-                    <p><strong>Capacitación:</strong> {datos['Tema']}</p>
-                    <p><strong>Fecha/Hora:</strong> {datos['Fecha']}</p>
-                    <br>
-                    <p style="font-size: 12px; color: #777;">Este es un correo automático generado por el sistema de Gestión Humana.</p>
-                </div>
+            <html><body>
+                <h3>Respaldo de Asistencia</h3>
+                <p>{datos['Nombre']}</p>
+                <p>{datos['ID']}</p>
             </body></html>
             """
             msg.attach(MIMEText(cuerpo, 'html'))
@@ -201,30 +194,27 @@ def enviar_respaldo_async(datos, pdf_buffer):
             encoders.encode_base64(adjunto)
             adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
             msg.attach(adjunto)
- 
-            # Conexión Segura (MEJORADA)
-            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
-            server.ehlo()                # 👈 CLAVE
-            server.starttls()
-            server.ehlo()                # 👈 CLAVE
+
+            # 🔥 AQUÍ VA TU BLOQUE SSL
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30)
             server.login(EMAIL_USER, EMAIL_PASS)
-            
+
             server.sendmail(
                 EMAIL_USER,
-                [EMAIL_USER],            # 👈 lista (más seguro)
+                [EMAIL_USER],
                 msg.as_string()
             )
-            
+
             server.quit()
-            
+
             print(f"✅ CORREO ENVIADO para {datos['ID']}")
-        
+
         except Exception as e:
             import traceback
             print("❌ ERROR EN CORREO:")
             print(traceback.format_exc())
 
-    # Ejecutar en segundo plano para no bloquear la interfaz de Streamlit
+    # 👇 ESTO DISPARA EL ENVÍO
     threading.Thread(target=_proceso_envio, daemon=True).start()
 # =============================================================================
 # GENERACIÓN DE PDF
@@ -1135,7 +1125,8 @@ if menu == "📋 Registro Asistencia":
                         foto_comprimida
                     )
     
-                pass
+                # 👇 AQUÍ VA EL ENVÍO
+                enviar_respaldo_async(datos_asistencia, pdf)
     
                 pdf.seek(0)
                 st.session_state.pdf_doc = pdf
