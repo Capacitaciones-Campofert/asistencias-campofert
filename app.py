@@ -728,45 +728,57 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 # 📈 TENDENCIA
                 # -----------------------------
-                df_fecha = df_filtrado.groupby(df_filtrado["Fecha"].dt.date).size().reset_index()
-                df_fecha.columns = ["Fecha", "Registros"]
+                df_fecha = df_filtrado.copy()
+                df_fecha["Fecha"] = df_fecha["Fecha"].dt.date  # elimina hora
+                df_fecha = df_fecha.groupby("Fecha").size().reset_index(name="Registros")
                 
                 fig_line = px.line(
                     df_fecha,
                     x="Fecha",
                     y="Registros",
                     markers=True,
-                    text="Registros"  # 👈 etiquetas en la línea
+                    text="Registros"
                 )
                 
                 fig_line.update_traces(
-                    line=dict(color="#2E7D32", width=4),
-                    marker=dict(size=10),
-                    textposition="top center",  # 👈 texto encima
-                    textfont=dict(size=14, color="#1B5E20")
+                    line=dict(color="#2E7D32", width=4, shape="spline"),  # curva suave
+                    marker=dict(size=10, color="#2E7D32"),
+                    textposition="top center",
+                    textfont=dict(
+                        size=16,
+                        color="#1B5E20",
+                        family="Arial Black"
+                    ),
+                    texttemplate="<b>%{y}</b>",  # 🔥 negrilla real en números
+                    hovertemplate="<b>%{x}</b><br>Registros: %{y}<extra></extra>"
                 )
                 
                 fig_line.update_layout(
                     title="📈 Evolución de Asistencias",
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(color="#1B5E20"),
+                    margin=dict(l=10, r=10, t=50, b=10),
                 
-                    # ❌ QUITAR LÍNEAS Y EJES
                     xaxis=dict(
+                        title="",
                         showgrid=False,
                         showline=False,
-                        showticklabels=True  # puedes poner False si quieres ultra limpio
+                        tickformat="%d-%b"
                     ),
+                
                     yaxis=dict(
-                        showgrid=False,
-                        showline=False,
-                        showticklabels=False  # 👈 quita números lado izquierdo
+                        visible=False  # elimina eje izquierdo
+                    ),
+                
+                    font=dict(
+                        family="Arial",
+                        size=12,
+                        color="#1B5E20"
                     )
                 )
                 
                 st.plotly_chart(fig_line, use_container_width=True)
-    
+                
                 st.markdown("---")
     
                 # -----------------------------
