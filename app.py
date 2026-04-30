@@ -310,7 +310,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 width=145,
                 height=55,
                 preserveAspectRatio=True,
-                mask='auto'
+                
             )
         except Exception as ex:
             print(f"[PDF FIRMA] {ex}")
@@ -571,7 +571,7 @@ if st.session_state.rol == "Admin":
     
             if df.empty:
                 st.warning("No hay registros.")
-                st.stop()
+            else
     
             # -----------------------------
             # LIMPIEZA
