@@ -930,7 +930,7 @@ if menu == "📋 Registro Asistencia":
                 <strong>voluntaria, libre y espontánea</strong>, conforme a la
                 <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong>.
                 El titular podrá ejercer sus derechos de acceso, corrección y supresión
-                escribiendo a: <strong>gestionhumanacpfert@gmail.com</strong>
+                escribiendo a: <strong>gestionhumana@campofert.com</strong>
             </p>
             <p style='font-size:13px; color:#555; margin-top:16px; text-align:center;'>
                 Al hacer clic en <em>"Acepto y Continuar"</em> confirmo que he leído y entendido
