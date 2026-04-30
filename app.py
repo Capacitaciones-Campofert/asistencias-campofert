@@ -786,20 +786,53 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 empresa_df = df_filtrado["Empresa"].value_counts().reset_index()
                 empresa_df.columns = ["Empresa", "Cantidad"]
-    
-                fig_bar = px.bar(empresa_df, x="Empresa", y="Cantidad", text="Cantidad")
-    
-                fig_bar.update_traces(marker_color="#F9A825")
-    
+                
+                fig_bar = px.bar(
+                    empresa_df,
+                    x="Empresa",
+                    y="Cantidad",
+                    text="Cantidad"
+                )
+                
+                fig_bar.update_traces(
+                    marker=dict(color="#F9A825"),  # amarillo corporativo
+                    textposition="outside",        # número arriba
+                    textfont=dict(
+                        size=16,
+                        color="#1B5E20",
+                        family="Arial Black"       # negrilla
+                    ),
+                    texttemplate="<b>%{y}</b>",    # 🔥 números en negrilla real
+                    hovertemplate="<b>%{x}</b><br>Registros: %{y}<extra></extra>"
+                )
+                
                 fig_bar.update_layout(
                     title="📊 Distribución por Empresa",
+                
                     plot_bgcolor="white",
                     paper_bgcolor="white",
-                    font=dict(color="#1B5E20")
+                
+                    margin=dict(l=10, r=10, t=50, b=10),
+                
+                    xaxis=dict(
+                        title="",
+                        showgrid=False,
+                        showline=False
+                    ),
+                
+                    yaxis=dict(
+                        visible=False  # 🔥 quita eje izquierdo (igual que la línea)
+                    ),
+                
+                    font=dict(
+                        family="Arial",
+                        size=12,
+                        color="#1B5E20"
+                    )
                 )
-    
+                
                 st.plotly_chart(fig_bar, use_container_width=True)
-    
+                
                 st.markdown("---")
     
                 # -----------------------------
