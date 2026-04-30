@@ -170,16 +170,19 @@ def guardar_en_google_sheets(datos):
         st.error(f"Error guardando en Google Sheets: {e}")
         return False
 
-
 # =============================================================================
-# CORREO EN HILO SEPARADO (no bloquea al usuario)
+# CORREO DIRECTO — GARANTIZADO PARA PRODUCCIÓN
 # =============================================================================
-def _enviar_correo_bg(datos, pdf_bytes):
+def enviar_respaldo_async(datos, pdf_buffer):
     try:
+        mi_correo = EMAIL_USER
+        password  = EMAIL_PASS
+
         msg = MIMEMultipart()
-        msg["From"]    = EMAIL_USER
-        msg["To"]      = EMAIL_USER
+        msg["From"]    = mi_correo
+        msg["To"]      = mi_correo
         msg["Subject"] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+
         cuerpo = f"""
         <html><body style="font-family:Arial,sans-serif;">
           <div style="border:1px solid #2e7d32;padding:20px;border-radius:10px;">
@@ -194,25 +197,23 @@ def _enviar_correo_bg(datos, pdf_bytes):
         </body></html>
         """
         msg.attach(MIMEText(cuerpo, "html"))
+
+        pdf_buffer.seek(0)
         adj = MIMEBase("application", "octet-stream")
-        adj.set_payload(pdf_bytes)
+        adj.set_payload(pdf_buffer.read())
         encoders.encode_base64(adj)
         adj.add_header("Content-Disposition",
                        f"attachment; filename=Asistencia_{datos['ID']}.pdf")
         msg.attach(adj)
+
         srv = smtplib.SMTP("smtp.gmail.com", 587)
         srv.starttls()
-        srv.login(EMAIL_USER, EMAIL_PASS)
-        srv.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+        srv.login(mi_correo, password)
+        srv.sendmail(mi_correo, mi_correo, msg.as_string())
         srv.quit()
+
     except Exception as e:
         print(f"[EMAIL ERROR] {e}")
-
-
-def enviar_respaldo_async(datos, pdf_buffer):
-    pdf_bytes = pdf_buffer.getvalue()
-    threading.Thread(target=_enviar_correo_bg, args=(datos, pdf_bytes), daemon=True).start()
-
 
 # =============================================================================
 # GENERACIÓN DE PDF
