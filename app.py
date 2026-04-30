@@ -166,13 +166,12 @@ def guardar_en_google_sheets(datos):
 # =============================================================================
 # FUNCIÓN DE ENVÍO DE CORREO (MEJORADA ESTILO CÓDIGO 45)
 # =============================================================================
-def enviar_respaldo_async(datos, pdf_buffer):    
+def enviar_respaldo_async(datos, pdf_buffer):
 
     def _proceso_envio():
-
-        print("📧 INICIANDO ENVÍO...")  # 👈 DEBUG
-
         try:
+            st.write("📩 Intentando enviar correo...")
+
             msg = MIMEMultipart()
             msg['From'] = EMAIL_USER
             msg['To'] = EMAIL_USER
@@ -181,8 +180,10 @@ def enviar_respaldo_async(datos, pdf_buffer):
             cuerpo = f"""
             <html><body>
                 <h3>Respaldo de Asistencia</h3>
-                <p>{datos['Nombre']}</p>
-                <p>{datos['ID']}</p>
+                <p><b>Empleado:</b> {datos['Nombre']}</p>
+                <p><b>Cédula:</b> {datos['ID']}</p>
+                <p><b>Empresa:</b> {datos['Empresa']}</p>
+                <p><b>Fecha:</b> {datos['Fecha']}</p>
             </body></html>
             """
             msg.attach(MIMEText(cuerpo, 'html'))
@@ -192,10 +193,13 @@ def enviar_respaldo_async(datos, pdf_buffer):
             adjunto = MIMEBase('application', 'octet-stream')
             adjunto.set_payload(pdf_buffer.read())
             encoders.encode_base64(adjunto)
-            adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
+            adjunto.add_header(
+                'Content-Disposition',
+                f"attachment; filename=Asistencia_{datos['ID']}.pdf"
+            )
             msg.attach(adjunto)
 
-            # 🔥 AQUÍ VA TU BLOQUE SSL
+            # 🔥 ENVÍO REAL
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30)
             server.login(EMAIL_USER, EMAIL_PASS)
 
@@ -207,15 +211,16 @@ def enviar_respaldo_async(datos, pdf_buffer):
 
             server.quit()
 
-            print(f"✅ CORREO ENVIADO para {datos['ID']}")
+            st.success(f"✅ Correo enviado para {datos['ID']}")
 
         except Exception as e:
             import traceback
-            print("❌ ERROR EN CORREO:")
-            print(traceback.format_exc())
+            st.error("❌ Error enviando correo")
+            st.code(traceback.format_exc())
 
-    # 👇 ESTO DISPARA EL ENVÍO
-    threading.Thread(target=_proceso_envio, daemon=True).start()
+    # 👇 EJECUCIÓN (SIN THREAD PARA PRUEBA)
+    _proceso_envio()
+
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
