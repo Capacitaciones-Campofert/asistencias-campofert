@@ -213,8 +213,7 @@ def enviar_respaldo_async(datos, pdf_buffer):
         srv.quit()
 
     except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
-
+        raise e
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
@@ -1124,8 +1123,12 @@ if menu == "📋 Registro Asistencia":
                         foto_comprimida
                     )
     
-                # Correo en background
-                enviar_respaldo_async(datos_asistencia, pdf)
+                # Correo con error visible
+                try:
+                    enviar_respaldo_async(datos_asistencia, pdf)
+                    st.success("✅ Correo enviado")
+                except Exception as e:
+                    st.error(f"❌ Error correo: {e}")
     
                 pdf.seek(0)
                 st.session_state.pdf_doc = pdf
