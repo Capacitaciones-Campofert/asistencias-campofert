@@ -80,13 +80,6 @@ st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
 # =============================================================================
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# =============================================================================
-# CREDENCIALES DESDE SECRETS
-# Asegúrate de tener en .streamlit/secrets.toml:
-#   email_user     = "gestionhumanacpfert@gmail.com"
-#   email_password = "eliwdxcfoseragcn"
-#   admin_password = "campofert2026"
-# =============================================================================
 EMAIL_USER = st.secrets.get("email_user", "gestionhumanacpfert@gmail.com")
 EMAIL_PASS = st.secrets.get("email_password", "eliwdxcfoseragcn")
 ADMIN_PASS = st.secrets.get("admin_password", "campofert2026")
@@ -171,48 +164,55 @@ def guardar_en_google_sheets(datos):
         return False
 
 # =============================================================================
-# CORREO DIAGNÓSTICO
+# FUNCIÓN DE ENVÍO DE CORREO (MEJORADA ESTILO CÓDIGO 45)
 # =============================================================================
 def enviar_respaldo_async(datos, pdf_buffer):
-    mi_correo = EMAIL_USER
-    password  = EMAIL_PASS
+    """Lógica de envío mejorada con manejo de sesión SMTP seguro"""
+    def _proceso_envio():
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = EMAIL_USER
+            msg['To'] = EMAIL_USER  # Se envía a sí mismo como respaldo
+            msg['Subject'] = f"✅ Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
-    msg = MIMEMultipart()
-    msg['From']    = mi_correo
-    msg['To']      = mi_correo
-    msg['Subject'] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
+            cuerpo = f"""
+            <html><body style="font-family: Arial, sans-serif; color: #333;">
+                <div style="border: 2px solid #2e7d32; padding: 20px; border-radius: 12px; max-width: 600px;">
+                    <h2 style="color: #2e7d32; margin-top: 0;">Respaldo de Asistencia Digital</h2>
+                    <hr style="border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Colaborador:</strong> {datos['Nombre']}</p>
+                    <p><strong>Cédula:</strong> {datos['ID']}</p>
+                    <p><strong>Empresa:</strong> {datos['Empresa']}</p>
+                    <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
+                    <p><strong>Capacitación:</strong> {datos['Tema']}</p>
+                    <p><strong>Fecha/Hora:</strong> {datos['Fecha']}</p>
+                    <br>
+                    <p style="font-size: 12px; color: #777;">Este es un correo automático generado por el sistema de Gestión Humana.</p>
+                </div>
+            </body></html>
+            """
+            msg.attach(MIMEText(cuerpo, 'html'))
 
-    cuerpo_html = f"""
-    <html><body style="font-family: Arial, sans-serif;">
-        <div style="border: 1px solid #2e7d32; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #2e7d32;">Respaldo Capacitación - Campofert</h2>
-            <p><strong>Empleado:</strong> {datos['Nombre']}</p>
-            <p><strong>Cédula:</strong> {datos['ID']}</p>
-            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
-            <p><strong>Cargo:</strong> {datos.get('Cargo', 'NO REGISTRA')}</p>
-            <p><strong>Tema:</strong> {datos['Tema']}</p>
-            <p><strong>Fecha:</strong> {datos['Fecha']}</p>
-        </div>
-    </body></html>
-    """
-    msg.attach(MIMEText(cuerpo_html, 'html'))
+            # Adjuntar PDF
+            pdf_buffer.seek(0)
+            adjunto = MIMEBase('application', 'octet-stream')
+            adjunto.set_payload(pdf_buffer.read())
+            encoders.encode_base64(adjunto)
+            adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
+            msg.attach(adjunto)
 
-    pdf_buffer.seek(0)
-    adjunto = MIMEBase('application', 'octet-stream')
-    adjunto.set_payload(pdf_buffer.read())
-    encoders.encode_base64(adjunto)
-    adjunto.add_header('Content-Disposition',
-                       f"attachment; filename=Asistencia_{datos['ID']}.pdf")
-    msg.attach(adjunto)
+            # Conexión Segura
+            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASS)
+            server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+            server.quit()
+            print(f"[EMAIL] Enviado exitosamente para {datos['ID']}")
+        except Exception as e:
+            print(f"[EMAIL ERROR] Falló el envío: {str(e)}")
 
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(mi_correo, password)
-        server.sendmail(mi_correo, mi_correo, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
+    # Ejecutar en segundo plano para no bloquear la interfaz de Streamlit
+    threading.Thread(target=_proceso_envio, daemon=True).start()
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
@@ -916,7 +916,7 @@ if menu == "📋 Registro Asistencia":
                 AUTORIZACIÓN DE USO DE DATOS PERSONALES, DERECHOS DE IMAGEN Y FIRMA DIGITAL
             </h3>
             <p style='font-size:14px; color:#222; line-height:1.7; text-align:justify;'>
-                Autorizo a <strong>Campofert S.A.S.</strong>, en calidad de responsable del
+                Autorizo a <strong>Campofert S.A.S.</strong>/<strong>Campolab S.A.S.</strong>, en calidad de responsable del
                 tratamiento de datos personales, para que recopile, almacene y utilice la
                 siguiente información: <strong>fotografía</strong> para validación de identidad,
                 <strong>firma manuscrita digitalizada</strong> como constancia de asistencia, y
