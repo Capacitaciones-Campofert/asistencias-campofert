@@ -220,7 +220,9 @@ def enviar_respaldo_async(datos, pdf_buffer):
             print(f"✅ CORREO ENVIADO para {datos['ID']}")
         
         except Exception as e:
-            print(f"[EMAIL ERROR] Falló el envío: {str(e)}")
+            import traceback
+            print("❌ ERROR EN CORREO:")
+            print(traceback.format_exc())
 
     # Ejecutar en segundo plano para no bloquear la interfaz de Streamlit
     threading.Thread(target=_proceso_envio, daemon=True).start()
