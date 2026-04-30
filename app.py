@@ -563,7 +563,6 @@ if st.session_state.rol == "Admin":
             st.success("✅ Archivo actualizado correctamente.")
 
     elif menu == "📊 Dashboard":
-
         st.markdown("## 📊 Dashboard Ejecutivo")
     
         try:
@@ -572,7 +571,6 @@ if st.session_state.rol == "Admin":
             if df.empty:
                     st.warning("No hay registros.")
             else:
-        
                 # -----------------------------
                 # LIMPIEZA
                 # -----------------------------
@@ -594,70 +592,69 @@ if st.session_state.rol == "Admin":
                 k4.metric("🏢 Empresas", empresas)
         
                 st.markdown("---")
-                
+                    
+                # -----------------------------
+                # GRÁFICOS
+                # -----------------------------
+                col1, col2 = st.columns(2)
+        
+                # 📊 Asistencias por empresa
+                with col1:
+                    empresa_df = df["Empresa"].value_counts().reset_index()
+                    empresa_df.columns = ["Empresa", "Cantidad"]
+        
+                    fig_empresa = px.bar(
+                        empresa_df,
+                        x="Empresa",
+                        y="Cantidad",
+                        title="Asistencias por Empresa"
+                    )
+        
+                    st.plotly_chart(fig_empresa, use_container_width=True)
     
-            # -----------------------------
-            # GRÁFICOS
-            # -----------------------------
-            col1, col2 = st.columns(2)
-    
-            # 📊 Asistencias por empresa
-            with col1:
-                empresa_df = df["Empresa"].value_counts().reset_index()
-                empresa_df.columns = ["Empresa", "Cantidad"]
-    
-                fig_empresa = px.bar(
-                    empresa_df,
-                    x="Empresa",
-                    y="Cantidad",
-                    title="Asistencias por Empresa"
-                )
-    
-                st.plotly_chart(fig_empresa, use_container_width=True)
-    
-            # 🥧 Distribución
-            with col2:
-                fig_pie = px.pie(
-                    empresa_df,
-                    names="Empresa",
-                    values="Cantidad",
-                    title="Participación por Empresa"
-                )
-    
+                # 🥧 Distribución
+                with col2:
+                    fig_pie = px.pie(
+                        empresa_df,
+                        names="Empresa",
+                        values="Cantidad",
+                        title="Participación por Empresa"
+                    )
+        
                 st.plotly_chart(fig_pie, use_container_width=True)
     
-            st.markdown("---")
+                st.markdown("---")
     
-            # 📈 Tendencia por fecha
-            df_fecha = df.groupby(df["Fecha"].dt.date).size().reset_index()
-            df_fecha.columns = ["Fecha", "Registros"]
+                # 📈 Tendencia por fecha
+                df_fecha = df.groupby(df["Fecha"].dt.date).size().reset_index()
+                df_fecha.columns = ["Fecha", "Registros"]
+        
+                fig_line = px.line(
+                    df_fecha,
+                    x="Fecha",
+                    y="Registros",
+                    title="Tendencia de Asistencias"
+                )
+        
+                st.plotly_chart(fig_line, use_container_width=True)
+        
+                st.markdown("---")
     
-            fig_line = px.line(
-                df_fecha,
-                x="Fecha",
-                y="Registros",
-                title="Tendencia de Asistencias"
-            )
-    
-            st.plotly_chart(fig_line, use_container_width=True)
-    
-            st.markdown("---")
-    
-            # 📊 Top capacitaciones
-            tema_df = df["Tema"].value_counts().head(10).reset_index()
-            tema_df.columns = ["Tema", "Cantidad"]
-    
-            fig_tema = px.bar(
-                tema_df,
-                x="Cantidad",
-                y="Tema",
-                orientation="h",
-                title="Top Capacitaciones"
-            )
-    
-            st.plotly_chart(fig_tema, use_container_width=True)
-    
-            st.markdown("---")
+                # 📊 Top capacitaciones
+                tema_df = df["Tema"].value_counts().head(10).reset_index()
+                tema_df.columns = ["Tema", "Cantidad"]
+        
+                fig_tema = px.bar(
+                    tema_df,
+                    x="Cantidad",
+                    y="Tema",
+                    orientation="h",
+                    title="Top Capacitaciones"
+                )
+        
+                st.plotly_chart(fig_tema, use_container_width=True)
+        
+                st.markdown("---")
     
             # 📋 TABLA FINAL
             st.subheader("📋 Últimos registros")
