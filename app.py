@@ -84,7 +84,7 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 # CREDENCIALES DESDE SECRETS
 # Asegúrate de tener en .streamlit/secrets.toml:
 #   email_user     = "gestionhumanacpfert@gmail.com"
-#   email_password = "tu-app-password"
+#   email_password = "eliwdxcfoseragcn"
 #   admin_password = "campofert2026"
 # =============================================================================
 EMAIL_USER = st.secrets.get("email_user", "gestionhumanacpfert@gmail.com")
