@@ -619,12 +619,6 @@ if st.session_state.rol == "Admin":
                         (df_filtrado["Fecha"].dt.date <= fin)
                     ]
                 
-                # -----------------------------
-                # KPI DINÁMICOS
-                # -----------------------------
-                total = len(df_filtrado)
-                personas = df_filtrado["ID"].nunique()
-                
                 # KPI PERIODO ANTERIOR (misma cantidad de días)
                 if len(fecha_sel) == 2:
                     inicio, fin = fecha_sel
@@ -645,6 +639,33 @@ if st.session_state.rol == "Admin":
                 # DELTA
                 delta_total = total - total_ant
                 
+                # -----------------------------
+                # KPI DINÁMICOS
+                # -----------------------------
+                total = len(df_filtrado)
+                personas = df_filtrado["ID"].nunique()
+                
+                # KPI PERIODO ANTERIOR (misma cantidad de días)
+                if len(fecha_sel) == 2:
+                    inicio, fin = fecha_sel
+                    dias = (fin - inicio).days + 1  # 🔥 IMPORTANTE
+                
+                    inicio_ant = inicio - pd.Timedelta(days=dias)
+                    fin_ant = inicio - pd.Timedelta(days=1)
+                
+                    df_anterior = df[
+                        (df["Fecha"].dt.date >= inicio_ant) &
+                        (df["Fecha"].dt.date <= fin_ant)
+                    ]
+                
+                    total_ant = len(df_anterior)
+                else:
+                    total_ant = 0
+                
+                # DELTA
+                delta_total = total - total_ant
+                
+                # KPI VISUAL
                 k1, k2, k3, k4 = st.columns(4)
                 
                 k1.metric("📋 Registros", total, delta_total)
