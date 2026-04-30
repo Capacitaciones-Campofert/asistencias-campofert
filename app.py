@@ -170,36 +170,41 @@ def enviar_respaldo_async(datos, pdf_buffer):
 
     def _proceso_envio():
         try:
-            st.write("📩 Intentando enviar correo...")
+            print("📩 Enviando respaldo a RRHH...")
 
             msg = MIMEMultipart()
             msg['From'] = EMAIL_USER
             msg['To'] = EMAIL_USER
             msg['Subject'] = f"✅ Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
+            # 🧾 CUERPO
             cuerpo = f"""
-            <html><body>
-                <h3>Respaldo de Asistencia</h3>
+            <html><body style="font-family: Arial;">
+                <h2 style="color:#2E7D32;">📋 Respaldo de Asistencia</h2>
                 <p><b>Empleado:</b> {datos['Nombre']}</p>
                 <p><b>Cédula:</b> {datos['ID']}</p>
                 <p><b>Empresa:</b> {datos['Empresa']}</p>
+                <p><b>Cargo:</b> {datos.get('Cargo', 'NO REGISTRA')}</p>
+                <p><b>Tema:</b> {datos['Tema']}</p>
                 <p><b>Fecha:</b> {datos['Fecha']}</p>
+                <hr>
+                <small>Enviado automáticamente desde Campofert</small>
             </body></html>
             """
             msg.attach(MIMEText(cuerpo, 'html'))
 
-            # Adjuntar PDF
+            # 📎 ADJUNTO PDF
             pdf_buffer.seek(0)
             adjunto = MIMEBase('application', 'octet-stream')
             adjunto.set_payload(pdf_buffer.read())
             encoders.encode_base64(adjunto)
             adjunto.add_header(
                 'Content-Disposition',
-                f"attachment; filename=Asistencia_{datos['ID']}.pdf"
+                f"attachment; filename=Certificado_{datos['ID']}.pdf"
             )
             msg.attach(adjunto)
 
-            # 🔥 ENVÍO REAL
+            # 🚀 ENVÍO
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30)
             server.login(EMAIL_USER, EMAIL_PASS)
 
@@ -211,15 +216,15 @@ def enviar_respaldo_async(datos, pdf_buffer):
 
             server.quit()
 
-            st.success(f"✅ Correo enviado para {datos['ID']}")
+            print(f"✅ CORREO ENVIADO para {datos['ID']}")
 
         except Exception as e:
             import traceback
-            st.error("❌ Error enviando correo")
-            st.code(traceback.format_exc())
+            print("❌ ERROR EN CORREO:")
+            print(traceback.format_exc())
 
-    # 👇 EJECUCIÓN (SIN THREAD PARA PRUEBA)
-    _proceso_envio()
+    # 🚀 ENVÍO EN SEGUNDO PLANO
+    threading.Thread(target=_proceso_envio, daemon=True).start()
 
 # =============================================================================
 # GENERACIÓN DE PDF
