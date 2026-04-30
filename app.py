@@ -171,49 +171,19 @@ def guardar_en_google_sheets(datos):
         return False
 
 # =============================================================================
-# CORREO DIRECTO — GARANTIZADO PARA PRODUCCIÓN
+# CORREO DIAGNÓSTICO
 # =============================================================================
 def enviar_respaldo_async(datos, pdf_buffer):
+    st.write("🔵 Intentando enviar correo...")
     try:
-        mi_correo = EMAIL_USER
-        password  = EMAIL_PASS
-
-        msg = MIMEMultipart()
-        msg["From"]    = mi_correo
-        msg["To"]      = mi_correo
-        msg["Subject"] = f"✅ Nueva Asistencia: {datos['Nombre']} - {datos['Tema']}"
-
-        cuerpo = f"""
-        <html><body style="font-family:Arial,sans-serif;">
-          <div style="border:1px solid #2e7d32;padding:20px;border-radius:10px;">
-            <h2 style="color:#2e7d32;">Respaldo Capacitación - Campofert</h2>
-            <p><strong>Empleado:</strong> {datos['Nombre']}</p>
-            <p><strong>Cédula:</strong> {datos['ID']}</p>
-            <p><strong>Empresa:</strong> {datos['Empresa']}</p>
-            <p><strong>Cargo:</strong> {datos.get('Cargo','NO REGISTRA')}</p>
-            <p><strong>Tema:</strong> {datos['Tema']}</p>
-            <p><strong>Fecha:</strong> {datos['Fecha']}</p>
-          </div>
-        </body></html>
-        """
-        msg.attach(MIMEText(cuerpo, "html"))
-
-        pdf_buffer.seek(0)
-        adj = MIMEBase("application", "octet-stream")
-        adj.set_payload(pdf_buffer.read())
-        encoders.encode_base64(adj)
-        adj.add_header("Content-Disposition",
-                       f"attachment; filename=Asistencia_{datos['ID']}.pdf")
-        msg.attach(adj)
-
         srv = smtplib.SMTP("smtp.gmail.com", 587)
         srv.starttls()
-        srv.login(mi_correo, password)
-        srv.sendmail(mi_correo, mi_correo, msg.as_string())
+        st.write(f"🔵 Conectado. Usuario: {EMAIL_USER} | Pass: {EMAIL_PASS[:4]}****")
+        srv.login(EMAIL_USER, EMAIL_PASS)
+        st.write("✅ Login exitoso")
         srv.quit()
-
     except Exception as e:
-        raise e
+        st.error(f"❌ ERROR: {e}")
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
