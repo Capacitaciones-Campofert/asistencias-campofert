@@ -569,31 +569,31 @@ if st.session_state.rol == "Admin":
         try:
             df = leer_asistencias()
     
-            if df.empty:
-                st.warning("No hay registros.")
-            else:
-    
-            # -----------------------------
-            # LIMPIEZA
-            # -----------------------------
-            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
-    
-            # -----------------------------
-            # KPI CARDS
-            # -----------------------------
-            total = len(df)
-            personas = df["ID"].nunique()
-            temas = df["Tema"].nunique()
-            empresas = df["Empresa"].nunique()
-    
-            k1, k2, k3, k4 = st.columns(4)
-    
-            k1.metric("📋 Registros", total)
-            k2.metric("👥 Personas", personas)
-            k3.metric("📚 Capacitaciones", temas)
-            k4.metric("🏢 Empresas", empresas)
-    
-            st.markdown("---")
+                if df.empty:
+                    st.warning("No hay registros.")
+                else:
+        
+                # -----------------------------
+                # LIMPIEZA
+                # -----------------------------
+                df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
+        
+                # -----------------------------
+                # KPI CARDS
+                # -----------------------------
+                total = len(df)
+                personas = df["ID"].nunique()
+                temas = df["Tema"].nunique()
+                empresas = df["Empresa"].nunique()
+        
+                k1, k2, k3, k4 = st.columns(4)
+        
+                k1.metric("📋 Registros", total)
+                k2.metric("👥 Personas", personas)
+                k3.metric("📚 Capacitaciones", temas)
+                k4.metric("🏢 Empresas", empresas)
+        
+                st.markdown("---")
     
             # -----------------------------
             # GRÁFICOS
