@@ -169,6 +169,7 @@ def guardar_en_google_sheets(datos):
 def enviar_respaldo_async(datos, pdf_buffer):
     """Lógica de envío mejorada con manejo de sesión SMTP seguro"""
     def _proceso_envio():
+        print("📧 INICIANDO ENVÍO DE CORREO...")  # 👈 AQUÍ
         try:
             msg = MIMEMultipart()
             msg['From'] = EMAIL_USER
@@ -200,14 +201,24 @@ def enviar_respaldo_async(datos, pdf_buffer):
             encoders.encode_base64(adjunto)
             adjunto.add_header('Content-Disposition', f"attachment; filename=Asistencia_{datos['ID']}.pdf")
             msg.attach(adjunto)
-
-            # Conexión Segura
+ 
+            # Conexión Segura (MEJORADA)
             server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
+            server.ehlo()                # 👈 CLAVE
             server.starttls()
+            server.ehlo()                # 👈 CLAVE
             server.login(EMAIL_USER, EMAIL_PASS)
-            server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
+            
+            server.sendmail(
+                EMAIL_USER,
+                [EMAIL_USER],            # 👈 lista (más seguro)
+                msg.as_string()
+            )
+            
             server.quit()
-            print(f"[EMAIL] Enviado exitosamente para {datos['ID']}")
+            
+            print(f"✅ CORREO ENVIADO para {datos['ID']}")
+        
         except Exception as e:
             print(f"[EMAIL ERROR] Falló el envío: {str(e)}")
 
