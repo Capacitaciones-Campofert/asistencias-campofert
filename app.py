@@ -118,7 +118,7 @@ LOGOS = cargar_logos()
 # =============================================================================
 # FUNCIONES DE DATOS
 # =============================================================================
-@st.cache_data(ttl=3600, show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def obtener_datos():
     """TTL de 1h: el maestro no cambia durante una capacitación."""
     ruta = "empleados.xlsx"
