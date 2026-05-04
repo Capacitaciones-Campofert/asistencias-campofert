@@ -493,9 +493,9 @@ else:
         menu = st.radio("Seleccione módulo", [
             "⚙️ Configurar Tema",
             "📋 Registro Asistencia",
-            "👥 Empleados",
-            "📤 Cargar Archivo",
-            "📄 Cargar Documento",   # 👈 NUEVO
+            "👥 Lista Empleados",
+            "📤 Cargar Base de Personal",
+            "📄 Cargar Dcto para Firma",   # 👈 NUEVO
             "📊 Dashboard",
             "📄 Historial",
             "📁 Reportes",
