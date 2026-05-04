@@ -546,7 +546,7 @@ if st.session_state.rol == "Admin":
                 3. No necesitas volver a configurar nada hasta la siguiente capacitación.
                 """)
 
-    if menu == "👥 Empleados":
+    if menu == "👥 Lista Empleados":
         st.markdown("## 👥 Base de Empleados")
         df_emp = obtener_datos()
         if df_emp is not None and not df_emp.empty:
@@ -566,7 +566,7 @@ if st.session_state.rol == "Admin":
         else:
             st.warning("No existe archivo empleados.xlsx")
 
-    elif menu == "📤 Cargar Archivo":
+    elif menu == "📤 Cargar Base de Personal":
         st.markdown("## 📤 Actualizar Base de Personal")
         archivo = st.file_uploader("Subir archivo Excel actualizado", type=["xlsx"])
         if archivo is not None:
@@ -575,7 +575,7 @@ if st.session_state.rol == "Admin":
             obtener_datos.clear()
             st.success("✅ Archivo actualizado correctamente.")
 
-    elif menu == "📄 Cargar Documento":
+    elif menu == "📄 Cargar Dcto para Firma":
         st.markdown("## 📄 Cargar Documento para Firma")
     
         archivo = st.file_uploader("Subir documento PDF", type=["pdf"])
