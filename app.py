@@ -720,60 +720,61 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 # FILTRADO FINAL
                 # -----------------------------
-                
                 df_filtrado = df[
                     (df["Empresa"].isin(empresa_sel)) &
                     (df["Tema"].isin(tema_sel))
                 ].copy()
-    
+        
                 if len(fecha_sel) == 2:
                     inicio, fin = fecha_sel
                     df_filtrado = df_filtrado[
                         (df_filtrado["Fecha"].dt.date >= inicio) &
                         (df_filtrado["Fecha"].dt.date <= fin)
                     ]
-    
+        
                 if df_filtrado.empty:
                     st.warning("⚠️ No hay datos con los filtros seleccionados.")
                     st.stop()
-    
+        
                 # -----------------------------
-                # KPIs
+                # PERIODO ANTERIOR (Cálculo)
                 # -----------------------------
-                total = len(df_filtrado)
-                personas = df_filtrado["ID"].nunique()
-                temas = df_filtrado["Tema"].nunique()
-                empresas = df_filtrado["Empresa"].nunique()
-    
-                k1, k2, k3, k4 = st.columns(4)
-    
-                k1.metric("📋 Registros", total)
-                k2.metric("👥 Personas", personas)
-                k3.metric("📚 Capacitaciones", temas)
-                k4.metric("🏢 Empresas", empresas)
-    
-        except Exception as e:
-            st.error(f"Error Dashboard: {e}")
-    
-                # -----------------------------
-                # PERIODO ANTERIOR
-                # -----------------------------
+                # IMPORTANTE: Esto debe ir ANTES de mostrar los KPIs para tener el delta_total listo
                 if len(fecha_sel) == 2:
                     dias = (fin - inicio).days + 1
                     inicio_ant = inicio - pd.Timedelta(days=dias)
                     fin_ant = inicio - pd.Timedelta(days=1)
-    
+        
                     df_anterior = df[
                         (df["Fecha"].dt.date >= inicio_ant) &
                         (df["Fecha"].dt.date <= fin_ant)
                     ]
-    
                     total_ant = len(df_anterior)
                 else:
                     total_ant = 0
-    
+        
+                total = len(df_filtrado)
                 delta_total = total - total_ant
-    
+        
+                # -----------------------------
+                # KPIs (Visualización)
+                # -----------------------------
+                personas = df_filtrado["ID"].nunique()
+                temas = df_filtrado["Tema"].nunique()
+                empresas = df_filtrado["Empresa"].nunique()
+        
+                k1, k2, k3, k4 = st.columns(4)
+        
+                # Agregamos el delta al primer KPI
+                k1.metric("📋 Registros", total, delta=f"{delta_total}")
+                k2.metric("👥 Personas", personas)
+                k3.metric("📚 Capacitaciones", temas)
+                k4.metric("🏢 Empresas", empresas)
+        
+        except Exception as e:
+            # Este bloque debe estar alineado con el 'try' inicial
+            st.error(f"Error Dashboard: {e}")
+                 
                 # -----------------------------
                 # 🎨 CSS TARJETAS
                 # -----------------------------
