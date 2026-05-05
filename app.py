@@ -646,35 +646,51 @@ if st.session_state.rol == "Admin":
     elif menu == "📊 Dashboard":
         st.markdown("## 📊 Dashboard Ejecutivo")
     
+        # 🔄 BOTÓN DE ACTUALIZACIÓN
+        if st.button("🔄 Actualizar datos"):
+            leer_asistencias.clear()
+            st.rerun()
+    
         try:
+            # 🔥 limpiar caché antes de leer
+            leer_asistencias.clear()
             df = leer_asistencias()
     
             if df.empty:
                 st.warning("No hay registros.")
             else:
                 # -----------------------------
-                # LIMPIEZA (FIX 🔥)
+                # LIMPIEZA
                 # -----------------------------
-                # 🔥 FORZAR conversión robusta (clave)
                 df["Fecha"] = pd.to_datetime(
                     df["Fecha"].astype(str).str.strip(),
                     dayfirst=True,
                     errors="coerce"
                 )
-                
-                # ✅ eliminar solo los inválidos
+    
                 df = df[df["Fecha"].notna()]
-
+    
                 # -----------------------------
-                # FILTRO SOLO HOY 🔥 (CORREGIDO)
+                # DEBUG REAL
+                # -----------------------------
+                st.write("Total registros hoja:", len(df))
+    
+                # -----------------------------
+                # FILTRO SOLO HOY (SIN DAÑAR df ORIGINAL)
                 # -----------------------------
                 hoy = pd.Timestamp.now().date()
-
-                df = df[df["Fecha"].dt.date == hoy]
-                
-                # Debug
-                st.write("Registros hoy:", len(df))
-
+    
+                df_hoy = df[df["Fecha"].dt.date == hoy].copy()
+    
+                st.write("Registros hoy:", len(df_hoy))
+    
+                if df_hoy.empty:
+                    st.warning("⚠️ Hoy no hay registros.")
+                    st.stop()
+    
+                # 👇 IMPORTANTE: usar df_hoy desde aquí
+                df = df_hoy
+    
                 # -----------------------------
                 # FILTROS
                 # -----------------------------
@@ -702,7 +718,7 @@ if st.session_state.rol == "Admin":
                         )
     
                 # -----------------------------
-                # FILTRADO
+                # FILTRADO FINAL
                 # -----------------------------
                 df_filtrado = df[
                     (df["Empresa"].isin(empresa_sel)) &
@@ -727,6 +743,16 @@ if st.session_state.rol == "Admin":
                 personas = df_filtrado["ID"].nunique()
                 temas = df_filtrado["Tema"].nunique()
                 empresas = df_filtrado["Empresa"].nunique()
+    
+                k1, k2, k3, k4 = st.columns(4)
+    
+                k1.metric("📋 Registros", total)
+                k2.metric("👥 Personas", personas)
+                k3.metric("📚 Capacitaciones", temas)
+                k4.metric("🏢 Empresas", empresas)
+    
+        except Exception as e:
+            st.error(f"Error Dashboard: {e}")
     
                 # -----------------------------
                 # PERIODO ANTERIOR
