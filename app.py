@@ -720,6 +720,7 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 # FILTRADO FINAL
                 # -----------------------------
+                
                 df_filtrado = df[
                     (df["Empresa"].isin(empresa_sel)) &
                     (df["Tema"].isin(tema_sel))
