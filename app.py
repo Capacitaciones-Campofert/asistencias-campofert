@@ -655,10 +655,12 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 # LIMPIEZA (FIX 🔥)
                 # -----------------------------
-                if "Timestamp" in df.columns:
-                    df["Fecha"] = pd.to_datetime(df["Timestamp"], errors="coerce")
-                else:
-                    df["Fecha"] = pd.to_datetime(df["Fecha"], format="mixed", dayfirst=True, errors="coerce")
+                # 🔥 FORZAR conversión robusta (clave)
+                df["Fecha"] = pd.to_datetime(
+                    df["Fecha"].astype(str).str.strip(),
+                    dayfirst=True,
+                    errors="coerce"
+                )
                 
                 # ✅ eliminar solo los inválidos
                 df = df[df["Fecha"].notna()]
