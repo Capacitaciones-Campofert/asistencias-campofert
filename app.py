@@ -156,7 +156,7 @@ def guardar_en_google_sheets(datos):
         actual = conn.read(worksheet="Hoja")
         df_final = nueva_fila if (actual is None or actual.empty) \
                    else pd.concat([actual, nueva_fila], ignore_index=True)
-        conn.update(worksheet="Hoja", data=df_final)
+        conn.append(worksheet="Hoja", data=nueva_fila)
         leer_asistencias.clear()
         return True
     except Exception as e:
