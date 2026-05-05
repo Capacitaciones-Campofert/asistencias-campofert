@@ -380,7 +380,7 @@ if st.session_state.rol is None:
 
     st.markdown("""
     <div class="hero-gerencia">
-        <h1>🌱 Campofert </h1>
+        <h1>🌱 Campofert Asistencias</h1>
         <p>Plataforma Oficial de Gestión Humana</p>
         <div class="hero-mini">
             Asistencia • Certificados • Administración • Indicadores • Control Interno
