@@ -664,12 +664,22 @@ if st.session_state.rol == "Admin":
                 df = df[df["Fecha"].notna()]
 
                 # -----------------------------
-                # FILTRO SOLO HOY 🔥
+                # FILTRO SOLO HOY 🔥 (CORREGIDO)
                 # -----------------------------
-                hoy = pd.Timestamp.now().normalize()
+                import pytz
                 
+                zona = pytz.timezone("America/Bogota")
+                
+                # Convertir fechas a datetime (sin zona)
+                df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
+                
+                # Obtener hoy en Colombia SIN zona (para que coincida)
+                hoy = pd.Timestamp.now(tz=zona).tz_localize(None).normalize()
+                
+                # Comparación correcta
                 df = df[df["Fecha"].dt.normalize() == hoy]
-                 
+                
+                # Debug
                 st.write("Registros hoy:", len(df))
 
                 # -----------------------------
