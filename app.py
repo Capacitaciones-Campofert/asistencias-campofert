@@ -666,18 +666,9 @@ if st.session_state.rol == "Admin":
                 # -----------------------------
                 # FILTRO SOLO HOY 🔥 (CORREGIDO)
                 # -----------------------------
-                import pytz
-                
-                zona = pytz.timezone("America/Bogota")
-                
-                # Convertir fechas a datetime (sin zona)
-                df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-                
-                # Obtener hoy en Colombia SIN zona (para que coincida)
-                hoy = pd.Timestamp.now(tz=zona).tz_localize(None).normalize()
-                
-                # Comparación correcta
-                df = df[df["Fecha"].dt.normalize() == hoy]
+                hoy = pd.Timestamp.now().date()
+
+                df = df[df["Fecha"].dt.date == hoy]
                 
                 # Debug
                 st.write("Registros hoy:", len(df))
