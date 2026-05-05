@@ -802,12 +802,12 @@ if st.session_state.rol == "Admin":
                 .down { color:#C62828; font-weight:bold; }
                 </style>
                 """, unsafe_allow_html=True)
-    
+        
                 def delta_html(valor):
                     if valor > 0:
                         return f"<span class='up'>▲ {valor}</span>"
                     elif valor < 0:
-                        return f"<span class='down'>▼ {valor}</span>"
+                        return f"<span class='down'>▼ {abs(valor)}</span>"
                     else:
                         return "<span>0</span>"
     
