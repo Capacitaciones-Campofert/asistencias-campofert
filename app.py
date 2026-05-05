@@ -662,7 +662,16 @@ if st.session_state.rol == "Admin":
                 
                 # ✅ eliminar solo los inválidos
                 df = df[df["Fecha"].notna()]
+
+                # -----------------------------
+                # FILTRO SOLO HOY 🔥
+                # -----------------------------
+                hoy = pd.Timestamp.now().normalize()
                 
+                df = df[df["Fecha"].dt.normalize() == hoy]
+                 
+                st.write("Registros hoy:", len(df))
+
                 # -----------------------------
                 # FILTROS
                 # -----------------------------
