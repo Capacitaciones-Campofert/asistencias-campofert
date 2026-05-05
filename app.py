@@ -663,10 +663,6 @@ if st.session_state.rol == "Admin":
                 # ✅ eliminar solo los inválidos
                 df = df[df["Fecha"].notna()]
                 
-                # 👇 🔥 AQUÍ VA
-                st.write("TOTAL DESPUÉS DE LIMPIEZA:", len(df))
-                st.dataframe(df.tail(10))
-    
                 # -----------------------------
                 # FILTROS
                 # -----------------------------
