@@ -142,23 +142,34 @@ def leer_asistencias():
         st.error(f"Error leyendo asistencias: {e}")
         return pd.DataFrame()
 
-
 def guardar_en_google_sheets(datos):
     try:
+        import pandas as pd
+        from datetime import datetime
+
         nueva_fila = pd.DataFrame([{
-            "Fecha":   datos["Fecha"],
-            "ID":      str(datos["ID"]),
-            "Nombre":  datos["Nombre"],
-            "Empresa": datos["Empresa"],
+            "Fecha":   datos.get("Fecha"),
+            "ID":      str(datos.get("ID")),
+            "Nombre":  datos.get("Nombre"),
+            "Empresa": datos.get("Empresa"),
             "Cargo":   datos.get("Cargo", "NO REGISTRA"),
-            "Tema":    datos["Tema"],
+            "Tema":    datos.get("Tema"),
+            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
-        actual = conn.read(worksheet="Hoja")
-        df_final = nueva_fila if (actual is None or actual.empty) \
-                   else pd.concat([actual, nueva_fila], ignore_index=True)
-        conn.append(worksheet="Hoja", data=nueva_fila)
-        leer_asistencias.clear()
+
+        conn.append(
+            worksheet="Hoja",
+            data=nueva_fila
+        )
+
+        # limpiar cache si usas st.cache_data
+        try:
+            leer_asistencias.clear()
+        except:
+            pass
+
         return True
+
     except Exception as e:
         st.error(f"Error guardando en Google Sheets: {e}")
         return False
