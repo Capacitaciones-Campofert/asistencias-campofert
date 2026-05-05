@@ -131,7 +131,6 @@ def obtener_datos():
             st.error(f"Error al leer empleados.xlsx: {e}")
     return pd.DataFrame()
 
-
 @st.cache_data(ttl=60, show_spinner=False)
 def leer_asistencias():
     """TTL de 60s — equilibrio entre frescura y presión en la API."""
@@ -146,6 +145,12 @@ def guardar_en_google_sheets(datos):
     try:
         import pandas as pd
         from datetime import datetime
+        import time
+
+        # 🔒 Validación mínima
+        if not datos.get("ID") or not datos.get("Nombre"):
+            st.error("Datos incompletos")
+            return False
 
         nueva_fila = pd.DataFrame([{
             "Fecha":   datos.get("Fecha"),
@@ -157,12 +162,20 @@ def guardar_en_google_sheets(datos):
             "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
 
-        conn.append(
-            worksheet="Hoja",
-            data=nueva_fila
-        )
+        # 🔥 APPEND CON REINTENTO (CLAVE)
+        for intento in range(3):
+            try:
+                conn.append(
+                    worksheet="Hoja",
+                    data=nueva_fila
+                )
+                break
+            except Exception as e:
+                time.sleep(1)
+                if intento == 2:
+                    raise e
 
-        # limpiar cache si usas st.cache_data
+        # 🔄 Limpiar caché para reflejar cambios
         try:
             leer_asistencias.clear()
         except:
@@ -173,7 +186,6 @@ def guardar_en_google_sheets(datos):
     except Exception as e:
         st.error(f"Error guardando en Google Sheets: {e}")
         return False
-
 # =============================================================================
 # FUNCIÓN DE ENVÍO DE CORREO (MEJORADA ESTILO CÓDIGO 45)
 # =============================================================================
