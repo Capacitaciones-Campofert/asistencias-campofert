@@ -653,10 +653,19 @@ if st.session_state.rol == "Admin":
                 st.warning("No hay registros.")
             else:
                 # -----------------------------
-                # LIMPIEZA
+                # LIMPIEZA (FIX 🔥)
                 # -----------------------------
-                df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
-                df = df.dropna(subset=["Fecha"])
+                if "Timestamp" in df.columns:
+                    df["Fecha"] = pd.to_datetime(df["Timestamp"], errors="coerce")
+                else:
+                    df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
+                
+                # ✅ eliminar solo los inválidos
+                df = df[df["Fecha"].notna()]
+                
+                # 👇 🔥 AQUÍ VA
+                st.write("TOTAL DESPUÉS DE LIMPIEZA:", len(df))
+                st.dataframe(df.tail(10))
     
                 # -----------------------------
                 # FILTROS
