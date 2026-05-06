@@ -776,7 +776,7 @@ if st.session_state.rol == "Admin":
                         st.dataframe(resumen, use_container_width=True)
 
         except Exception as e:
-            st.error(f"Error Dashboard: {e}"))
+            st.error(f"Error Dashboard: {e}")
                  
                 # -----------------------------
                 # 🎨 CSS TARJETAS
