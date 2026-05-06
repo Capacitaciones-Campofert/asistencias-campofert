@@ -44,33 +44,65 @@ st.session_state.setdefault("esperando_clave", False)
 # =============================================================================
 CSS_CORPORATIVO = """
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap');
+
+    * {
+        font-family: 'Century Gothic', 'CenturyGothic', 'Nunito', 'Apple Gothic', sans-serif !important;
+    }
+
     .stApp { background-color: #F5F5F0; }
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
+
     .stButton > button {
         background-color: #2E7D32; color: white; border: none;
-        border-radius: 8px; font-weight: bold; padding: 0.5rem 1rem;
+        border-radius: 8px; font-weight: 700; padding: 0.5rem 1rem;
         transition: background-color 0.3s;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+        letter-spacing: 0.5px;
     }
     .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
-    h1, h2, h3 { color: #1B5E20; }
+
+    h1, h2, h3 {
+        color: #1B5E20;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+        font-weight: 800 !important;
+        letter-spacing: 1px;
+    }
+
     .stTextInput > div > div > input {
         border: 2px solid #2E7D32; border-radius: 6px;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     .stTextInput > div > div > input:focus {
         border-color: #F9A825; box-shadow: 0 0 0 2px rgba(249,168,37,0.3);
     }
-    [data-testid="stMetricValue"] { color: #2E7D32; font-weight: bold; }
-    .stTabs [data-baseweb="tab"] { color: #2E7D32; font-weight: bold; }
+
+    [data-testid="stMetricValue"] {
+        color: #2E7D32; font-weight: bold;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        color: #2E7D32; font-weight: bold;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+    }
     .stTabs [aria-selected="true"] {
         border-bottom: 3px solid #F9A825 !important; color: #1B5E20 !important;
     }
+
     footer { visibility: hidden; }
+
     .stDownloadButton > button {
         background-color: #F9A825; color: #1B5E20;
         font-weight: bold; border: none; border-radius: 8px;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     .stDownloadButton > button:hover { background-color: #2E7D32; color: white; }
+
+    p, span, div, label, td, th {
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+    }
 </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
