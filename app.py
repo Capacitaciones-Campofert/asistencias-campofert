@@ -404,9 +404,10 @@ if st.session_state.rol is None:
     st.markdown("""
     <div class="hero-gerencia">
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
-        <p>Código: I.FO.GH.03 Versión: 03 Fecha de emisión: 2014-12-01 Fecha de actualización: 2026-05-20 Páginas: 1 de 1</p>
+        
         <div class="hero-mini">
-            Asistencia • Certificados • Administración • Indicadores • Control Interno
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 | 
+            Fecha de actualización: 2026-05-20 | Páginas: 1 de 1
         </div>
     </div>
     """, unsafe_allow_html=True)
