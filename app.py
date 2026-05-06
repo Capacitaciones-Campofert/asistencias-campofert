@@ -643,7 +643,7 @@ if st.session_state.rol == "Admin":
             else:
                 st.warning("⚠️ Debes subir archivo y correo")
     
-    if menu == "📊 Dashboard":
+    elif menu == "📊 Dashboard":
         st.markdown("## 📊 Dashboard Ejecutivo")
     
         if st.button("🔄 Actualizar datos"):
@@ -655,16 +655,114 @@ if st.session_state.rol == "Admin":
     
             if df.empty:
                 st.warning("No hay registros.")
-            else:
-                df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce")
-                df = df[df["Fecha"].notna()]
+                st.stop()
     
-                k1, k2, k3, k4 = st.columns(4)
+            # =============================
+            # 🔽 AQUÍ VA TU BLOQUE COMPLETO
+            # =============================
     
-                st.success("Dashboard cargado correctamente")
+            # LIMPIEZA
+            df["Fecha"] = pd.to_datetime(df["Fecha"], errors="coerce", dayfirst=True)
+            df = df.dropna(subset=["Fecha"])
+    
+            # FILTROS
+            with st.expander("🎯 Filtros", expanded=False):
+                colf1, colf2, colf3 = st.columns(3)
+    
+                with colf1:
+                    empresa_sel = st.multiselect(
+                        "🏢 Empresa",
+                        options=sorted(df["Empresa"].dropna().unique()),
+                        default=sorted(df["Empresa"].dropna().unique())
+                    )
+    
+                with colf2:
+                    tema_sel = st.multiselect(
+                        "📚 Tema",
+                        options=sorted(df["Tema"].dropna().unique()),
+                        default=sorted(df["Tema"].dropna().unique())
+                    )
+    
+                with colf3:
+                    fecha_sel = st.date_input(
+                        "📅 Rango de fechas",
+                        value=(df["Fecha"].min().date(), df["Fecha"].max().date())
+                    )
+    
+            # FILTRADO
+            df_filtrado = df[
+                (df["Empresa"].isin(empresa_sel)) &
+                (df["Tema"].isin(tema_sel))
+            ].copy()
+    
+            if isinstance(fecha_sel, tuple) and len(fecha_sel) == 2:
+                inicio, fin = fecha_sel
+                df_filtrado = df_filtrado[
+                    (df_filtrado["Fecha"].dt.date >= inicio) &
+                    (df_filtrado["Fecha"].dt.date <= fin)
+                ]
+    
+            if df_filtrado.empty:
+                st.warning("⚠️ No hay datos con los filtros seleccionados.")
+                st.stop()
+    
+            # KPIs
+            total = len(df_filtrado)
+            personas = df_filtrado["ID"].nunique()
+            temas = df_filtrado["Tema"].nunique()
+            empresas = df_filtrado["Empresa"].nunique()
+    
+            # CSS
+            st.markdown("""
+            <style>
+            .card {
+                background: white;
+                padding: 18px;
+                border-radius: 16px;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+                border-left: 6px solid #2E7D32;
+                text-align: center;
+            }
+            .card h3 { margin:0; font-size:14px; color:#6B7280; }
+            .card h1 { margin:5px 0; font-size:30px; color:#1B5E20; }
+            </style>
+            """, unsafe_allow_html=True)
+    
+            k1, k2, k3, k4 = st.columns(4)
+    
+            with k1:
+                st.markdown(f'<div class="card"><h3>📋 Registros</h3><h1>{total}</h1></div>', unsafe_allow_html=True)
+            with k2:
+                st.markdown(f'<div class="card"><h3>👥 Personas</h3><h1>{personas}</h1></div>', unsafe_allow_html=True)
+            with k3:
+                st.markdown(f'<div class="card"><h3>📚 Capacitaciones</h3><h1>{temas}</h1></div>', unsafe_allow_html=True)
+            with k4:
+                st.markdown(f'<div class="card"><h3>🏢 Empresas</h3><h1>{empresas}</h1></div>', unsafe_allow_html=True)
+    
+            st.markdown("---")
+    
+            # GRÁFICO
+            df_fecha = df_filtrado.copy()
+            df_fecha["Fecha"] = df_fecha["Fecha"].dt.date
+            df_fecha = df_fecha.groupby("Fecha").size().reset_index(name="Registros")
+    
+            fig_line = px.line(df_fecha, x="Fecha", y="Registros", markers=True)
+            st.plotly_chart(fig_line, use_container_width=True)
+    
+            st.markdown("---")
+    
+            # RESUMEN
+            st.subheader("📋 Resumen por Empresa")
+    
+            resumen = df_filtrado.groupby("Empresa").agg(
+                Registros=("ID", "count"),
+                Personas=("ID", "nunique")
+            ).reset_index()
+    
+            st.dataframe(resumen, use_container_width=True)
     
         except Exception as e:
-            st.error(f"Error Dashboard: {e}")
+            st.error(f"Error crítico en el Dashboard: {e}")
     
     
     elif menu == "📄 Historial":
