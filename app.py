@@ -645,292 +645,124 @@ if st.session_state.rol == "Admin":
     
     elif menu == "📊 Dashboard":
         st.markdown("## 📊 Dashboard Ejecutivo")
-
+    
         if st.button("🔄 Actualizar datos"):
             leer_asistencias.clear()
             st.rerun()
-
+    
         try:
-            # leer_asistencias.clear() # Quitamos este clear de aquí para evitar recargas infinitas
             df = leer_asistencias()
-
+    
             if df.empty:
                 st.warning("No hay registros.")
             else:
                 # --- Procesamiento de Fechas ---
                 df["Fecha"] = pd.to_datetime(
                     df["Fecha"].astype(str).str.strip(),
-                    dayfirst=True, errors="coerce"
+                    dayfirst=True,
+                    errors="coerce"
                 )
                 df = df[df["Fecha"].notna()]
-
+    
+                if df.empty:
+                    st.warning("No hay fechas válidas después del procesamiento.")
+                    st.stop()
+    
                 hoy = pd.Timestamp.now().date()
                 df_hoy = df[df["Fecha"].dt.date == hoy].copy()
-
-                # Si prefieres ver siempre todo el histórico, comenta estas 4 líneas:
+    
                 if not df_hoy.empty:
                     df = df_hoy
                 else:
                     st.info("💡 Mostrando histórico (hoy no hay registros nuevos).")
-
+    
                 # --- Filtros ---
                 with st.expander("🎯 Filtros", expanded=False):
                     colf1, colf2, colf3 = st.columns(3)
+    
                     with colf1:
-                        empresa_sel = st.multiselect("🏢 Empresa",
+                        empresa_sel = st.multiselect(
+                            "🏢 Empresa",
                             options=sorted(df["Empresa"].dropna().unique()),
-                            default=sorted(df["Empresa"].dropna().unique()))
+                            default=sorted(df["Empresa"].dropna().unique())
+                        )
+    
                     with colf2:
-                        tema_sel = st.multiselect("📚 Tema",
+                        tema_sel = st.multiselect(
+                            "📚 Tema",
                             options=sorted(df["Tema"].dropna().unique()),
-                            default=sorted(df["Tema"].dropna().unique()))
+                            default=sorted(df["Tema"].dropna().unique())
+                        )
+    
                     with colf3:
-                        fecha_sel = st.date_input("📅 Rango de fechas",
-                            value=(df["Fecha"].min().date(), df["Fecha"].max().date()))
-
-                # --- Aplicar Filtros ---
+                        fecha_sel = st.date_input(
+                            "📅 Rango de fechas",
+                            value=(df["Fecha"].min().date(), df["Fecha"].max().date())
+                        )
+    
+                # --- Aplicar filtros ---
                 df_filtrado = df[
                     (df["Empresa"].isin(empresa_sel)) &
                     (df["Tema"].isin(tema_sel))
                 ].copy()
-
-                if len(fecha_sel) == 2:
+    
+                if isinstance(fecha_sel, tuple) and len(fecha_sel) == 2:
                     inicio, fin = fecha_sel
                     df_filtrado = df_filtrado[
                         (df_filtrado["Fecha"].dt.date >= inicio) &
                         (df_filtrado["Fecha"].dt.date <= fin)
                     ]
-
+    
                 if df_filtrado.empty:
                     st.warning("⚠️ No hay datos con los filtros seleccionados.")
-                else:
-                    # --- Cálculos de KPIs ---
-                    if len(fecha_sel) == 2:
-                        dias = (fin - inicio).days + 1
-                        inicio_ant = inicio - pd.Timedelta(days=dias)
-                        fin_ant = inicio - pd.Timedelta(days=1)
-                        df_anterior = df[
-                            (df["Fecha"].dt.date >= inicio_ant) &
-                            (df["Fecha"].dt.date <= fin_ant)
-                        ]
-                        total_ant = len(df_anterior)
-                    else:
-                        total_ant = 0
-
-                    total       = len(df_filtrado)
-                    personas    = df_filtrado["ID"].nunique()
-                    temas       = df_filtrado["Tema"].nunique()
-                    empresas    = df_filtrado["Empresa"].nunique()
-                    delta_total = total - total_ant
-
-                    # --- Estilos CSS ---
-                    st.markdown("""
-                    <style>
-                    .card { background: white; padding: 18px; border-radius: 16px;
-                            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-                            border-left: 6px solid #2E7D32; text-align: center; }
-                    .card h3 { margin: 0; font-size: 14px; color: #6B7280; }
-                    .card h1 { margin: 5px 0; font-size: 30px; color: #1B5E20; }
-                    .up { color:#2E7D32; font-weight:bold; }
-                    .down { color:#C62828; font-weight:bold; }
-                    </style>
-                    """, unsafe_allow_html=True)
-
-                    def delta_html(valor):
-                        if valor > 0: return f"<span class='up'>▲ {valor}</span>"
-                        elif valor < 0: return f"<span class='down'>▼ {abs(valor)}</span>"
-                        return "<span>0</span>"
-
-                    # --- Renderizar KPIs ---
-                    k1, k2, k3, k4 = st.columns(4)
-                    with k1:
-                        st.markdown(f'<div class="card"><h3>📋 Registros</h3><h1>{total}</h1>{delta_html(delta_total)}</div>', unsafe_allow_html=True)
-                    with k2:
-                        st.markdown(f'<div class="card"><h3>👥 Personas</h3><h1>{personas}</h1></div>', unsafe_allow_html=True)
-                    with k3:
-                        st.markdown(f'<div class="card"><h3>📚 Capacitaciones</h3><h1>{temas}</h1></div>', unsafe_allow_html=True)
-                    with k4:
-                        st.markdown(f'<div class="card"><h3>🏢 Empresas</h3><h1>{empresas}</h1></div>', unsafe_allow_html=True)
-
-                    st.markdown("<br>", unsafe_allow_html=True)
-
-                    # --- Gráfico de Líneas ---
-                    df_fecha = df_filtrado.copy()
-                    df_fecha["Fecha"] = df_fecha["Fecha"].dt.date
-                    df_fecha = df_fecha.groupby("Fecha").size().reset_index(name="Registros")
-                    
-                    fig_line = px.line(df_fecha, x="Fecha", y="Registros", markers=True, text="Registros")
-                    fig_line.update_traces(line=dict(color="#2E7D32", width=4), marker=dict(size=10),
-                                           textposition="top center", texttemplate="<b>%{y}</b>")
-                    fig_line.update_layout(title="📈 Evolución de Asistencias", plot_bgcolor="white", paper_bgcolor="white",
-                                           yaxis=dict(visible=False), xaxis=dict(showgrid=False))
-                    st.plotly_chart(fig_line, use_container_width=True)
-
-                    # --- Resumen Final ---
-                    st.subheader("📋 Resumen por Empresa")
-                    resumen = df_filtrado.groupby("Empresa").agg(
-                        Registros=("ID", "count"),
-                        Personas=("ID", "nunique")
-                    ).reset_index()
-                    st.dataframe(resumen, use_container_width=True)
-
-        except Exception as e:
-            st.error(f"Error crítico en el Dashboard: {e}")
+                    st.stop()
     
-                # -----------------------------
-                # KPI VISUAL PRO
-                # -----------------------------
+                # --- KPIs ---
+                total = len(df_filtrado)
+                personas = df_filtrado["ID"].nunique()
+                temas = df_filtrado["Tema"].nunique()
+                empresas = df_filtrado["Empresa"].nunique()
+    
+                st.markdown("""
+                <style>
+                .card {
+                    background: white;
+                    padding: 18px;
+                    border-radius: 16px;
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+                    border-left: 6px solid #2E7D32;
+                    text-align: center;
+                }
+                .card h3 { margin: 0; font-size: 14px; color: #6B7280; }
+                .card h1 { margin: 5px 0; font-size: 30px; color: #1B5E20; }
+                </style>
+                """, unsafe_allow_html=True)
+    
                 k1, k2, k3, k4 = st.columns(4)
     
                 with k1:
-                    st.markdown(f"""
-                    <div class="card">
-                        <h3>📋 Registros</h3>
-                        <h1>{total}</h1>
-                        {delta_html(delta_total)}
-                    </div>
-                    """, unsafe_allow_html=True)
-    
+                    st.markdown(f'<div class="card"><h3>📋 Registros</h3><h1>{total}</h1></div>', unsafe_allow_html=True)
                 with k2:
-                    st.markdown(f"""
-                    <div class="card">
-                        <h3>👥 Personas</h3>
-                        <h1>{personas}</h1>
-                    </div>
-                    """, unsafe_allow_html=True)
-    
+                    st.markdown(f'<div class="card"><h3>👥 Personas</h3><h1>{personas}</h1></div>', unsafe_allow_html=True)
                 with k3:
-                    st.markdown(f"""
-                    <div class="card">
-                        <h3>📚 Capacitaciones</h3>
-                        <h1>{temas}</h1>
-                    </div>
-                    """, unsafe_allow_html=True)
-    
+                    st.markdown(f'<div class="card"><h3>📚 Capacitaciones</h3><h1>{temas}</h1></div>', unsafe_allow_html=True)
                 with k4:
-                    st.markdown(f"""
-                    <div class="card">
-                        <h3>🏢 Empresas</h3>
-                        <h1>{empresas}</h1>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f'<div class="card"><h3>🏢 Empresas</h3><h1>{empresas}</h1></div>', unsafe_allow_html=True)
     
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("---")
     
-                # -----------------------------
-                # 📈 TENDENCIA
-                # -----------------------------
+                # --- Tendencia ---
                 df_fecha = df_filtrado.copy()
-                df_fecha["Fecha"] = df_fecha["Fecha"].dt.date  # elimina hora
+                df_fecha["Fecha"] = df_fecha["Fecha"].dt.date
                 df_fecha = df_fecha.groupby("Fecha").size().reset_index(name="Registros")
-                
-                fig_line = px.line(
-                    df_fecha,
-                    x="Fecha",
-                    y="Registros",
-                    markers=True,
-                    text="Registros"
-                )
-                
-                fig_line.update_traces(
-                    line=dict(color="#2E7D32", width=4, shape="spline"),  # curva suave
-                    marker=dict(size=10, color="#2E7D32"),
-                    textposition="top center",
-                    textfont=dict(
-                        size=16,
-                        color="#1B5E20",
-                        family="Arial Black"
-                    ),
-                    texttemplate="<b>%{y}</b>",  # 🔥 negrilla real en números
-                    hovertemplate="<b>%{x}</b><br>Registros: %{y}<extra></extra>"
-                )
-                
-                fig_line.update_layout(
-                    title="📈 Evolución de Asistencias",
-                    plot_bgcolor="white",
-                    paper_bgcolor="white",
-                    margin=dict(l=10, r=10, t=50, b=10),
-                
-                    xaxis=dict(
-                        title="",
-                        showgrid=False,
-                        showline=False,
-                        tickformat="%d-%b"
-                    ),
-                
-                    yaxis=dict(
-                        visible=False  # elimina eje izquierdo
-                    ),
-                
-                    font=dict(
-                        family="Arial",
-                        size=12,
-                        color="#1B5E20"
-                    )
-                )
-                
+    
+                fig_line = px.line(df_fecha, x="Fecha", y="Registros", markers=True)
                 st.plotly_chart(fig_line, use_container_width=True)
-                
+    
                 st.markdown("---")
     
-                # -----------------------------
-                # 📊 DISTRIBUCIÓN
-                # -----------------------------
-                empresa_df = df_filtrado["Empresa"].value_counts().reset_index()
-                empresa_df.columns = ["Empresa", "Cantidad"]
-                
-                fig_bar = px.bar(
-                    empresa_df,
-                    x="Empresa",
-                    y="Cantidad",
-                    text="Cantidad"
-                )
-                
-                fig_bar.update_traces(
-                    marker=dict(color="#F9A825"),  # amarillo corporativo
-                    textposition="outside",        # número arriba
-                    textfont=dict(
-                        size=16,
-                        color="#1B5E20",
-                        family="Arial Black"       # negrilla
-                    ),
-                    texttemplate="<b>%{y}</b>",    # 🔥 números en negrilla real
-                    hovertemplate="<b>%{x}</b><br>Registros: %{y}<extra></extra>"
-                )
-                
-                fig_bar.update_layout(
-                    title="📊 Distribución por Empresa",
-                
-                    plot_bgcolor="white",
-                    paper_bgcolor="white",
-                
-                    margin=dict(l=10, r=10, t=50, b=10),
-                
-                    xaxis=dict(
-                        title="",
-                        showgrid=False,
-                        showline=False
-                    ),
-                
-                    yaxis=dict(
-                        visible=False  # 🔥 quita eje izquierdo (igual que la línea)
-                    ),
-                
-                    font=dict(
-                        family="Arial",
-                        size=12,
-                        color="#1B5E20"
-                    )
-                )
-                
-                st.plotly_chart(fig_bar, use_container_width=True)
-                
-                st.markdown("---")
-    
-                # -----------------------------
-                # 📋 RESUMEN
-                # -----------------------------
-                st.subheader("📋 Resumen Ejecutivo")
+                # --- Resumen ---
+                st.subheader("📋 Resumen por Empresa")
     
                 resumen = df_filtrado.groupby("Empresa").agg(
                     Registros=("ID", "count"),
@@ -940,34 +772,7 @@ if st.session_state.rol == "Admin":
                 st.dataframe(resumen, use_container_width=True)
     
         except Exception as e:
-            st.error(f"Error Dashboard: {e}")
-            
-    elif menu == "📄 Historial":
-        st.markdown("## 📄 Historial de Asistencias")
-        try:
-            df  = leer_asistencias()
-            ced = st.text_input("Buscar por cédula")
-            if ced:
-                df = df[df["ID"].astype(str) == ced]
-            st.dataframe(df, use_container_width=True)
-        except Exception as e:
-            st.warning(f"Error historial: {e}")
-
-    elif menu == "📁 Reportes":
-        st.markdown("## 📁 Reportes")
-        try:
-            df  = leer_asistencias()
-            csv = df.to_csv(index=False).encode("utf-8")
-            st.download_button("📥 Descargar Reporte CSV", csv,
-                               "reporte_asistencia.csv", "text/csv")
-            excel = BytesIO()
-            with pd.ExcelWriter(excel, engine="openpyxl") as writer:
-                df.to_excel(writer, index=False, sheet_name="Reporte")
-            st.download_button("📥 Descargar Reporte Excel", excel.getvalue(),
-                               "reporte_asistencia.xlsx",
-                               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        except Exception as e:
-            st.warning(f"Error reportes: {e}")
+            st.error(f"Error crítico en el Dashboard: {e}")
 
 # =============================================================================
 # FLUJO EMPLEADO
