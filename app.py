@@ -103,6 +103,17 @@ CSS_CORPORATIVO = """
     p, span, div, label, td, th {
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
+
+    /* Botones cámara en español */
+    [data-testid="stCameraInputButton"]:first-child::after {
+        content: 'Tomar Foto' !important;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+    }
+    [data-testid="stCameraInputButton"]:last-child::after {
+        content: 'Limpiar Foto' !important;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+    }
+    [data-testid="stCameraInputButton"] span { display: none !important; }
 </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
