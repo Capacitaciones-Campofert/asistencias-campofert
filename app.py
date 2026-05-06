@@ -953,12 +953,15 @@ if menu == "📋 Registro Asistencia":
 
         df_maestro = obtener_datos()
 
-        cedula = st.text_input(
-            "Por favor, ingresa tu Cédula:",
-            key="cedula_input"
-        ).strip()
+        with st.form("form_cedula"):
+            cedula = st.text_input(
+                "Por favor, ingresa tu Cédula:",
+                placeholder="Escribe tu número de cédula y presiona Buscar",
+                key="cedula_input"
+            ).strip()
+            buscar = st.form_submit_button("🔍 Buscar", use_container_width=True)
 
-        if cedula:
+        if buscar and cedula:
             res = (
                 df_maestro[df_maestro["ID"].astype(str) == cedula]
                 if df_maestro is not None else pd.DataFrame()
@@ -968,7 +971,7 @@ if menu == "📋 Registro Asistencia":
                 st.session_state.persona = res.iloc[0].to_dict()
                 st.session_state.cedula  = cedula
                 st.success(f"✅ Hola, **{st.session_state.persona['Apellidos y Nombres']}**. ¡Bienvenido!")
-                if st.button("Continuar al registro ➡️"):
+                if st.button("Continuar al registro ➡️", use_container_width=True):
                     st.session_state.paso = 2
                     st.rerun()
             else:
@@ -983,7 +986,7 @@ if menu == "📋 Registro Asistencia":
                         empresa_externa = st.text_input("¿A qué empresa perteneces?")
                     cargo_nuevo = st.text_input("Tu Cargo:")
 
-                    if st.form_submit_button("Registrarme y Continuar ➡️"):
+                    if st.form_submit_button("Registrarme y Continuar ➡️", use_container_width=True):
                         if nombre_nuevo and cargo_nuevo:
                             nom_emp = (
                                 empresa_externa.upper()
