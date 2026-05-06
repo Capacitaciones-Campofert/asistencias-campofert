@@ -110,7 +110,7 @@ CSS_CORPORATIVO = """
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     [data-testid="stCameraInputButton"]:last-child::after {
-        content: 'Limpiar Foto' !important;
+        content: 'Tomar Foto' !important;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     [data-testid="stCameraInputButton"] span { display: none !important; }
