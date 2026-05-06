@@ -1043,7 +1043,7 @@ if menu == "📋 Registro Asistencia":
             key="firma_final"
         )
     
-        if st.button("Finalizar y Generar Certificado ✅"):
+        if st.button("ENVIAR ✅"):
     
             if canvas_res.image_data is None:
                 st.warning("Debe firmar antes de continuar.")
@@ -1134,7 +1134,7 @@ if menu == "📋 Registro Asistencia":
     # PASO 4 → RESULTADO
     # ─────────────────────────────────────────────────────────────────────────
     elif st.session_state.paso == 4:
-        st.balloons()
+        #st.balloons()
         st.markdown("""
             <div style='background-color:#E8F5E9; border:2px solid #2E7D32;
                         padding:20px; border-radius:10px; text-align:center;'>
