@@ -186,11 +186,6 @@ def leer_asistencias():
 
 def guardar_en_google_sheets(datos):
     try:
-        import pandas as pd
-        from datetime import datetime
-        import time
-
-        # 🔒 Validación mínima
         if not datos.get("ID") or not datos.get("Nombre"):
             st.error("Datos incompletos")
             return False
@@ -202,28 +197,19 @@ def guardar_en_google_sheets(datos):
             "Empresa": datos.get("Empresa"),
             "Cargo":   datos.get("Cargo", "NO REGISTRA"),
             "Tema":    datos.get("Tema"),
-            "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }])
 
-        # 🔥 APPEND CON REINTENTO (CLAVE)
-        for intento in range(3):
-            try:
-                conn.append(
-                    worksheet="Hoja",
-                    data=nueva_fila
-                )
-                break
-            except Exception as e:
-                time.sleep(1)
-                if intento == 2:
-                    raise e
+        # Leer siempre fresco sin caché para no sobrescribir
+        actual = conn.read(worksheet="Hoja", ttl=0)
 
-        # 🔄 Limpiar caché para reflejar cambios
-        try:
-            leer_asistencias.clear()
-        except:
-            pass
+        if actual is None or actual.empty:
+            df_final = nueva_fila
+        else:
+            actual = actual.dropna(how="all")
+            df_final = pd.concat([actual, nueva_fila], ignore_index=True)
 
+        conn.update(worksheet="Hoja", data=df_final)
+        leer_asistencias.clear()
         return True
 
     except Exception as e:
