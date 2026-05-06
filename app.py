@@ -1138,8 +1138,8 @@ if menu == "📋 Registro Asistencia":
         st.markdown("""
             <div style='background-color:#E8F5E9; border:2px solid #2E7D32;
                         padding:20px; border-radius:10px; text-align:center;'>
-                <h2 style='color:#1B5E20;'>🎉 ¡Registro Exitoso!</h2>
-                <p>Tu asistencia ha sido guardada correctamente.</p>
+                <h2 style='color:#1B5E20;'>✅ ¡Gracias por participar! ✅</h2>
+                <p>La respuesta se ha enviado.</p>
             </div>
         """, unsafe_allow_html=True)
 
