@@ -954,14 +954,19 @@ if menu == "📋 Registro Asistencia":
         df_maestro = obtener_datos()
 
         with st.form("form_cedula"):
-            cedula = st.text_input(
+            cedula_input = st.text_input(
                 "Por favor, ingresa tu Cédula:",
-                placeholder="Escribe tu número de cédula y presiona Buscar",
-                key="cedula_input"
+                placeholder="Escribe tu número de cédula y presiona Buscar"
             ).strip()
             buscar = st.form_submit_button("🔍 Buscar", use_container_width=True)
 
-        if buscar and cedula:
+        if buscar and cedula_input:
+            st.session_state.cedula_buscada = cedula_input
+
+        # Trabajar con la cédula guardada en session_state
+        cedula = st.session_state.get("cedula_buscada", "")
+
+        if cedula:
             res = (
                 df_maestro[df_maestro["ID"].astype(str) == cedula]
                 if df_maestro is not None else pd.DataFrame()
@@ -972,8 +977,10 @@ if menu == "📋 Registro Asistencia":
                 st.session_state.cedula  = cedula
                 st.success(f"✅ Hola, **{st.session_state.persona['Apellidos y Nombres']}**. ¡Bienvenido!")
                 if st.button("Continuar al registro ➡️", use_container_width=True):
+                    st.session_state.cedula_buscada = None
                     st.session_state.paso = 2
                     st.rerun()
+
             else:
                 st.warning("⚠️ Cédula no encontrada. Si eres contratista o personal nuevo, regístrate:")
                 with st.form("registro_nuevo_empleado"):
@@ -999,6 +1006,7 @@ if menu == "📋 Registro Asistencia":
                                 "Cargo":   cargo_nuevo.upper(),
                             }
                             st.session_state.cedula = cedula
+                            st.session_state.cedula_buscada = None
                             st.session_state.paso   = 2
                             st.rerun()
                         else:
