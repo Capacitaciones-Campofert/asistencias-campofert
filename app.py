@@ -533,12 +533,15 @@ if st.session_state.rol is None:
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
 # =============================================================================
-col_volver, col_vacia = st.columns([1, 4])
-with col_volver:
-    if st.button("⬅️ Inicio", use_container_width=True):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
+
+# Botón de inicio SOLO para admin
+if st.session_state.rol == "Admin":
+    col_volver, col_vacia = st.columns([1, 4])
+    with col_volver:
+        if st.button("⬅️ Inicio", use_container_width=True):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
 
 st.write("")
 
@@ -579,7 +582,7 @@ else:
             "📋 Registro Asistencia",
             "👥 Lista Empleados",
             "📤 Cargar Base de Personal",
-            "📄 Cargar Dcto para Firma",   # 👈 NUEVO
+            "📄 Cargar Dcto para Firma",
             "📊 Dashboard",
             "📄 Historial",
             "📁 Reportes",
@@ -588,7 +591,6 @@ else:
         if st.button("🚪 Cerrar Sesión", use_container_width=True):
             del st.session_state["rol"]
             st.rerun()
-
 # =============================================================================
 # PANEL ADMIN
 # =============================================================================
