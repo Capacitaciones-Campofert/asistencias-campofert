@@ -33,7 +33,7 @@ st.set_page_config(
 # =============================================================================
 # SESSION STATE
 # =============================================================================
-TOTAL_PAGINAS = 5
+TOTAL_PAGINAS = 4
 st.session_state.setdefault("rol", None)
 st.session_state.setdefault("paso", 0)          # 0 = autorización imagen
 st.session_state.setdefault("tema_actual", None)
@@ -464,9 +464,13 @@ if st.session_state.rol is None:
     img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
     img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
 
-    # 🔥 NUEVO BLOQUE DINÁMICO
-    pagina_actual = st.session_state.get("paso", 0) + 1
-    texto_pagina = f"Página: {pagina_actual} de {TOTAL_PAGINAS}"
+    # 🔥 BLOQUE DINÁMICO CORREGIDO
+    paso = st.session_state.get("paso", 0)
+    
+    if paso == 0:
+        texto_pagina = ""   # No mostrar numeración en autorización
+    else:
+        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
     
     st.markdown(f"""
     <div class="hero-gerencia">
@@ -556,9 +560,13 @@ def logo_b64(img_pil):
 logo_cf = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campofert" in LOGOS else ""
 logo_cl = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campolab" in LOGOS else ""
 
-# 🔥 NUEVO BLOQUE DINÁMICO HEADER
-pagina_actual = st.session_state.get("paso", 0) + 1
-texto_pagina = f"Página: {pagina_actual} de {TOTAL_PAGINAS}"
+# 🔥 BLOQUE DINÁMICO HEADER CORREGIDO
+paso = st.session_state.get("paso", 0)
+
+if paso == 0:
+    texto_pagina = ""   # Oculta en autorización
+else:
+    texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
 st.markdown(f"""
 <div style='
