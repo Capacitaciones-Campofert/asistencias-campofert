@@ -25,9 +25,9 @@ from email import encoders
 # CONFIGURACIÓN DE PÁGINA
 # =============================================================================
 st.set_page_config(
-    page_title="Campofert - Registro de Asistencia",
+    page_title="REGISTRO DE ASISTENCIA DIGILTAL",
     layout="centered",
-    page_icon="🌱"
+    page_icon=""
 )
 
 # =============================================================================
