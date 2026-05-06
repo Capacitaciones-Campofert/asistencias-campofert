@@ -540,19 +540,40 @@ if st.session_state.rol == "Admin":
                 del st.session_state[key]
             st.rerun()
 
-st.write("")
+import base64
+from io import BytesIO
 
-col_logo1, _, col_logo3 = st.columns([1, 1, 1])
-with col_logo1:
-    if "campofert" in LOGOS:
-        st.image(LOGOS["campofert"], width=200)
-with col_logo3:
-    if "campolab" in LOGOS:
-        st.image(LOGOS["campolab"], width=200)
+def logo_b64(img_pil):
+    buf = BytesIO()
+    img_pil.save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-st.markdown("<h1 style='text-align:center; color:#1B5E20;'>Registro de Capacitación</h1>",
-            unsafe_allow_html=True)
-st.markdown("---")
+logo_cf = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campofert" in LOGOS else ""
+logo_cl = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campolab" in LOGOS else ""
+
+st.markdown(f"""
+<div style='
+    background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+    padding: 22px 25px;
+    border-radius: 20px;
+    color: white;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+'>
+    <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+        {logo_cf}
+        <span style='font-size:11px; opacity:.85; font-family:Century Gothic,Nunito,sans-serif; text-align:center;'>
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01<br>
+            Fecha de actualización: 2026-05-20 | Páginas: 1 de 1
+        </span>
+        {logo_cl}
+    </div>
+    <h1 style='margin:0; text-align:center; font-size:32px; font-weight:800;
+               font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
+        REGISTRO ASISTENCIA DIGITAL
+    </h1>
+</div>
+""", unsafe_allow_html=True)
 
 # =============================================================================
 # MENÚ SEGÚN ROL
