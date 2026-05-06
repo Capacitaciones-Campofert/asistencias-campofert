@@ -387,7 +387,7 @@ if st.session_state.rol is None:
     }
     .hero-gerencia h1 { margin:0; font-size:44px; font-weight:800; }
     .hero-gerencia p  { margin-top:10px; font-size:19px; }
-    .hero-mini        { margin-top:8px; font-size:15px; opacity:.92; }
+    .hero-mini        { margin-top:8px; font-size:15px; opacity:.92;background: transparent !important;color: white; }
     .titulo-acceso    { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
     .sub-acceso       { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
     .stButton > button {
