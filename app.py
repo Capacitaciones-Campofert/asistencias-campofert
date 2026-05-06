@@ -382,14 +382,32 @@ if st.session_state.rol is None:
     .stApp { background: linear-gradient(180deg,#f4f6f2,#eef3ef); }
     .hero-gerencia {
         background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
-        padding: 38px 25px; border-radius: 26px; text-align:center;
-        color:white; box-shadow:0 18px 40px rgba(0,0,0,.16); margin-bottom:18px;
+        padding: 28px 25px 28px 25px;
+        border-radius: 26px;
+        text-align:center;
+        color:white;
+        box-shadow:0 18px 40px rgba(0,0,0,.16);
+        margin-bottom:18px;
+        position: relative;
     }
-    .hero-gerencia h1 { margin:0; font-size:44px; font-weight:800; }
-    .hero-gerencia p  { margin-top:10px; font-size:19px; }
-    .hero-mini        { margin-top:8px; font-size:15px; opacity:.92;background: transparent !important;color: white; }
-    .titulo-acceso    { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
-    .sub-acceso       { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
+    .hero-logos {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .hero-logo-img {
+        background: white;
+        border-radius: 10px;
+        padding: 5px 10px;
+        height: 55px;
+        width: 110px;
+        object-fit: contain;
+    }
+    .hero-gerencia h1 { margin:0; font-size:38px; font-weight:800; }
+    .hero-mini { margin-top:8px; font-size:13px; opacity:.85; }
+    .titulo-acceso { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
+    .sub-acceso { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
     .stButton > button {
         height:70px !important; border-radius:18px !important; font-size:22px !important;
         font-weight:800 !important; border:none !important;
@@ -401,35 +419,45 @@ if st.session_state.rol is None:
     </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
+    # Convertir logos a base64 para incrustarlos en HTML
+    import base64
+    from io import BytesIO
+
+    def logo_a_base64(img_pil):
+        buf = BytesIO()
+        img_pil.save(buf, format="PNG")
+        return base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
+    logo_cl = logo_a_base64(LOGOS["campolab"])  if "campolab"  in LOGOS else ""
+
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
+    img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
+
+    st.markdown(f"""
     <div class="hero-gerencia">
+        <div class="hero-logos">
+            {img_cf}
+            <div></div>
+            {img_cl}
+        </div>
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
-        
         <div class="hero-mini">
-            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 | 
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
             Fecha de actualización: 2026-05-20 | Páginas: 1 de 1
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     with st.container(border=True):
-        l1, l2, l3 = st.columns([1, 2, 1])
-        with l1:
-            if "campofert" in LOGOS:
-                st.image(LOGOS["campofert"], width=150)
-        with l3:
-            if "campolab" in LOGOS:
-                st.image(LOGOS["campolab"], width=150)
-
         st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
         st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
 
         c1, c2 = st.columns(2)
         with c1:
-            # Al hacer clic en COLABORADOR → va a la pantalla de autorización (paso 0)
             if st.button("👷 COLABORADOR", use_container_width=True):
                 st.session_state.rol  = "Empleado"
-                st.session_state.paso = 0          # Empezar en autorización
+                st.session_state.paso = 0
                 st.rerun()
         with c2:
             if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
