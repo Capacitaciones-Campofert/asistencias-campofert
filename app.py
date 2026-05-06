@@ -33,6 +33,7 @@ st.set_page_config(
 # =============================================================================
 # SESSION STATE
 # =============================================================================
+TOTAL_PAGINAS = 5
 st.session_state.setdefault("rol", None)
 st.session_state.setdefault("paso", 0)          # 0 = autorización imagen
 st.session_state.setdefault("tema_actual", None)
@@ -463,6 +464,10 @@ if st.session_state.rol is None:
     img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
     img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
 
+    # 🔥 NUEVO BLOQUE DINÁMICO
+    pagina_actual = st.session_state.get("paso", 0) + 1
+    texto_pagina = f"Página: {pagina_actual} de {TOTAL_PAGINAS}"
+    
     st.markdown(f"""
     <div class="hero-gerencia">
         <div class="hero-logos">
@@ -473,7 +478,7 @@ if st.session_state.rol is None:
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
         <div class="hero-mini">
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20 | Páginas: 1 de 1
+            Fecha de actualización: 2026-05-20 | {texto_pagina}
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -551,6 +556,10 @@ def logo_b64(img_pil):
 logo_cf = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campofert" in LOGOS else ""
 logo_cl = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campolab" in LOGOS else ""
 
+# 🔥 NUEVO BLOQUE DINÁMICO HEADER
+pagina_actual = st.session_state.get("paso", 0) + 1
+texto_pagina = f"Página: {pagina_actual} de {TOTAL_PAGINAS}"
+
 st.markdown(f"""
 <div style='
     background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
@@ -564,7 +573,7 @@ st.markdown(f"""
         {logo_cf}
         <span style='font-size:11px; opacity:.85; font-family:Century Gothic,Nunito,sans-serif; text-align:center;'>
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01<br>
-            Fecha de actualización: 2026-05-20 | Páginas: 1 de 1
+            Fecha de actualización: 2026-05-20 |  {texto_pagina}
         </span>
         {logo_cl}
     </div>
