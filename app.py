@@ -57,7 +57,7 @@ CSS_CORPORATIVO = """
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
 
     .stButton > button {
-        background-color: #2E7D32; color: white !important; border: none;
+        background-color: #2E7D32; color: #FFFFFF !important; border: none;
         border-radius: 8px; font-weight: 700; padding: 0.5rem 1rem;
         transition: background-color 0.3s;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
@@ -434,9 +434,13 @@ if st.session_state.rol is None:
         height:70px !important; border-radius:18px !important; font-size:22px !important;
         font-weight:800 !important; border:none !important;
         background:linear-gradient(135deg,#1b5e20,#2e7d32) !important;
-        color:white !important; box-shadow:0 10px 22px rgba(27,94,32,.20);
+        color: #FFFFFF !important; box-shadow:0 10px 22px rgba(27,94,32,.20);
     }
-    .stButton > button:hover { transform:translateY(-2px); }
+    .stButton > button:hover { 
+        transform:translateY(-2px);
+        background:linear-gradient(135deg,#F9A825,#f0a500) !important;
+        color: #1B5E20 !important;
+    }
     .footer-premium { text-align:center; color:#7b7b7b; margin-top:18px; font-size:15px; }
     </style>
     """, unsafe_allow_html=True)
@@ -1038,7 +1042,7 @@ if menu == "📋 Registro Asistencia":
         foto = st.camera_input("Foto de validación")
         if foto:
             st.session_state.foto_data = foto
-            if st.button("Ir a la firma ✍️"):
+            if st.button("Ir a la firma"):
                 st.session_state.paso = 3
                 st.rerun()
 
@@ -1164,7 +1168,7 @@ if menu == "📋 Registro Asistencia":
 
         if st.session_state.get("pdf_doc"):
             st.download_button(
-                "📥 Descargar mi Certificado (PDF)",
+                "Descargar mi Certificado (PDF)",
                 st.session_state.pdf_doc.getvalue(),
                 f"Certificado_{st.session_state.cedula}.pdf",
                 "application/pdf"
