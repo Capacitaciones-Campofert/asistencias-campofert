@@ -415,10 +415,13 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 # =============================================================================
 # PANTALLA DE LOGIN INICIAL
 # =============================================================================
+if "rol" not in st.session_state:
+    st.session_state.rol = None
+
 if rol_url and rol_url.lower() == "empleado":
     st.session_state.rol = "Empleado"
 
-if st.session_state.rol is None:
+if st.session_state.get("rol") is None:
 
     st.markdown("""
     <style>
