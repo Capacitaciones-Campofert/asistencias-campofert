@@ -57,13 +57,23 @@ CSS_CORPORATIVO = """
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
 
     .stButton > button {
-        background-color: #2E7D32; color: #FFFFFF !important; border: none;
-        border-radius: 8px; font-weight: 700; padding: 0.5rem 1rem;
-        transition: background-color 0.3s;
+        background-color: transparent !important;
+        color: #404040 !important;
+        border: 1px solid #d6d6d6 !important;
+        border-radius: 10px;
+        font-weight: 700;
+        padding: 0.6rem 1rem;
+        transition: all 0.25s ease;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
         letter-spacing: 0.5px;
+        box-shadow: none !important;
     }
-    .stButton > button:hover { background-color: #F9A825; color: #1B5E20 !important; }
+    
+    .stButton > button:hover {
+        background-color: #f5f5f5 !important;
+        color: #111111 !important;
+        border: 1px solid #bdbdbd !important;
+    }
 
     h1, h2, h3 {
         color: #404040 !important;
