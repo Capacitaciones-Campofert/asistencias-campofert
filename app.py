@@ -407,35 +407,23 @@ if rol_url and rol_url.lower() == "empleado":
 
 if st.session_state.rol is None:
 
+    import base64
+    from io import BytesIO
+
+    def logo_a_base64(img_pil):
+        buf = BytesIO()
+        img_pil.save(buf, format="PNG")
+        return base64.b64encode(buf.getvalue()).decode("utf-8")
+
+    logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
+    logo_cl = logo_a_base64(LOGOS["campolab"])  if "campolab"  in LOGOS else ""
+
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
+    img_cl = f'<img src="data:image/png;base64,{logo_cl}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cl else ""
+
     st.markdown("""
     <style>
-    .stApp { background: linear-gradient(180deg,#f4f6f2,#eef3ef); }
-    .hero-gerencia {
-        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
-        padding: 28px 25px 28px 25px;
-        border-radius: 26px;
-        text-align:center;
-        color:white;
-        box-shadow:0 18px 40px rgba(0,0,0,.16);
-        margin-bottom:18px;
-        position: relative;
-    }
-    .hero-logos {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .hero-logo-img {
-        background: white;
-        border-radius: 10px;
-        padding: 5px 10px;
-        height: 55px;
-        width: 110px;
-        object-fit: contain;
-    }
-    .hero-gerencia h1 { margin:0; font-size:38px; font-weight:800; }
-    .hero-mini { margin-top:8px; font-size:13px; opacity:.85; }
+    .stApp { background: #ffffff; }
     .titulo-acceso { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
     .sub-acceso { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
     .stButton > button {
@@ -449,40 +437,30 @@ if st.session_state.rol is None:
     </style>
     """, unsafe_allow_html=True)
 
-    # Convertir logos a base64 para incrustarlos en HTML
-    import base64
-    from io import BytesIO
-
-    def logo_a_base64(img_pil):
-        buf = BytesIO()
-        img_pil.save(buf, format="PNG")
-        return base64.b64encode(buf.getvalue()).decode("utf-8")
-
-    logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
-    logo_cl = logo_a_base64(LOGOS["campolab"])  if "campolab"  in LOGOS else ""
-
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
-    img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
-
-    # 🔥 BLOQUE DINÁMICO CORREGIDO
-    paso = st.session_state.get("paso", 0)
-    
-    if paso == 0:
-        texto_pagina = ""   # No mostrar numeración en autorización
-    else:
-        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
-    
     st.markdown(f"""
-    <div class="hero-gerencia">
-        <div class="hero-logos">
+    <div style='
+        background: #ffffff;
+        padding: 28px 25px;
+        border-radius: 20px;
+        text-align: center;
+        color: #404040;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+        margin-bottom: 18px;
+    '>
+        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
             {img_cf}
             <div></div>
             {img_cl}
         </div>
-        <h1>REGISTRO ASISTENCIA DIGITAL</h1>
-        <div class="hero-mini">
+        <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
+                   font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
+            REGISTRO ASISTENCIA DIGITAL
+        </h1>
+        <div style='margin-top:8px; font-size:13px; color:#404040; opacity:.85;
+                    font-family:Century Gothic,Nunito,sans-serif;'>
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20 | {texto_pagina}
+            Fecha de actualización: 2026-05-20
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -501,6 +479,38 @@ if st.session_state.rol is None:
             if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
                 st.session_state.esperando_clave = True
                 st.rerun()
+
+        if st.session_state.get("esperando_clave"):
+            st.markdown("---")
+            with st.form("login_admin", clear_on_submit=False):
+                clave = st.text_input(
+                    "🔑 Ingrese Clave de Administrador:",
+                    type="password",
+                    placeholder="Presione Enter o haga clic en Entrar"
+                )
+                col_bt1, col_bt2 = st.columns(2)
+                with col_bt1:
+                    entrar = st.form_submit_button("✅ Entrar")
+                with col_bt2:
+                    cancelar = st.form_submit_button("❌ Cancelar")
+
+            if entrar:
+                if clave == ADMIN_PASS:
+                    st.session_state.rol = "Admin"
+                    st.session_state.esperando_clave = False
+                    st.rerun()
+                else:
+                    st.error("Clave incorrecta ❌")
+            if cancelar:
+                st.session_state.esperando_clave = False
+                st.rerun()
+
+        st.markdown(
+            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
+            unsafe_allow_html=True
+        )
+
+    st.stop()
 
         # ── LOGIN ADMIN CON ENTER ──────────────────────────────────────────────
         # Usamos st.form para que al presionar Enter se envíe automáticamente
@@ -570,22 +580,23 @@ else:
 
 st.markdown(f"""
 <div style='
-    background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+    background: #ffffff;
     padding: 22px 25px;
     border-radius: 20px;
-    color: white;
+    color: #404040;
     margin-bottom: 1rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    border: 1px solid #e0e0e0;
 '>
     <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
         {logo_cf}
-        <span style='font-size:11px; opacity:.85; font-family:Century Gothic,Nunito,sans-serif; text-align:center;'>
+        <span style='font-size:11px; color:#404040; font-family:Century Gothic,Nunito,sans-serif; text-align:center;'>
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01<br>
-            Fecha de actualización: 2026-05-20 |  {texto_pagina}
+            Fecha de actualización: 2026-05-20 | {texto_pagina}
         </span>
         {logo_cl}
     </div>
-    <h1 style='margin:0; text-align:center; font-size:32px; font-weight:800;
+    <h1 style='margin:0; text-align:center; font-size:32px; font-weight:800; color:#404040;
                font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
         REGISTRO ASISTENCIA DIGITAL
     </h1>
