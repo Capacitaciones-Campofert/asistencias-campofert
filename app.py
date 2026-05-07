@@ -435,7 +435,7 @@ if st.session_state.rol is None:
 
     img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
     img_cl = f'<img src="data:image/png;base64,{logo_cl}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cl else ""
-    img_nv = f'<img src="data:image/png;base64,{logo_nv}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_nv else ""
+    img_nv = f'<img src="data:image/png;base64,{logo_nv}" style="background:white;border-radius:10px;padding:8px 14px;height:55px;width:110px;object-fit:contain;">' if logo_nv else ""
     
     st.markdown("""
     <style>
@@ -525,12 +525,12 @@ if st.session_state.rol is None:
             align-items:center;
             gap:70px;
         '>
-            <div style='margin-top:-8px;'>
+            <div style='margin-top:-15px;'>
                 {img_cl}
             </div>
         
             <div style='
-                margin-top:-8px;
+                margin-top:-15x;
                 background:white;
                 padding:6px 10px;
                 border-radius:10px;
