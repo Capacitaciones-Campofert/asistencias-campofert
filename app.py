@@ -430,17 +430,6 @@ if st.session_state.rol is None:
     .stApp { background: #ffffff; }
     .titulo-acceso { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
     .sub-acceso { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
-    .stButton > button {
-        height:70px !important; border-radius:18px !important; font-size:22px !important;
-        font-weight:800 !important; border:none !important;
-        background:linear-gradient(135deg,#1b5e20,#2e7d32) !important;
-        color: #FFFFFF !important; box-shadow:0 10px 22px rgba(27,94,32,.20);
-    }
-    .stButton > button:hover { 
-        transform:translateY(-2px);
-        background:linear-gradient(135deg,#F9A825,#f0a500) !important;
-        color: #1B5E20 !important;
-    }
     .footer-premium { text-align:center; color:#7b7b7b; margin-top:18px; font-size:15px; }
     </style>
     """, unsafe_allow_html=True)
