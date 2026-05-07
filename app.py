@@ -511,41 +511,7 @@ if st.session_state.rol is None:
         )
 
     st.stop()
-
-        # ── LOGIN ADMIN CON ENTER ──────────────────────────────────────────────
-        # Usamos st.form para que al presionar Enter se envíe automáticamente
-        if st.session_state.get("esperando_clave"):
-            st.markdown("---")
-            with st.form("login_admin", clear_on_submit=False):
-                clave = st.text_input(
-                    "🔑 Ingrese Clave de Administrador:",
-                    type="password",
-                    placeholder="Presione Enter o haga clic en Entrar"
-                )
-                col_bt1, col_bt2 = st.columns(2)
-                with col_bt1:
-                    entrar = st.form_submit_button("✅ Entrar")
-                with col_bt2:
-                    cancelar = st.form_submit_button("❌ Cancelar")
-
-            if entrar:
-                if clave == ADMIN_PASS:
-                    st.session_state.rol = "Admin"
-                    st.session_state.esperando_clave = False
-                    st.rerun()
-                else:
-                    st.error("Clave incorrecta ❌")
-            if cancelar:
-                st.session_state.esperando_clave = False
-                st.rerun()
-
-        st.markdown(
-            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
-            unsafe_allow_html=True
-        )
-
-    st.stop()
-
+        
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
 # =============================================================================
