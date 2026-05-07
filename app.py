@@ -539,7 +539,7 @@ if st.session_state.rol is None:
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+    st.stop()  
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
 # =============================================================================
