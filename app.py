@@ -160,13 +160,13 @@ if rol_url and st.session_state.rol is None:
     elif rol_url.lower() == "admin":
         st.session_state.rol = "Admin"
 
-# =============================================================================
+# =============================================================================    
 # LOGOS EN CACHÉ (se leen una sola vez, se comparten entre sesiones)
 # =============================================================================
 @st.cache_resource(show_spinner=False)
 def cargar_logos():
     logos = {}
-    for clave, ruta in [("campofert", "logo_campofert.png"), ("campolab", "logo_campolab.png")]:
+    for clave, ruta in [("campofert", "logo_campofert.png"), ("campolab", "logo_campolab.png"),("novacrop", "logo_novacrop.png")]:
         if os.path.exists(ruta):
             logos[clave] = Image.open(ruta).copy()
     return logos
@@ -431,14 +431,16 @@ if st.session_state.rol is None:
 
     logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
     logo_cl = logo_a_base64(LOGOS["campolab"])  if "campolab"  in LOGOS else ""
+    logo_nv = logo_a_base64(LOGOS["novacrop"]) if "novacrop" in LOGOS else ""
 
     img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
     img_cl = f'<img src="data:image/png;base64,{logo_cl}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cl else ""
-
+    img_nv = f'<img src="data:image/png;base64,{logo_nv}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_nv else ""
+    
     st.markdown("""
     <style>
     .stApp { background: #ffffff; }
-    .titulo-acceso { text-align:center; color:#1B5E20; font-size:36px; font-weight:800; margin-top:8px; }
+    .titulo-acceso { text-align:center; color:#404040; font-size:36px; font-weight:800; margin-top:8px;letter-spacing:1px; }
     .sub-acceso { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
     .footer-premium { text-align:center; color:#7b7b7b; margin-top:18px; font-size:15px; }
     </style>
@@ -455,10 +457,8 @@ if st.session_state.rol is None:
         border: 1px solid #e0e0e0;
         margin-bottom: 18px;
     '>
-        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
+        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:20px;'>
             {img_cf}
-            <div></div>
-            {img_cl}
         </div>
         <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
                    font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
@@ -513,10 +513,23 @@ if st.session_state.rol is None:
                 st.rerun()
 
         st.markdown(
-            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
+            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión 2026</div>',
             unsafe_allow_html=True
         )
-
+        st.markdown(f"""
+        <div style='
+            margin-top:30px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:70px;
+            opacity:0.9;
+        '>
+            {img_cl}
+            {img_nv}
+        </div>
+        """, unsafe_allow_html=True)
+        
     st.stop()
         
 # =============================================================================
