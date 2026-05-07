@@ -431,7 +431,7 @@ if st.session_state.rol is None:
 
     logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
     
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:60px;width:120px;object-fit:contain;">' if logo_cf else ""
         
     st.markdown("""
     <style>
@@ -453,7 +453,7 @@ if st.session_state.rol is None:
         border: 1px solid #e0e0e0;
         margin-bottom: 18px;
     '>
-        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:20px;'>
+        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:15px;'>
             {img_cf}
         </div>
         <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
@@ -523,7 +523,7 @@ if st.session_state.rol is None:
             )
         
             if "campolab" in LOGOS:
-                st.image(LOGOS["campolab"], width=110)
+                st.image(LOGOS["campolab"], width=120)
         
             st.markdown("</div>", unsafe_allow_html=True)
         
@@ -534,7 +534,7 @@ if st.session_state.rol is None:
             )
         
             if "novacrop" in LOGOS:
-                st.image(LOGOS["novacrop"], width=110)
+                st.image(LOGOS["novacrop"], width=120)
         
             st.markdown("</div>", unsafe_allow_html=True)
     st.stop()  
