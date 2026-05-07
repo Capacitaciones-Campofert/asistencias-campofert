@@ -430,13 +430,9 @@ if st.session_state.rol is None:
         return base64.b64encode(buf.getvalue()).decode("utf-8")
 
     logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
-    logo_cl = logo_a_base64(LOGOS["campolab"])  if "campolab"  in LOGOS else ""
-    logo_nv = logo_a_base64(LOGOS["novacrop"]) if "novacrop" in LOGOS else ""
-
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
-    img_cl = f'<img src="data:image/png;base64,{logo_cl}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cl else ""
-    img_nv = f'<img src="data:image/png;base64,{logo_nv}" style="background:white;border-radius:10px;padding:8px 14px;height:55px;width:110px;object-fit:contain;">' if logo_nv else ""
     
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:55px;width:110px;object-fit:contain;">' if logo_cf else ""
+        
     st.markdown("""
     <style>
     .stApp { background: #ffffff; }
@@ -516,29 +512,31 @@ if st.session_state.rol is None:
             '<div class="footer-premium">Campofert S.A.S • Campolab • Versión 2026</div>',
             unsafe_allow_html=True
         )
-        st.markdown(f"""
-        <div style='
-            margin-top:20px;
-            margin-bottom:18px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            gap:70px;
-        '>
-            <div style='margin-top:-15px;'>
-                {img_cl}
-            </div>
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        col_logo1, col_logo2 = st.columns(2)
         
-            <div style='
-                margin-top:-15x;
-                background:white;
-                padding:6px 10px;
-                border-radius:10px;
-            '>
-                {img_nv}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        with col_logo1:
+            st.markdown(
+                "<div style='text-align:center; margin-top:-10px;'>",
+                unsafe_allow_html=True
+            )
+        
+            if "campolab" in LOGOS:
+                st.image(LOGOS["campolab"], width=110)
+        
+            st.markdown("</div>", unsafe_allow_html=True)
+        
+        with col_logo2:
+            st.markdown(
+                "<div style='text-align:center; margin-top:-10px;'>",
+                unsafe_allow_html=True
+            )
+        
+            if "novacrop" in LOGOS:
+                st.image(LOGOS["novacrop"], width=110)
+        
+            st.markdown("</div>", unsafe_allow_html=True)
     st.stop()  
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
