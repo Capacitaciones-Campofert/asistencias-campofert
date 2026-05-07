@@ -490,9 +490,9 @@ if st.session_state.rol is None:
                 )
                 col_bt1, col_bt2 = st.columns(2)
                 with col_bt1:
-                    entrar = st.form_submit_button("✅ Entrar")
+                    entrar = st.form_submit_button("Entrar")
                 with col_bt2:
-                    cancelar = st.form_submit_button("❌ Cancelar")
+                    cancelar = st.form_submit_button("Cancelar")
 
             if entrar:
                 if clave == ADMIN_PASS:
@@ -500,7 +500,7 @@ if st.session_state.rol is None:
                     st.session_state.esperando_clave = False
                     st.rerun()
                 else:
-                    st.error("Clave incorrecta ❌")
+                    st.error("Clave incorrecta")
             if cancelar:
                 st.session_state.esperando_clave = False
                 st.rerun()
