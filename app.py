@@ -944,11 +944,11 @@ if menu == "📋 Registro Asistencia":
 
         col_a, col_b = st.columns(2)
         with col_a:
-            if st.button("✅ Acepto y Continuar", use_container_width=True):
+            if st.button("Acepto y Continuar", use_container_width=True):
                 st.session_state.paso = 1
                 st.rerun()
         with col_b:
-            if st.button("❌ No Acepto / Salir", use_container_width=True):
+            if st.button("No Acepto / Salir", use_container_width=True):
                 st.warning("Debes aceptar la autorización para continuar con el registro.")
 
     # ─────────────────────────────────────────────────────────────────────────
