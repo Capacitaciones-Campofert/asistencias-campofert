@@ -431,7 +431,7 @@ if st.session_state.rol is None:
 
     logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
     
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:10px;padding:5px 10px;height:60px;width:120px;object-fit:contain;">' if logo_cf else ""
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:12px;padding:8px 14px;height:75px;width:160px;object-fit:contain;">' if logo_cf else ""
         
     st.markdown("""
     <style>
@@ -453,7 +453,7 @@ if st.session_state.rol is None:
         border: 1px solid #e0e0e0;
         margin-bottom: 18px;
     '>
-        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:15px;'>
+        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:10px;'>
             {img_cf}
         </div>
         <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
@@ -529,7 +529,7 @@ if st.session_state.rol is None:
         
         with col_logo2:
             st.markdown(
-                "<div style='text-align:center; margin-top:-10px;'>",
+                "<div style='text-align:left; margin-top:-10px;'>",
                 unsafe_allow_html=True
             )
         
