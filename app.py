@@ -25,7 +25,7 @@ from email import encoders
 # CONFIGURACIÓN DE PÁGINA
 # =============================================================================
 st.set_page_config(
-    page_title="REGISTRO DE ASISTENCIA DIGILTAL",
+    page_title="REGISTRO DE ASISTENCIA DIGITAL",
     layout="centered",
     page_icon=""
 )
