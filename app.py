@@ -518,19 +518,27 @@ if st.session_state.rol is None:
         )
         st.markdown(f"""
         <div style='
-            margin-top:30px;
+            margin-top:20px;
+            margin-bottom:18px;
             display:flex;
             justify-content:center;
             align-items:center;
             gap:70px;
-            opacity:0.9;
         '>
-            {img_cl}
-            {img_nv}
+            <div style='margin-top:-8px;'>
+                {img_cl}
+            </div>
+        
+            <div style='
+                margin-top:-8px;
+                background:white;
+                padding:6px 10px;
+                border-radius:10px;
+            '>
+                {img_nv}
+            </div>
         </div>
         """, unsafe_allow_html=True)
-        
-    st.stop()
         
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
