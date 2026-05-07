@@ -471,12 +471,12 @@ if st.session_state.rol is None:
 
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("👷 COLABORADOR", use_container_width=True):
+            if st.button(" COLABORADOR", use_container_width=True):
                 st.session_state.rol  = "Empleado"
                 st.session_state.paso = 0
                 st.rerun()
         with c2:
-            if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
+            if st.button(" ADMINISTRADOR", use_container_width=True):
                 st.session_state.esperando_clave = True
                 st.rerun()
 
@@ -484,7 +484,7 @@ if st.session_state.rol is None:
             st.markdown("---")
             with st.form("login_admin", clear_on_submit=False):
                 clave = st.text_input(
-                    "🔑 Ingrese Clave de Administrador:",
+                    " Ingrese Clave de Administrador:",
                     type="password",
                     placeholder="Presione Enter o haga clic en Entrar"
                 )
@@ -586,7 +586,7 @@ else:
     with st.sidebar:
         if "campofert" in LOGOS:
             st.image(LOGOS["campofert"], width=180)
-        st.markdown("## 🛡️ Panel Administrativo")
+        st.markdown("## Panel Administrativo")
         st.markdown("Gestión Humana • Campofert")
         st.markdown("---")
         menu = st.radio("Seleccione módulo", [
