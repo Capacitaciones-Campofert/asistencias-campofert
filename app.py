@@ -645,54 +645,32 @@ else:
     texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
 st.markdown(f"""
-<div style='
-    background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
-    padding: 22px 25px;
-    border-radius: 22px;
-    color: white;
-    margin-bottom: 1rem;
-    box-shadow: 0 10px 24px rgba(0,0,0,.15);
-'>
-
     <div style='
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:10px;
+        background: #ffffff;
+        padding: 28px 25px;
+        border-radius: 20px;
+        text-align: center;
+        color: #404040;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+        margin-bottom: 18px;
     '>
-
-        {logo_cf}
-
-        <span style='
-            font-size:11px;
-            color:white;
-            font-family:Century Gothic,Nunito,sans-serif;
-            text-align:center;
-            opacity:.92;
-        '>
-            Código: I.FO.GH.03 | Versión: 03 |
-            Fecha de emisión: 2014-12-01<br>
-            Fecha de actualización: 2026-05-20 | {texto_pagina}
-        </span>
-
-        {logo_cl}
-
+        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
+            {img_cf}
+            <div></div>
+            {img_cl}
+        </div>
+        <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
+                   font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
+            REGISTRO ASISTENCIA DIGITAL
+        </h1>
+        <div style='margin-top:8px; font-size:13px; color:#404040; opacity:.85;
+                    font-family:Century Gothic,Nunito,sans-serif;'>
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
+            Fecha de actualización: 2026-05-20
+        </div>
     </div>
-
-    <h1 style='
-        margin:0;
-        text-align:center;
-        font-size:32px;
-        font-weight:800;
-        color:white;
-        font-family:Century Gothic,Nunito,sans-serif;
-        letter-spacing:2px;
-    '>
-        REGISTRO ASISTENCIA DIGITAL
-    </h1>
-
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # =============================================================================
 # MENÚ SEGÚN ROL
