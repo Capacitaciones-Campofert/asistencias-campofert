@@ -49,7 +49,6 @@ CSS_CORPORATIVO = """
 
     * {
         font-family: 'Century Gothic', 'CenturyGothic', 'Nunito', 'Apple Gothic', sans-serif !important;
-        color: #404040 !important;
     }
 
     .stApp { background-color: #F5F5F0; }
@@ -57,26 +56,16 @@ CSS_CORPORATIVO = """
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
 
     .stButton > button {
-        background-color: transparent !important;
-        color: #404040 !important;
-        border: 1px solid #d6d6d6 !important;
-        border-radius: 10px;
-        font-weight: 700;
-        padding: 0.6rem 1rem;
-        transition: all 0.25s ease;
+        background-color: #2E7D32; color: white; border: none;
+        border-radius: 8px; font-weight: 700; padding: 0.5rem 1rem;
+        transition: background-color 0.3s;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
         letter-spacing: 0.5px;
-        box-shadow: none !important;
     }
-    
-    .stButton > button:hover {
-        background-color: #f5f5f5 !important;
-        color: #111111 !important;
-        border: 1px solid #bdbdbd !important;
-    }
+    .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
 
     h1, h2, h3 {
-        color: #404040 !important;
+        color: #1B5E20;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
         font-weight: 800 !important;
         letter-spacing: 1px;
@@ -85,38 +74,35 @@ CSS_CORPORATIVO = """
     .stTextInput > div > div > input {
         border: 2px solid #2E7D32; border-radius: 6px;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-        color: #404040 !important;
     }
     .stTextInput > div > div > input:focus {
         border-color: #F9A825; box-shadow: 0 0 0 2px rgba(249,168,37,0.3);
     }
 
     [data-testid="stMetricValue"] {
-        color: #404040 !important; font-weight: bold;
+        color: #2E7D32; font-weight: bold;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
 
     .stTabs [data-baseweb="tab"] {
-        color: #404040 !important; font-weight: bold;
+        color: #2E7D32; font-weight: bold;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     .stTabs [aria-selected="true"] {
-        border-bottom: 3px solid #F9A825 !important;
-        color: #404040 !important;
+        border-bottom: 3px solid #F9A825 !important; color: #1B5E20 !important;
     }
 
     footer { visibility: hidden; }
 
     .stDownloadButton > button {
-        background-color: #F9A825; color: #404040 !important;
+        background-color: #F9A825; color: #1B5E20;
         font-weight: bold; border: none; border-radius: 8px;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
-    .stDownloadButton > button:hover { background-color: #2E7D32; color: white !important; }
+    .stDownloadButton > button:hover { background-color: #2E7D32; color: white; }
 
     p, span, div, label, td, th {
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-        color: #404040 !important;
     }
 
     /* Botones cámara en español */
@@ -125,7 +111,7 @@ CSS_CORPORATIVO = """
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     [data-testid="stCameraInputButton"]:last-child::after {
-        content: 'Limpiar Foto' !important;
+        content: 'Tomar Foto' !important;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     [data-testid="stCameraInputButton"] span { display: none !important; }
