@@ -166,7 +166,7 @@ if rol_url and st.session_state.rol is None:
 @st.cache_resource(show_spinner=False)
 def cargar_logos():
     logos = {}
-    for clave, ruta in [("campofert", "logo_campofert.png"), ("campolab", "logo_campolab.png"),("novacrop", "logo_novacrop.png")]:
+    for clave, ruta in [("campofert", "logo_campofert.png"), ("campolab", "logo_campolab.png")]:
         if os.path.exists(ruta):
             logos[clave] = Image.open(ruta).copy()
     return logos
@@ -412,7 +412,6 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     buffer.seek(0)
     return buffer
 
-
 # =============================================================================
 # PANTALLA DE LOGIN INICIAL
 # =============================================================================
@@ -420,6 +419,90 @@ if rol_url and rol_url.lower() == "empleado":
     st.session_state.rol = "Empleado"
 
 if st.session_state.rol is None:
+
+    st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(180deg,#f4f6f2,#eef3ef);
+    }
+
+    .hero-gerencia {
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+        padding: 28px 25px;
+        border-radius: 26px;
+        text-align:center;
+        color:white;
+        box-shadow:0 18px 40px rgba(0,0,0,.16);
+        margin-bottom:18px;
+    }
+
+    .hero-logos {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:10px;
+    }
+
+    .hero-logo-img {
+        background:white;
+        border-radius:10px;
+        padding:5px 10px;
+        height:55px;
+        width:110px;
+        object-fit:contain;
+    }
+
+    .hero-gerencia h1 {
+        margin:0;
+        font-size:38px;
+        font-weight:800;
+        letter-spacing:1px;
+    }
+
+    .hero-mini {
+        margin-top:8px;
+        font-size:13px;
+        opacity:.88;
+    }
+
+    .titulo-acceso {
+        text-align:center;
+        color:#1B5E20;
+        font-size:36px;
+        font-weight:800;
+        margin-top:8px;
+    }
+
+    .sub-acceso {
+        text-align:center;
+        color:#6b7280;
+        font-size:16px;
+        margin-bottom:18px;
+    }
+
+    .stButton > button {
+        height:70px !important;
+        border-radius:18px !important;
+        font-size:22px !important;
+        font-weight:800 !important;
+        border:none !important;
+        background:linear-gradient(135deg,#1b5e20,#2e7d32) !important;
+        color:white !important;
+        box-shadow:0 10px 22px rgba(27,94,32,.20);
+    }
+
+    .stButton > button:hover {
+        transform:translateY(-2px);
+    }
+
+    .footer-premium {
+        text-align:center;
+        color:#7b7b7b;
+        margin-top:18px;
+        font-size:15px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     import base64
     from io import BytesIO
@@ -430,113 +513,103 @@ if st.session_state.rol is None:
         return base64.b64encode(buf.getvalue()).decode("utf-8")
 
     logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
-    
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" style="background:white;border-radius:12px;padding:8px 14px;height:75px;width:160px;object-fit:contain;">' if logo_cf else ""
-        
-    st.markdown("""
-    <style>
-    .stApp { background: #ffffff; }
-    .titulo-acceso { text-align:center; color:#404040; font-size:36px; font-weight:800; margin-top:8px;letter-spacing:1px; }
-    .sub-acceso { text-align:center; color:#6b7280; font-size:16px; margin-bottom:18px; }
-    .footer-premium { text-align:center; color:#7b7b7b; margin-top:18px; font-size:15px; }
-    </style>
-    """, unsafe_allow_html=True)
+    logo_cl = logo_a_base64(LOGOS["campolab"]) if "campolab" in LOGOS else ""
+
+    img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
+    img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
+
+    paso = st.session_state.get("paso", 0)
+
+    if paso == 0:
+        texto_pagina = ""
+    else:
+        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
     st.markdown(f"""
-    <div style='
-        background: #ffffff;
-        padding: 28px 25px;
-        border-radius: 20px;
-        text-align: center;
-        color: #404040;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e0e0e0;
-        margin-bottom: 18px;
-    '>
-        <div style='display:flex; justify-content:flex-start; align-items:center; margin-bottom:10px;'>
+    <div class="hero-gerencia">
+
+        <div class="hero-logos">
             {img_cf}
+            <div></div>
+            {img_cl}
         </div>
-        <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
-                   font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
-            REGISTRO ASISTENCIA DIGITAL
-        </h1>
-        <div style='margin-top:8px; font-size:13px; color:#404040; opacity:.85;
-                    font-family:Century Gothic,Nunito,sans-serif;'>
-            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
+
+        <h1>REGISTRO ASISTENCIA DIGITAL</h1>
+
+        <div class="hero-mini">
+            Código: I.FO.GH.03 | Versión: 03 |
+            Fecha de emisión: 2014-12-01 |
             Fecha de actualización: 2026-05-20
+            {texto_pagina}
         </div>
+
     </div>
     """, unsafe_allow_html=True)
 
     with st.container(border=True):
-        st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
+
+        st.markdown(
+            '<div class="titulo-acceso">Acceso Corporativo</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="sub-acceso">Seleccione el perfil para ingresar</div>',
+            unsafe_allow_html=True
+        )
 
         c1, c2 = st.columns(2)
+
         with c1:
-            if st.button(" COLABORADOR", use_container_width=True):
-                st.session_state.rol  = "Empleado"
+            if st.button("👷 COLABORADOR", use_container_width=True):
+                st.session_state.rol = "Empleado"
                 st.session_state.paso = 0
                 st.rerun()
+
         with c2:
-            if st.button(" ADMINISTRADOR", use_container_width=True):
+            if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
                 st.session_state.esperando_clave = True
                 st.rerun()
 
         if st.session_state.get("esperando_clave"):
+
             st.markdown("---")
+
             with st.form("login_admin", clear_on_submit=False):
+
                 clave = st.text_input(
-                    " Ingrese Clave de Administrador:",
+                    "🔑 Ingrese Clave de Administrador:",
                     type="password",
                     placeholder="Presione Enter o haga clic en Entrar"
                 )
+
                 col_bt1, col_bt2 = st.columns(2)
+
                 with col_bt1:
-                    entrar = st.form_submit_button("Entrar")
+                    entrar = st.form_submit_button("✅ Entrar")
+
                 with col_bt2:
-                    cancelar = st.form_submit_button("Cancelar")
+                    cancelar = st.form_submit_button("❌ Cancelar")
 
             if entrar:
+
                 if clave == ADMIN_PASS:
                     st.session_state.rol = "Admin"
                     st.session_state.esperando_clave = False
                     st.rerun()
+
                 else:
-                    st.error("Clave incorrecta")
+                    st.error("Clave incorrecta ❌")
+
             if cancelar:
                 st.session_state.esperando_clave = False
                 st.rerun()
 
         st.markdown(
-            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión 2026</div>',
+            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
             unsafe_allow_html=True
         )
-        st.markdown("<br>", unsafe_allow_html=True)
 
-        col_logo1, col_logo2 = st.columns(2)
-        
-        with col_logo1:
-            st.markdown(
-                "<div style='text-align:center; margin-top:-10px;'>",
-                unsafe_allow_html=True
-            )
-        
-            if "campolab" in LOGOS:
-                st.image(LOGOS["campolab"], width=120)
-        
-            st.markdown("</div>", unsafe_allow_html=True)
-        
-        with col_logo2:
-            st.markdown(
-                "<div style='text-align:left; margin-top:-10px;'>",
-                unsafe_allow_html=True
-            )
-        
-            if "novacrop" in LOGOS:
-                st.image(LOGOS["novacrop"], width=120)
-        
-            st.markdown("</div>", unsafe_allow_html=True)
     st.stop()  
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
@@ -544,11 +617,15 @@ if st.session_state.rol is None:
 
 # Botón de inicio SOLO para admin
 if st.session_state.rol == "Admin":
+
     col_volver, col_vacia = st.columns([1, 4])
+
     with col_volver:
         if st.button("⬅️ Inicio", use_container_width=True):
+
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
+
             st.rerun()
 
 import base64
@@ -559,39 +636,72 @@ def logo_b64(img_pil):
     img_pil.save(buf, format="PNG")
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-logo_cf = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campofert" in LOGOS else ""
-logo_cl = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" style="height:50px;background:white;border-radius:8px;padding:4px 8px;">' if "campolab" in LOGOS else ""
+logo_cf = (
+    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" '
+    f'style="height:50px;background:white;border-radius:8px;padding:4px 8px;">'
+    if "campofert" in LOGOS else ""
+)
 
-# 🔥 BLOQUE DINÁMICO HEADER CORREGIDO
+logo_cl = (
+    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" '
+    f'style="height:50px;background:white;border-radius:8px;padding:4px 8px;">'
+    if "campolab" in LOGOS else ""
+)
+
 paso = st.session_state.get("paso", 0)
 
 if paso == 0:
-    texto_pagina = ""   # Oculta en autorización
+    texto_pagina = ""
 else:
     texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
 st.markdown(f"""
 <div style='
-    background: #ffffff;
+    background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
     padding: 22px 25px;
-    border-radius: 20px;
-    color: #404040;
+    border-radius: 22px;
+    color: white;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    border: 1px solid #e0e0e0;
+    box-shadow: 0 10px 24px rgba(0,0,0,.15);
 '>
-    <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;'>
+
+    <div style='
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:10px;
+    '>
+
         {logo_cf}
-        <span style='font-size:11px; color:#404040; font-family:Century Gothic,Nunito,sans-serif; text-align:center;'>
-            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01<br>
+
+        <span style='
+            font-size:11px;
+            color:white;
+            font-family:Century Gothic,Nunito,sans-serif;
+            text-align:center;
+            opacity:.92;
+        '>
+            Código: I.FO.GH.03 | Versión: 03 |
+            Fecha de emisión: 2014-12-01<br>
             Fecha de actualización: 2026-05-20 | {texto_pagina}
         </span>
+
         {logo_cl}
+
     </div>
-    <h1 style='margin:0; text-align:center; font-size:32px; font-weight:800; color:#404040;
-               font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
+
+    <h1 style='
+        margin:0;
+        text-align:center;
+        font-size:32px;
+        font-weight:800;
+        color:white;
+        font-family:Century Gothic,Nunito,sans-serif;
+        letter-spacing:2px;
+    '>
         REGISTRO ASISTENCIA DIGITAL
     </h1>
+
 </div>
 """, unsafe_allow_html=True)
 
@@ -613,7 +723,7 @@ else:
         if "campofert" in LOGOS:
             st.image(LOGOS["campofert"], width=180)
         st.markdown("## Panel Administrativo")
-        st.markdown("Gestión Humana • Campofert")
+        st.markdown("Gestión Humana / Campofert")
         st.markdown("---")
         menu = st.radio("Seleccione módulo", [
             "⚙️ Configurar Tema",
