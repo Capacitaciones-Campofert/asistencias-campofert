@@ -626,7 +626,7 @@ if st.session_state.get("rol") is None:
                     st.rerun()
 
         st.markdown(
-            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
+            '<div class="footer-premium">Campofert S.A.S • Campolab • Versión 2026</div>',
             unsafe_allow_html=True
         )
 
@@ -679,12 +679,11 @@ st.markdown(f"""
     <div style='
         background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
         padding: 28px 25px;
-        border-radius: 20px;
-        text-align: center;
-        color: #404040;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e0e0e0;
-        margin-bottom: 18px;
+        border-radius: 26px;
+        text-align:center;
+        color:white;
+        box-shadow:0 18px 40px rgba(0,0,0,.16);
+        margin-bottom:18px;
     '>
         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
             {logo_cf}
