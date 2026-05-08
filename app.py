@@ -62,7 +62,7 @@ CSS_CORPORATIVO = """
         border-radius: 8px !important; 
         
         /* 1. Peso máximo */
-        font-weight: 850 !important; 
+        font-weight: 800 !important; 
         font-size: 20px !important; 
         
         /* 2. EL TRUCO PARA LA NEGRILLA: Sombra de texto del mismo color */
