@@ -27,7 +27,7 @@ from email import encoders
 st.set_page_config(
     page_title="REGISTRO DE ASISTENCIA DIGITAL",
     layout="centered",
-    page_icon=""
+    page_icon="🌱"
 )
 
 # =============================================================================
