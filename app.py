@@ -129,16 +129,11 @@ CSS_CORPORATIVO = """
         /* Control de tamaño estricto para logos de 1000px+ */
         height: 65px !important; 
         width: auto !important;
-        
-        /* Transparencia y limpieza */
         background-color: transparent !important;
+        background: none !important; /* Refuerzo extra */
         border: none !important;
         box-shadow: none !important;
-        
-        /* Como tus logos nuevos YA son blancos y transparentes: */
-        /* Eliminamos multiply porque el logo es blanco, no oscuro */
-        filter: brightness(1.5); 
-        
+        filter: brightness(1.5) !important;; 
         object-fit: contain;
     }
 
@@ -155,10 +150,18 @@ CSS_CORPORATIVO = """
     /* Aseguramos que el título sea blanco para que se vea sobre el verde */
     .hero-gerencia h1 {
         color: white !important;
-        margin-top: 10px !important;
+        margin-top: 0px !important;
         font-size: 32px !important; /* <--- Cambia este número (ej. 32px, 35px o 40px) */
         font-weight: 800 !important;
         letter-spacing: 1px;
+    }
+    /* Bloque 3: Texto técnico y paginación */
+    .hero-mini {
+        margin-top: 15px !important;
+        font-size: 11px !important;
+        opacity: 0.85 !important;
+        color: white !important; /* Esto evita que se vea negro */
+        line-height: 1.4 !important;
     }
 </style>
 """
