@@ -126,14 +126,13 @@ CSS_CORPORATIVO = """
     }
 
     .hero-logos img {
-        /* Control de tamaño estricto para logos de 1000px+ */
         height: 65px !important; 
         width: auto !important;
-        background-color: transparent !important;
-        background: none !important; /* Refuerzo extra */
+        background-color: transparent !important; /* Quita el fondo blanco */
+        background: transparent !important;       /* Refuerzo */
         border: none !important;
         box-shadow: none !important;
-        filter: brightness(1.5) !important;; 
+        filter: brightness(1.1); /* Ajusta el brillo de los logos blancos */
         object-fit: contain;
     }
 
@@ -149,19 +148,20 @@ CSS_CORPORATIVO = """
     
     /* Aseguramos que el título sea blanco para que se vea sobre el verde */
     .hero-gerencia h1 {
-        color: white !important;
-        margin-top: 0px !important;
-        font-size: 32px !important; /* <--- Cambia este número (ej. 32px, 35px o 40px) */
+        color: #FFFFFF !important; /* Blanco puro */
+        margin-top: 10px !important;
+        font-size: 32px !important; 
         font-weight: 800 !important;
         letter-spacing: 1px;
+        text-shadow: none !important; /* Evita sombras oscuras */
     }
     /* Bloque 3: Texto técnico y paginación */
     .hero-mini {
-        margin-top: 15px !important;
         font-size: 11px !important;
-        opacity: 0.85 !important;
-        color: white !important; /* Esto evita que se vea negro */
-        line-height: 1.4 !important;
+        color: rgba(255, 255, 255, 0.9) !important; /* Blanco suave */
+        margin-top: 15px !important;
+        font-weight: 400 !important;
+        display: block !important; /* Asegura que se muestre */
     }
 </style>
 """
