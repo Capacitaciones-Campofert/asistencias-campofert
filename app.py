@@ -696,17 +696,18 @@ st.markdown(f"""
         margin:0;
         font-size:38px;
         font-weight:800;
-        color:white;
+        color:#ffffff;
         font-family:Century Gothic,Nunito,sans-serif;
         letter-spacing:2px;
+        text-shadow: 0 2px 6px rgba(0,0,0,0.3);
     '>
         REGISTRO ASISTENCIA DIGITAL
     </h1>
 
     <div style='
-        margin-top:8px;
-        font-size:10px;
-        color:rgba(255,255,255,0.8);
+        margin-top:10px;
+        font-size:12px;
+        color:rgba(255,255,255,0.85);
         font-family:Century Gothic,Nunito,sans-serif;
     '>
         Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
