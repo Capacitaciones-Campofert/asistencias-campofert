@@ -155,8 +155,10 @@ CSS_CORPORATIVO = """
     /* Aseguramos que el título sea blanco para que se vea sobre el verde */
     .hero-gerencia h1 {
         color: white !important;
-        margin-top: 32px !important;
-        font-size: 22px !important;
+        margin-top: 10px !important;
+        font-size: 32px !important; /* <--- Cambia este número (ej. 32px, 35px o 40px) */
+        font-weight: 800 !important;
+        letter-spacing: 1px;
     }
 </style>
 """
