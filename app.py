@@ -512,8 +512,11 @@ if st.session_state.get("rol") is None:
     logo_cl_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campolab"])}" class="hero-logo-img">' if "campolab" in LOGOS else "<div></div>"
 
     # Paginación corregida: sin etiquetas <div> que se rompan
-    paso_actual = st.session_state.get("paso", 0)
-    texto_paso = f"| Página: {paso_actual} de {TOTAL_PAGINAS}" if paso_actual > 0 else ""
+    paso = st.session_state.get("paso", 0)
+    if paso == 0:
+        texto_pagina = ""   # No mostrar numeración en autorización
+    else:
+        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
     # El f-string ahora es limpio y no deja residuos visuales
     st.markdown(f"""
