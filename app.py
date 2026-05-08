@@ -479,12 +479,10 @@ if st.session_state.get("rol") is None:
     }
 
     .hero-logo-img {
-        background:white;
-        border-radius:10px;
-        padding:5px 10px;
-        height:55px;
-        width:110px;
-        object-fit:contain;
+        background: transparent !important; /* Cambiado de white a transparent */
+        height: 65px !important;            /* Ajustado para que el logo gigante no rompa el diseño */
+        width: auto !important;              /* Cambiado de 110px a auto para no deformar */
+        object-fit: contain;
     }
 
     .hero-gerencia h1 {
@@ -496,9 +494,9 @@ if st.session_state.get("rol") is None:
     }
 
     .hero-mini {
-        margin-top:8px;
-        font-size:13px;
-        opacity:.88;
+        margin-top: 15px !important;
+        font-size: 11px !important;         /* Texto más pequeño como pediste */
+        opacity: .85;
         color: white !important;
     }
 
