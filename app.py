@@ -634,7 +634,6 @@ if st.session_state.get("rol") is None:
 # =============================================================================
 # BARRA SUPERIOR (botón volver + logos + título)
 # =============================================================================
-
 # Botón de inicio SOLO para admin
 if st.session_state.rol == "Admin":
 
@@ -676,63 +675,32 @@ else:
     texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
 
 st.markdown(f"""
-<div style='
-    background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
-    padding: 28px 25px;
-    border-radius: 20px;
-    text-align: center;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-    border: 1px solid rgba(255,255,255,0.12);
-    margin-bottom: 18px;
-'>
-
-    <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
-
-        <div style='
-            background: rgba(255,255,255,0.08);
-            padding:6px 10px;
-            border-radius:10px;
-        '>
+    <div style='
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
+        padding: 28px 25px;
+        border-radius: 20px;
+        text-align: center;
+        color: #404040;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e0e0e0;
+        margin-bottom: 18px;
+    '>
+        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
             {logo_cf}
-        </div>
-
-        <div></div>
-
-        <div style='
-            background: rgba(255,255,255,0.08);
-            padding:6px 10px;
-            border-radius:10px;
-        '>
+            <div></div>
             {logo_cl}
         </div>
-
+        <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
+                   font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
+            REGISTRO ASISTENCIA DIGITAL
+        </h1>
+        <div style='margin-top:8px; font-size:10px; color:#404040; opacity:.85;
+                    font-family:Century Gothic,Nunito,sans-serif;'>
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
+            Fecha de actualización: 2026-05-20
+        </div>
     </div>
-
-    <h1 style='
-        margin:0;
-        font-size:38px;
-        font-weight:800;
-        color:#ffffff;
-        font-family:Century Gothic,Nunito,sans-serif;
-        letter-spacing:2px;
-        text-shadow: 0 2px 6px rgba(0,0,0,0.35);
-    '>
-        REGISTRO ASISTENCIA DIGITAL
-    </h1>
-
-    <div style='
-        margin-top:10px;
-        font-size:12px;
-        color:rgba(255,255,255,0.85);
-        font-family:Century Gothic,Nunito,sans-serif;
-    '>
-        Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-        Fecha de actualización: 2026-05-20
-    </div>
-
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 # =============================================================================
 # MENÚ SEGÚN ROL
 # =============================================================================
