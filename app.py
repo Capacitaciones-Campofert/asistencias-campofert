@@ -553,33 +553,34 @@ if st.session_state.get("rol") is None:
         img_pil.save(buf, format="PNG")
         return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    # Generación segura de logos
-    logo_cf_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campofert"])}" class="hero-logo-img">' if "campofert" in LOGOS else "<div></div>"
-    logo_cl_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campolab"])}" class="hero-logo-img">' if "campolab" in LOGOS else "<div></div>"
-
+    # Generar el HTML de los logos usando las mismas clases del inicio
+    logo_cf_html = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" class="hero-logo-img">' if "campofert" in LOGOS else "<div></div>"
+    logo_cl_html = f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" class="hero-logo-img">' if "campolab" in LOGOS else "<div></div>"
+    
     # 1. Lógica de paginación dinámica
     paso = st.session_state.get("paso", 0)
     
     if paso == 0:
-        texto_pagina = ""  # No hay página, no hay barra separadora
+        texto_pagina = f" | Página: {paso} de {TOTAL_PAGINAS}" if paso > 0 else ""
     else:
         # Aquí incluimos la barra "|" dentro del string
         texto_pagina = f" | Página: {paso} de {TOTAL_PAGINAS}"
 
     # 2. El f-string corregido (quitamos la barra fija después de '2026-05-20')
+    # Usamos la clase "hero-gerencia" para que herede el fondo verde y letras blancas
     st.markdown(f"""
-    <div class="hero-gerencia">
-        <div class="hero-logos">
-            {logo_cf_html}
-            {logo_cl_html}
+        <div class="hero-gerencia">
+            <div class="hero-logos">
+                {logo_cf_html}
+                {logo_cl_html}
+            </div>
+            <h1>REGISTRO ASISTENCIA DIGITAL</h1>
+            <div class="hero-mini">
+                Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
+                Fecha de actualización: 2026-05-20{texto_pagina}
+            </div>
         </div>
-        <h1>REGISTRO ASISTENCIA DIGITAL</h1>
-        <div class="hero-mini">
-            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20{texto_pagina}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
     with st.container(border=True):
         st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
