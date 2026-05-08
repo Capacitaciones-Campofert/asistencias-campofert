@@ -61,24 +61,25 @@ CSS_CORPORATIVO = """
         border: none !important;
         border-radius: 8px !important; 
         
-        /* Aumentamos el peso y el tamaño */
+        /* 1. Peso máximo */
         font-weight: 900 !important; 
         font-size: 20px !important; 
         
-        /* Espaciado para que el botón se vea más robusto */
-        padding: 0.8rem 2rem !important;
+        /* 2. EL TRUCO PARA LA NEGRILLA: Sombra de texto del mismo color */
+        /* Esto duplica los bordes de la letra y la hace ver muy gruesa */
+        text-shadow: 1px 0px 0px white, -1px 0px 0px white, 0px 1px 0px white, 0px -1px 0px white !important;
         
-        transition: all 0.3s ease !important;
+        padding: 0.8rem 2rem !important;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase !important; /* Esto hace que se vea más serio */
+        letter-spacing: 1.5px !important;
+        text-transform: uppercase !important;
     }
 
-    /* Efecto cuando pasas el ratón */
     .stButton > button:hover { 
         background-color: #F9A825 !important; 
         color: #1B5E20 !important;
-        transform: scale(1.02); /* Hace que el botón crezca un poquito al tocarlo */
+        /* Al pasar el mouse, la sombra cambia al color del texto nuevo */
+        text-shadow: 0.5px 0px 0px #1B5E20 !important;
     }
     .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
 
