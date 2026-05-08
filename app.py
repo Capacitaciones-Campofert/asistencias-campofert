@@ -115,6 +115,33 @@ CSS_CORPORATIVO = """
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
     }
     [data-testid="stCameraInputButton"] span { display: none !important; }
+
+    /* Limpieza de logos en el encabezado */
+    .hero-logos {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: transparent !important;
+    }
+
+    .hero-logos img {
+        background-color: transparent !important; /* Elimina el fondo blanco */
+        border: none !important;                 /* Elimina bordes */
+        box-shadow: none !important;             /* Elimina sombras */
+        mix-blend-mode: multiply;                /* TRUCO: Si el logo tiene un fondo blanco "pintado", esto lo vuelve transparente sobre el verde */
+        filter: brightness(1.2);                 /* Opcional: le da un poco más de vida a los logos blancos */
+        max-height: 75px;                        /* Ajusta el tamaño para que no se deforme */
+        width: auto;
+    }
+
+    /* Estilo para el contenedor verde del banner */
+    .hero-gerencia {
+        background-color: #1B5E20 !important;   /* Tu verde institucional */
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: none !important;
+    }
 </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
