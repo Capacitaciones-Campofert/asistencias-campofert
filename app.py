@@ -1176,7 +1176,7 @@ if menu == "📋 Registro Asistencia":
     # PASO 2 → FOTO
     # ─────────────────────────────────────────────────────────────────────────
     elif st.session_state.paso == 2:
-        st.markdown("### 📸 Captura de Identidad")
+        st.markdown("### Captura de Identidad")
         st.markdown("<p style='color:#555;'>Tómate una foto para validar tu identidad.</p>",
                     unsafe_allow_html=True)
         foto = st.camera_input("Foto de validación")
@@ -1191,7 +1191,7 @@ if menu == "📋 Registro Asistencia":
     # ─────────────────────────────────────────────────────────────────────────
     elif st.session_state.paso == 3:
     
-        st.markdown("### ✍️ Firma Digital")
+        st.markdown("### Firma Digital")
         st.markdown(
             "<p style='color:#555;'>Dibuja tu firma en el recuadro blanco.</p>",
             unsafe_allow_html=True
@@ -1301,7 +1301,7 @@ if menu == "📋 Registro Asistencia":
         st.markdown("""
             <div style='background-color:#E8F5E9; border:2px solid #2E7D32;
                         padding:20px; border-radius:10px; text-align:center;'>
-                <h2 style='color:#1B5E20;'>✅ ¡Gracias por participar! ✅</h2>
+                <h2 style='color:#1B5E20;'>¡Gracias por participar!</h2>
                 <p>La respuesta se ha enviado.</p>
             </div>
         """, unsafe_allow_html=True)
