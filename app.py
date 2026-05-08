@@ -404,7 +404,8 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 if "rol" not in st.session_state:
     st.session_state.rol = None
 
-if rol_url and rol_url.lower() == "empleado":
+# Manejo de rol desde URL
+if 'rol_url' in locals() and rol_url and rol_url.lower() == "empleado":
     st.session_state.rol = "Empleado"
 
 if st.session_state.get("rol") is None:
@@ -446,12 +447,14 @@ if st.session_state.get("rol") is None:
         font-size:38px;
         font-weight:800;
         letter-spacing:1px;
+        color: white !important;
     }
 
     .hero-mini {
         margin-top:8px;
         font-size:13px;
         opacity:.88;
+        color: white !important;
     }
 
     .titulo-acceso {
@@ -482,6 +485,8 @@ if st.session_state.get("rol") is None:
 
     .stButton > button:hover {
         transform:translateY(-2px);
+        background: #F9A825 !important;
+        color: #1B5E20 !important;
     }
 
     .footer-premium {
@@ -496,56 +501,48 @@ if st.session_state.get("rol") is None:
     import base64
     from io import BytesIO
 
-    def logo_a_base64(img_pil):
+    # Función unificada para logos
+    def logo_to_base64(img_pil):
         buf = BytesIO()
         img_pil.save(buf, format="PNG")
         return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    logo_cf = logo_a_base64(LOGOS["campofert"]) if "campofert" in LOGOS else ""
-    logo_cl = logo_a_base64(LOGOS["campolab"]) if "campolab" in LOGOS else ""
+    # Generación de HTML para logos
+    logo_cf_html = ""
+    if "campofert" in LOGOS:
+        b64_cf = logo_to_base64(LOGOS["campofert"])
+        logo_cf_html = f'<img src="data:image/png;base64,{b64_cf}" class="hero-logo-img">'
+    
+    logo_cl_html = ""
+    if "campolab" in LOGOS:
+        b64_cl = logo_to_base64(LOGOS["campolab"])
+        logo_cl_html = f'<img src="data:image/png;base64,{b64_cl}" class="hero-logo-img">'
 
-    img_cf = f'<img src="data:image/png;base64,{logo_cf}" class="hero-logo-img">' if logo_cf else ""
-    img_cl = f'<img src="data:image/png;base64,{logo_cl}" class="hero-logo-img">' if logo_cl else ""
-
+    # Manejo de la paginación para el texto
     paso = st.session_state.get("paso", 0)
+    texto_pagina = f"<br><b>Página: {paso} de {TOTAL_PAGINAS}</b>" if paso > 0 else ""
 
-    if paso == 0:
-        texto_pagina = ""
-    else:
-        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
-
+    # Renderizado del Hero Header
     st.markdown(f"""
     <div class="hero-gerencia">
-
         <div class="hero-logos">
-            {img_cf}
+            {logo_cf_html}
             <div></div>
-            {img_cl}
+            {logo_cl_html}
         </div>
-
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
-
         <div class="hero-mini">
             Código: I.FO.GH.03 | Versión: 03 |
             Fecha de emisión: 2014-12-01 |
             Fecha de actualización: 2026-05-20
             {texto_pagina}
         </div>
-
     </div>
     """, unsafe_allow_html=True)
 
     with st.container(border=True):
-
-        st.markdown(
-            '<div class="titulo-acceso">Acceso Corporativo</div>',
-            unsafe_allow_html=True
-        )
-
-        st.markdown(
-            '<div class="sub-acceso">Seleccione el perfil para ingresar</div>',
-            unsafe_allow_html=True
-        )
+        st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
 
         c1, c2 = st.columns(2)
 
@@ -560,39 +557,32 @@ if st.session_state.get("rol") is None:
                 st.session_state.esperando_clave = True
                 st.rerun()
 
+        # Lógica de Login para Administrador
         if st.session_state.get("esperando_clave"):
-
             st.markdown("---")
-
             with st.form("login_admin", clear_on_submit=False):
-
                 clave = st.text_input(
                     "🔑 Ingrese Clave de Administrador:",
                     type="password",
-                    placeholder="Presione Enter o haga clic en Entrar"
+                    placeholder="Contraseña corporativa"
                 )
-
                 col_bt1, col_bt2 = st.columns(2)
-
                 with col_bt1:
                     entrar = st.form_submit_button("✅ Entrar")
-
                 with col_bt2:
                     cancelar = st.form_submit_button("❌ Cancelar")
 
-            if entrar:
+                if entrar:
+                    if clave == ADMIN_PASS:
+                        st.session_state.rol = "Admin"
+                        st.session_state.esperando_clave = False
+                        st.rerun()
+                    else:
+                        st.error("Clave incorrecta ❌")
 
-                if clave == ADMIN_PASS:
-                    st.session_state.rol = "Admin"
+                if cancelar:
                     st.session_state.esperando_clave = False
                     st.rerun()
-
-                else:
-                    st.error("Clave incorrecta ❌")
-
-            if cancelar:
-                st.session_state.esperando_clave = False
-                st.rerun()
 
         st.markdown(
             '<div class="footer-premium">Campofert S.A.S • Campolab • Versión Ejecutiva 2026</div>',
