@@ -138,30 +138,42 @@ CSS_CORPORATIVO = """
 
     /* Estilo para el contenedor verde del banner */
     .hero-gerencia {
-        background-color: #1B5E20 !important; 
-        border-radius: 20px;
-        padding: 20px 40px; /* Más espacio a los lados para los logos */
-        margin-bottom: 20px;
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32) !important;
+        border-radius: 26px !important;
+        padding: 28px 25px !important;
+        margin-bottom: 20px !important;
         border: none !important;
-        text-align: center;
+        text-align: center !important;
+        box-shadow: 0 18px 40px rgba(0,0,0,.16) !important;
     }
     
-    /* Aseguramos que el título sea blanco para que se vea sobre el verde */
+    /* Título siempre blanco */
     .hero-gerencia h1 {
-        color: #FFFFFF !important; /* Blanco puro */
-        margin-top: 10px !important;
-        font-size: 32px !important; 
+        color: white !important;
+        margin: 10px 0 0 0 !important;
+        font-size: 32px !important;
         font-weight: 800 !important;
-        letter-spacing: 1px;
-        text-shadow: none !important; /* Evita sombras oscuras */
+        letter-spacing: 1px !important;
+        text-shadow: none !important;
     }
-    /* Bloque 3: Texto técnico y paginación */
+
+    /* Logos sin cuadros blancos */
+    .hero-logos img {
+        height: 65px !important; 
+        width: auto !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        filter: brightness(1.1) !important;
+        object-fit: contain !important;
+    }
+
+    /* Texto técnico pequeño y blanco */
     .hero-mini {
         font-size: 11px !important;
-        color: rgba(255, 255, 255, 0.9) !important; /* Blanco suave */
+        color: rgba(255, 255, 255, 0.9) !important;
         margin-top: 15px !important;
-        font-weight: 400 !important;
-        display: block !important; /* Asegura que se muestre */
+        opacity: 0.85 !important;
     }
 </style>
 """
@@ -655,49 +667,31 @@ def logo_b64(img_pil):
     img_pil.save(buf, format="PNG")
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
+# Generación de logos limpia (sin cuadros blancos)
 logo_cf = (
-    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" '
-    f'style="height:50px;background:white;border-radius:8px;padding:4px 8px;">'
+    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campofert"])}" class="hero-logo-img">'
     if "campofert" in LOGOS else ""
 )
 
 logo_cl = (
-    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" '
-    f'style="height:50px;background:white;border-radius:8px;padding:4px 8px;">'
+    f'<img src="data:image/png;base64,{logo_b64(LOGOS["campolab"])}" class="hero-logo-img">'
     if "campolab" in LOGOS else ""
 )
 
 paso = st.session_state.get("paso", 0)
+texto_pagina = f" | Página: {paso} de {TOTAL_PAGINAS}" if paso > 0 else ""
 
-if paso == 0:
-    texto_pagina = ""
-else:
-    texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
-
+# RENDERIZADO FINAL: Quitamos todos los style='...' y usamos las clases CSS
 st.markdown(f"""
-    <div style='
-        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
-        padding: 28px 25px;
-        border-radius: 20px;
-        text-align: center;
-        color: #404040;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        border: 1px solid #e0e0e0;
-        margin-bottom: 18px;
-    '>
-        <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
+    <div class="hero-gerencia">
+        <div class="hero-logos">
             {logo_cf}
-            <div></div>
             {logo_cl}
         </div>
-        <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
-                   font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
-            REGISTRO ASISTENCIA DIGITAL
-        </h1>
-        <div style='margin-top:8px; font-size:10px; color:#404040; opacity:.85;
-                    font-family:Century Gothic,Nunito,sans-serif;'>
+        <h1>REGISTRO ASISTENCIA DIGITAL</h1>
+        <div class="hero-mini">
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20
+            Fecha de actualización: 2026-05-20{texto_pagina}
         </div>
     </div>
     """, unsafe_allow_html=True)
