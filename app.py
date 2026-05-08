@@ -511,14 +511,16 @@ if st.session_state.get("rol") is None:
     logo_cf_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campofert"])}" class="hero-logo-img">' if "campofert" in LOGOS else "<div></div>"
     logo_cl_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campolab"])}" class="hero-logo-img">' if "campolab" in LOGOS else "<div></div>"
 
-    # Paginación corregida: sin etiquetas <div> que se rompan
+    # 1. Lógica de paginación dinámica
     paso = st.session_state.get("paso", 0)
+    
     if paso == 0:
-        texto_pagina = ""   # No mostrar numeración en autorización
+        texto_pagina = ""  # No hay página, no hay barra separadora
     else:
-        texto_pagina = f"Página: {paso} de {TOTAL_PAGINAS}"
+        # Aquí incluimos la barra "|" dentro del string
+        texto_pagina = f" | Página: {paso} de {TOTAL_PAGINAS}"
 
-    # El f-string ahora es limpio y no deja residuos visuales
+    # 2. El f-string corregido (quitamos la barra fija después de '2026-05-20')
     st.markdown(f"""
     <div class="hero-gerencia">
         <div class="hero-logos">
@@ -528,7 +530,7 @@ if st.session_state.get("rol") is None:
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
         <div class="hero-mini">
             Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20 | {texto_pagina}
+            Fecha de actualización: 2026-05-20{texto_pagina}
         </div>
     </div>
     """, unsafe_allow_html=True)
