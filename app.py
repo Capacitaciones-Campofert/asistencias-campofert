@@ -63,7 +63,7 @@ CSS_CORPORATIVO = """
         
         /* 1. Peso de negrilla estándar (Bold) */
         /* Quitamos el 800/900 y dejamos 700 para que sea elegante */
-        font-weight: 700 !important; 
+        font-weight: 900 !important; 
         font-size: 18px !important; 
         
         /* 2. ELIMINAMOS EL text-shadow */
