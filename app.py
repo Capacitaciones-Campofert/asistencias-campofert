@@ -410,7 +410,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # Texto central
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 610, "Por medio del presente documento se certifica que:")
+    p.drawCentredString(width / 2, 610, "Se certifica que:")
     p.setFillColorRGB(*verde)
     p.setFont("Helvetica-Bold", 24)
     p.drawCentredString(width / 2, 570, datos["Nombre"].upper())
@@ -443,7 +443,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             img.thumbnail((150, 150))
             p.drawImage(ImageReader(img), 75, base_y, width=110, height=110)
             p.setFont("Helvetica", 8)
-            p.drawCentredString(130, base_y - 12, "Validación de Identidad")
+            p.drawCentredString(130, base_y - 12, "Validación Registro de identidad")
         except Exception as ex:
             print(f"[PDF FOTO] {ex}")
 
@@ -465,7 +465,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setStrokeColorRGB(*verde)
     p.line(width - 275, base_y + 18, width - 95, base_y + 18)
     p.setFont("Helvetica-Bold", 10)
-    p.drawCentredString(width - 185, base_y + 3, "Firma del Trabajador")
+    p.drawCentredString(width - 185, base_y + 3, "Firma Autorizada del Colaborador")
 
     # Pie
     p.setFillColorRGB(*verde2)
@@ -473,7 +473,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFillColorRGB(1, 1, 1)
     p.setFont("Helvetica", 8)
     p.drawCentredString(width / 2, 30,
-                        "Documento digital oficial emitido por Campofert S.A.S.")
+                        "Documento digital emitido por Campofert S.A.S.")
 
     p.showPage()
     p.save()
