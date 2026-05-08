@@ -646,7 +646,7 @@ else:
 
 st.markdown(f"""
     <div style='
-        background: #ffffff;
+        background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32);
         padding: 28px 25px;
         border-radius: 20px;
         text-align: center;
@@ -656,9 +656,9 @@ st.markdown(f"""
         margin-bottom: 18px;
     '>
         <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;'>
-            {img_cf}
+            {logo_cf}
             <div></div>
-            {img_cl}
+            {logo_cl}
         </div>
         <h1 style='margin:0; font-size:38px; font-weight:800; color:#404040;
                    font-family:Century Gothic,Nunito,sans-serif; letter-spacing:2px;'>
