@@ -588,13 +588,13 @@ if st.session_state.get("rol") is None:
         c1, c2 = st.columns(2)
 
         with c1:
-            if st.button("👷 COLABORADOR", use_container_width=True):
+            if st.button("COLABORADOR", use_container_width=True):
                 st.session_state.rol = "Empleado"
                 st.session_state.paso = 0
                 st.rerun()
 
         with c2:
-            if st.button("🛡️ ADMINISTRADOR", use_container_width=True):
+            if st.button("ADMINISTRADOR", use_container_width=True):
                 st.session_state.esperando_clave = True
                 st.rerun()
 
@@ -609,9 +609,9 @@ if st.session_state.get("rol") is None:
                 )
                 col_bt1, col_bt2 = st.columns(2)
                 with col_bt1:
-                    entrar = st.form_submit_button("✅ Entrar")
+                    entrar = st.form_submit_button("Entrar")
                 with col_bt2:
-                    cancelar = st.form_submit_button("❌ Cancelar")
+                    cancelar = st.form_submit_button("Cancelar")
 
                 if entrar:
                     if clave == ADMIN_PASS:
