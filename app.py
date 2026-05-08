@@ -416,7 +416,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawCentredString(width / 2, 570, datos["Nombre"].upper())
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 545, f"Identificado(a) con documento No. {datos['ID']}")
+    p.drawCentredString(width / 2, 545, f"Identificado(a) con documento No. {datos['ID']} Asistió a la:")
 
     # Bloque capacitación
     p.setFillColorRGB(*gris)
