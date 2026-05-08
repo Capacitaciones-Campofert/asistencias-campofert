@@ -56,17 +56,16 @@ CSS_CORPORATIVO = """
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
 
     .stButton > button {
-        .stButton > button {
-            background-color: #2E7D32; 
-            color: white; 
-            border: none;
-            border-radius: 8px; 
-            font-weight: 800 !important; /* Añadimos !important para asegurar la negrilla */
-            padding: 0.7rem 1rem;       /* Un poquito más de relleno arriba y abajo */
-            transition: background-color 0.3s;
-            font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-            letter-spacing: 1px;        /* Separamos un pelín las letras para que la negrilla no las pegue */
-            font-size: 16px !important; /* Le damos un tamaño un poco más imponente */
+        background-color: #2E7D32; 
+        color: white; 
+        border: none;
+        border-radius: 8px; 
+        font-weight: 800 !important; /* Añadimos !important para asegurar la negrilla */
+        padding: 0.7rem 1rem;       /* Un poquito más de relleno arriba y abajo */
+        transition: background-color 0.3s;
+        font-family: 'Century Gothic', 'Nunito', sans-serif !important;
+        letter-spacing: 1px;        /* Separamos un pelín las letras para que la negrilla no las pegue */
+        font-size: 16px !important; /* Le damos un tamaño un poco más imponente */
         }
     .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
 
