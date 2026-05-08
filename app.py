@@ -61,25 +61,28 @@ CSS_CORPORATIVO = """
         border: none !important;
         border-radius: 8px !important; 
         
-        /* 1. Peso máximo */
+        /* 1. Peso de negrilla estándar (Bold) */
+        /* Quitamos el 800/900 y dejamos 700 para que sea elegante */
         font-weight: 700 !important; 
-        font-size: 20px !important; 
+        font-size: 18px !important; 
         
-        /* 2. EL TRUCO PARA LA NEGRILLA: Sombra de texto del mismo color */
-        /* Esto duplica los bordes de la letra y la hace ver muy gruesa */
-        text-shadow: 1px 0px 0px white, -1px 0px 0px white, 0px 1px 0px white, 0px -1px 0px white !important;
+        /* 2. ELIMINAMOS EL text-shadow */
+        /* Al quitar esto, la letra recupera su forma original y limpia */
+        text-shadow: none !important;
         
-        padding: 0.8rem 2rem !important;
+        padding: 0.6rem 1.5rem !important;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-        letter-spacing: 1.5px !important;
+        
+        /* Bajamos un poco el espaciado ya que la letra no es tan ancha ahora */
+        letter-spacing: 1px !important;
         text-transform: uppercase !important;
     }
 
     .stButton > button:hover { 
         background-color: #F9A825 !important; 
         color: #1B5E20 !important;
-        /* Al pasar el mouse, la sombra cambia al color del texto nuevo */
-        text-shadow: 0.5px 0px 0px #1B5E20 !important;
+        /* Aseguramos que no haya sombra tampoco al pasar el mouse */
+        text-shadow: none !important;
     }
     .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
 
