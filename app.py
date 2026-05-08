@@ -116,31 +116,47 @@ CSS_CORPORATIVO = """
     }
     [data-testid="stCameraInputButton"] span { display: none !important; }
 
-    /* Limpieza de logos en el encabezado */
+    /* Limpieza y ajuste de logos GIGANTES en el encabezado */
     .hero-logos {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: transparent !important;
+        width: 100%;
     }
 
     .hero-logos img {
-        background-color: transparent !important; /* Elimina el fondo blanco */
-        border: none !important;                 /* Elimina bordes */
-        box-shadow: none !important;             /* Elimina sombras */
-        mix-blend-mode: multiply;                /* TRUCO: Si el logo tiene un fondo blanco "pintado", esto lo vuelve transparente sobre el verde */
-        filter: brightness(1.2);                 /* Opcional: le da un poco más de vida a los logos blancos */
-        max-height: 75px;                        /* Ajusta el tamaño para que no se deforme */
-        width: auto;
+        /* Control de tamaño estricto para logos de 1000px+ */
+        height: 65px !important; 
+        width: auto !important;
+        
+        /* Transparencia y limpieza */
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        
+        /* Como tus logos nuevos YA son blancos y transparentes: */
+        /* Eliminamos multiply porque el logo es blanco, no oscuro */
+        filter: brightness(1.5); 
+        
+        object-fit: contain;
     }
 
     /* Estilo para el contenedor verde del banner */
     .hero-gerencia {
-        background-color: #1B5E20 !important;   /* Tu verde institucional */
+        background-color: #1B5E20 !important; 
         border-radius: 20px;
-        padding: 25px;
+        padding: 20px 40px; /* Más espacio a los lados para los logos */
         margin-bottom: 20px;
         border: none !important;
+        text-align: center;
+    }
+    
+    /* Aseguramos que el título sea blanco para que se vea sobre el verde */
+    .hero-gerencia h1 {
+        color: white !important;
+        margin-top: 10px !important;
+        font-size: 22px !important;
     }
 </style>
 """
