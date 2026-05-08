@@ -507,35 +507,27 @@ if st.session_state.get("rol") is None:
         img_pil.save(buf, format="PNG")
         return base64.b64encode(buf.getvalue()).decode("utf-8")
 
-    # Generación de HTML para logos
-    logo_cf_html = ""
-    if "campofert" in LOGOS:
-        b64_cf = logo_to_base64(LOGOS["campofert"])
-        logo_cf_html = f'<img src="data:image/png;base64,{b64_cf}" class="hero-logo-img">'
-    
-    logo_cl_html = ""
-    if "campolab" in LOGOS:
-        b64_cl = logo_to_base64(LOGOS["campolab"])
-        logo_cl_html = f'<img src="data:image/png;base64,{b64_cl}" class="hero-logo-img">'
+    # Generación segura de logos
+    logo_cf_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campofert"])}" class="hero-logo-img">' if "campofert" in LOGOS else "<div></div>"
+    logo_cl_html = f'<img src="data:image/png;base64,{logo_to_base64(LOGOS["campolab"])}" class="hero-logo-img">' if "campolab" in LOGOS else "<div></div>"
 
-    # Manejo de la paginación para el texto
-    paso = st.session_state.get("paso", 0)
-    texto_pagina = f"<br><b>Página: {paso} de {TOTAL_PAGINAS}</b>" if paso > 0 else ""
+    # Paginación (Sin HTML extra que rompa el bloque)
+    paso_actual = st.session_state.get("paso", 0)
+    texto_paso = f"| Página: {paso_actual} de {TOTAL_PAGINAS}" if paso_actual > 0 else ""
 
-    # Renderizado del Hero Header
+    # Renderizado del Hero Header (Estructura fija)
     st.markdown(f"""
     <div class="hero-gerencia">
         <div class="hero-logos">
             {logo_cf_html}
-            <div></div>
             {logo_cl_html}
         </div>
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
         <div class="hero-mini">
-            Código: I.FO.GH.03 | Versión: 03 |
-            Fecha de emisión: 2014-12-01 |
+            Código: I.FO.GH.03 | Versión: 03 | 
+            Fecha de emisión: 2014-12-01 | 
             Fecha de actualización: 2026-05-20
-            {texto_pagina}
+            {texto_paso}
         </div>
     </div>
     """, unsafe_allow_html=True)
