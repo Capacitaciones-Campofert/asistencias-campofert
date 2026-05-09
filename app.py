@@ -39,6 +39,7 @@ st.session_state.setdefault("paso", 0)          # 0 = autorización imagen
 st.session_state.setdefault("tema_actual", None)
 st.session_state.setdefault("modulo", None)
 st.session_state.setdefault("esperando_clave", False)
+st.session_state.setdefault("resumen_actual", "")
 
 # =============================================================================
 # CSS CORPORATIVO
@@ -424,15 +425,37 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFont("Helvetica", 12)
     p.drawCentredString(width / 2, 545, f"Identificado(a) con documento No. {datos['ID']} Asistió a la:")
 
-    # Bloque capacitación
+    # Bloque capacitación con resumen
+    resumen = datos.get("Resumen", "")
+    alto_rect = 100 if resumen else 75
     p.setFillColorRGB(*gris)
-    p.roundRect(60, 445, width - 120, 75, 10, fill=1, stroke=0)
+    p.roundRect(60, 445, width - 120, alto_rect, 10, fill=1, stroke=0)
+
     p.setFillColorRGB(*verde)
     p.setFont("Helvetica-Bold", 11)
-    p.drawString(80, 495, "CAPACITACIÓN / ACTIVIDAD:")
+    p.drawString(80, 445 + alto_rect - 15, "CAPACITACIÓN / ACTIVIDAD:")
+
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(80, 472, datos["Tema"])
+    p.drawString(80, 445 + alto_rect - 30, datos["Tema"])
+
+    # Resumen de contenido (si existe)
+    if resumen:
+        p.setFont("Helvetica", 9)
+        p.setFillColorRGB(0.3, 0.3, 0.3)
+        palabras = resumen.split()
+        linea = ""
+        y_res = 445 + alto_rect - 48
+        for palabra in palabras:
+            prueba = linea + " " + palabra if linea else palabra
+            if p.stringWidth(prueba, "Helvetica", 9) < (width - 160):
+                linea = prueba
+            else:
+                p.drawString(80, y_res, linea)
+                y_res -= 13
+                linea = palabra
+        if linea:
+            p.drawString(80, y_res, linea)
 
     # Datos
     p.setFont("Helvetica", 11)
@@ -1234,15 +1257,14 @@ if menu == "📋 Registro Asistencia":
                 st.stop()
     
             datos_asistencia = {
-                "Fecha": datetime.now(
-                    pytz.timezone("America/Bogota")
-                ).strftime("%d/%m/%Y %H:%M:%S"),
+                "Fecha": datetime.now(pytz.timezone("America/Bogota")).strftime("%d/%m/%Y %H:%M:%S"),
                 "ID": st.session_state.cedula,
                 "Nombre": st.session_state.persona["Apellidos y Nombres"],
                 "Empresa": st.session_state.persona.get("Empresa", "NO REGISTRA"),
                 "Cargo": st.session_state.persona.get("Cargo", "NO REGISTRA"),
                 "Tema": tema_actual,
-            }
+                "Resumen": st.session_state.get("resumen_actual", ""),  # ← NUEVO
+            }    
     
             with st.spinner("Guardando registro..."):
                 guardado = guardar_en_google_sheets(datos_asistencia)
