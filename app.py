@@ -222,6 +222,13 @@ if not st.session_state.tema_actual:
     st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
 tema_actual = st.session_state.tema_actual
 
+resumen_desde_url = params.get("resumen") or ""
+if resumen_desde_url:
+    st.session_state.resumen_actual = resumen_desde_url.replace("+", " ").strip()
+if not st.session_state.get("resumen_actual"):
+    st.session_state.resumen_actual = ""
+resumen_actual = st.session_state.resumen_actual
+
 rol_url = params.get("rol")
 if rol_url and st.session_state.rol is None:
     if rol_url.lower() == "empleado":
