@@ -770,9 +770,18 @@ if st.session_state.rol == "Admin":
                 "Nombre de la capacitación o inducción:",
                 placeholder="Ej: INDUCCIÓN SEGURIDAD Y SALUD 2026"
             )
+            
+            # ← NUEVO: resumen de contenido
+            nuevo_resumen = st.text_area(
+                "Resumen de contenido (opcional):",
+                placeholder="Ej: Temas tratados: EPP, riesgos eléctricos, evacuación...",
+                max_chars=500,
+                height=100
+            
             if st.button("💾 Guardar y Activar Tema"):
                 if nuevo_tema:
-                    st.session_state.tema_actual = nuevo_tema.upper()
+                    st.session_state.tema_actual   = nuevo_tema.upper()
+                    st.session_state.resumen_actual = nuevo_resumen.strip()
                     st.success(f"✅ Tema actualizado: **{nuevo_tema.upper()}**")
                 else:
                     st.error("⚠️ Por favor escribe un nombre antes de guardar.")
