@@ -229,6 +229,13 @@ if not st.session_state.get("resumen_actual"):
     st.session_state.resumen_actual = ""
 resumen_actual = st.session_state.resumen_actual
 
+tipo_desde_url = params.get("tipo") or ""
+if tipo_desde_url:
+    st.session_state.tipo_actividad = tipo_desde_url.replace("+", " ").strip()
+if not st.session_state.get("tipo_actividad"):
+    st.session_state.tipo_actividad = "CAPACITACIÓN"
+tipo_actividad = st.session_state.tipo_actividad
+
 rol_url = params.get("rol")
 if rol_url and st.session_state.rol is None:
     if rol_url.lower() == "empleado":
@@ -796,11 +803,14 @@ if st.session_state.rol == "Admin":
         st.markdown("## ⚙️ Configuración de la Capacitación")
         with st.container(border=True):
             st.markdown("### 1. Definir Tema")
+            tipo_actividad = st.selectbox(
+                "Tipo de actividad:",
+                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO", "OTRO"]
+            )
             nuevo_tema = st.text_input(
                 "Nombre de la capacitación o inducción:",
                 placeholder="Ej: INDUCCIÓN SEGURIDAD Y SALUD 2026"
             )
-            
             # ← NUEVO: resumen de contenido
             nuevo_resumen = st.text_area(
                 "Resumen de contenido (opcional):",
@@ -812,6 +822,7 @@ if st.session_state.rol == "Admin":
                 if nuevo_tema:
                     st.session_state.tema_actual   = nuevo_tema.upper()
                     st.session_state.resumen_actual = nuevo_resumen.strip()
+                    st.session_state.tipo_actividad   = tipo_actividad
                     st.success(f"✅ Tema actualizado: **{nuevo_tema.upper()}**")
                 else:
                     st.error("⚠️ Por favor escribe un nombre antes de guardar.")
@@ -822,7 +833,8 @@ if st.session_state.rol == "Admin":
             tema_url    = st.session_state.tema_actual.replace(" ", "+")
             resumen_url = st.session_state.get("resumen_actual", "").replace(" ", "+")
             base_url    = "https://asistencias-campofert.streamlit.app/"
-            url_final   = f"{base_url}?tema={tema_url}&resumen={resumen_url}&rol=Empleado"
+            tipo_url  = st.session_state.get("tipo_actividad", "CAPACITACIÓN").replace(" ", "+")
+            url_final = f"{base_url}?tema={tema_url}&resumen={resumen_url}&tipo={tipo_url}&rol=Empleado"
             st.info(f"Copia este enlace y envíalo por WhatsApp:\n\n**{url_final}**")
             col_qr1, col_qr2 = st.columns([1, 2])
             with col_qr1:
@@ -1272,6 +1284,7 @@ if menu == "📋 Registro Asistencia":
                 "Cargo": st.session_state.persona.get("Cargo", "NO REGISTRA"),
                 "Tema": tema_actual,
                 "Resumen": st.session_state.get("resumen_actual", ""),  # ← NUEVO
+                "Tipo":    tipo_actividad,
             }    
     
             with st.spinner("Guardando registro..."):
