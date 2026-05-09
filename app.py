@@ -812,9 +812,10 @@ if st.session_state.rol == "Admin":
         if "tema_actual" in st.session_state:
             st.markdown("---")
             st.markdown("### 🔗 Enlace de Acceso para Colaboradores")
-            tema_url  = st.session_state.tema_actual.replace(" ", "+")
-            base_url  = "https://asistencias-campofert.streamlit.app/"
-            url_final = f"{base_url}/?tema={tema_url}&rol=Empleado"
+            tema_url    = st.session_state.tema_actual.replace(" ", "+")
+            resumen_url = st.session_state.get("resumen_actual", "").replace(" ", "+")
+            base_url    = "https://asistencias-campofert.streamlit.app/"
+            url_final   = f"{base_url}?tema={tema_url}&resumen={resumen_url}&rol=Empleado"
             st.info(f"Copia este enlace y envíalo por WhatsApp:\n\n**{url_final}**")
             col_qr1, col_qr2 = st.columns([1, 2])
             with col_qr1:
