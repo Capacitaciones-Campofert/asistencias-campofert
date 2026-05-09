@@ -388,11 +388,21 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFillColorRGB(*dorado)
     p.rect(20, height - 125, width - 40, 5, fill=1, stroke=0)
 
-    # Logos desde caché (sin leer disco por cada usuario)
+    # Logos — convertidos a RGB para evitar problemas con transparencia
     for clave, x in [("campofert", 35), ("campolab", width - 130)]:
         if clave in LOGOS:
             try:
-                p.drawImage(ImageReader(LOGOS[clave]), x, height - 112,
+                # Convertir a RGB con fondo blanco para evitar logos en blanco
+                img_logo = LOGOS[clave].convert("RGBA")
+                fondo = Image.new("RGBA", img_logo.size, (255, 255, 255, 255))
+                fondo.paste(img_logo, mask=img_logo.split()[3])
+                img_rgb = fondo.convert("RGB")
+                
+                buf_logo = BytesIO()
+                img_rgb.save(buf_logo, format="PNG")
+                buf_logo.seek(0)
+                
+                p.drawImage(ImageReader(buf_logo), x, height - 112,
                             width=95, height=72, preserveAspectRatio=True)
             except Exception as ex:
                 print(f"[PDF LOGO] {ex}")
