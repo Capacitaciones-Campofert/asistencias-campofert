@@ -439,27 +439,31 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFont("Helvetica", 12)
     p.drawCentredString(width / 2, 545, f"Identificado(a) con documento No. {datos['ID']} Asistió a la:")
 
-    # Bloque capacitación con resumen
+    # Bloque capacitación con tipo, nombre y resumen
     resumen = datos.get("Resumen", "")
-    alto_rect = 100 if resumen else 75
+    tipo    = datos.get("Tipo", "CAPACITACIÓN")
+    alto_rect = 115 if resumen else 90
+    
     p.setFillColorRGB(*gris)
-    p.roundRect(60, 445, width - 120, alto_rect, 10, fill=1, stroke=0)
+    p.roundRect(60, 420, width - 120, alto_rect, 10, fill=1, stroke=0)
 
+    # Tipo de actividad (CAPACITACIÓN, INDUCCIÓN, etc.)
     p.setFillColorRGB(*verde)
-    p.setFont("Helvetica-Bold", 11)
-    p.drawString(80, 445 + alto_rect - 15, "CAPACITACIÓN / ACTIVIDAD:")
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(80, 420 + alto_rect - 14, f"{tipo}:")
 
+    # Nombre del tema
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(80, 445 + alto_rect - 30, datos["Tema"])
+    p.drawString(80, 420 + alto_rect - 30, datos["Tema"])
 
-    # Resumen de contenido (si existe)
+    # Resumen de contenido
     if resumen:
         p.setFont("Helvetica", 9)
         p.setFillColorRGB(0.3, 0.3, 0.3)
         palabras = resumen.split()
         linea = ""
-        y_res = 445 + alto_rect - 48
+        y_res = 420 + alto_rect - 48
         for palabra in palabras:
             prueba = linea + " " + palabra if linea else palabra
             if p.stringWidth(prueba, "Helvetica", 9) < (width - 160):
