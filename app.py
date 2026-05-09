@@ -800,7 +800,7 @@ if st.session_state.rol == "Admin":
                 placeholder="Ej: Temas tratados: EPP, riesgos eléctricos, evacuación...",
                 max_chars=500,
                 height=100
-            
+            )
             if st.button("💾 Guardar y Activar Tema"):
                 if nuevo_tema:
                     st.session_state.tema_actual   = nuevo_tema.upper()
