@@ -424,7 +424,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # Títulos
     p.setFillColorRGB(1, 1, 1)
     p.setFont("Helvetica-Bold", 18)
-    p.drawCentredString(width / 2, height - 63, "CERTIFICADO DE ASISTENCIA")
+    p.drawCentredString(width / 2, height - 80, "CERTIFICADO DE ASISTENCIA")
     p.setFont("Helvetica-Bold", 8)
     p.drawRightString(width - 35, height - 38, codigo)
 
