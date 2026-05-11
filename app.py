@@ -389,7 +389,7 @@ def enviar_respaldo_async(datos, pdf_buffer):
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
-def generar_pdf(datos, imagen_firma, imagen_foto):
+def generar_pdf(datos, imagen_firma, imagen_foto,codigo):
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
@@ -1405,7 +1405,8 @@ if menu == "Registro Asistencia":
                     pdf = generar_pdf(
                         datos_asistencia,
                         firma_img,
-                        foto_comprimida
+                        foto_comprimida,
+                        codigo
                     )
     
                 # 👇 AQUÍ VA EL ENVÍO
