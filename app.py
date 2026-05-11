@@ -473,9 +473,9 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     # 🔼 SUBE EL RECUADRO
     p.roundRect(
         60,
-        430,
+        405,
         width - 120,
-        alto_rect,
+        alt    o_rect,
         10,
         fill=1,
         stroke=0
@@ -487,7 +487,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 
     p.drawString(
         80,
-        430 + alto_rect - 14,
+        405 + alto_rect - 14,
         f"{tipo}:"
     )
 
@@ -497,7 +497,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
 
     p.drawString(
         80,
-        430 + alto_rect - 30,
+        405 + alto_rect - 30,
         datos["Tema"]
     )
 
@@ -510,7 +510,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
         palabras = resumen.split()
         linea = ""
 
-        y_res = 430 + alto_rect - 48
+        y_res = 405 + alto_rect - 48
 
         for palabra in palabras:
 
