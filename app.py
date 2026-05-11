@@ -899,7 +899,7 @@ else:
 # =============================================================================
 if st.session_state.rol == "Admin":
 
-    if menu == "⚙️ Configurar Tema":
+    if menu == "Configurar Tema":
         st.markdown("## ⚙️ Configuración de la Capacitación")
         with st.container(border=True):
             st.markdown("### 1. Definir Tema")
@@ -950,7 +950,7 @@ if st.session_state.rol == "Admin":
                 3. No necesitas volver a configurar nada hasta la siguiente capacitación.
                 """)
 
-    if menu == "👥 Lista Empleados":
+    if menu == "Lista Empleados":
         st.markdown("## 👥 Base de Empleados")
         df_emp = obtener_datos()
         if df_emp is not None and not df_emp.empty:
@@ -970,7 +970,7 @@ if st.session_state.rol == "Admin":
         else:
             st.warning("No existe archivo empleados.xlsx")
 
-    elif menu == "📤 Cargar Base de Personal":
+    elif menu == "Cargar Base de Personal":
         st.markdown("## 📤 Actualizar Base de Personal")
         archivo = st.file_uploader("Subir archivo Excel actualizado", type=["xlsx"])
         if archivo is not None:
@@ -979,7 +979,7 @@ if st.session_state.rol == "Admin":
             obtener_datos.clear()
             st.success("✅ Archivo actualizado correctamente.")
 
-    elif menu == "📊 Dashboard":
+    elif menu == "Dashboard":
         st.markdown("## 📊 Dashboard Ejecutivo")
     
         if st.button("🔄 Actualizar datos"):
@@ -1101,7 +1101,7 @@ if st.session_state.rol == "Admin":
             st.error(f"Error crítico en el Dashboard: {e}")
     
     
-    elif menu == "📄 Historial":
+    elif menu == "Historial":
         st.markdown("## 📄 Historial de Asistencias")
     
         try:
@@ -1118,7 +1118,7 @@ if st.session_state.rol == "Admin":
             st.warning(f"Error historial: {e}")
     
     
-    elif menu == "📁 Reportes":
+    elif menu == "Reportes":
         st.markdown("## 📁 Reportes")
     
         try:
