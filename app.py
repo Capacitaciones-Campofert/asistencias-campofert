@@ -284,6 +284,7 @@ def leer_asistencias():
         return pd.DataFrame()
 
 def guardar_en_google_sheets(datos):
+    import time
     try:
         if not datos.get("ID") or not datos.get("Nombre"):
             st.error("Datos incompletos")
@@ -298,18 +299,26 @@ def guardar_en_google_sheets(datos):
             "Tema":    datos.get("Tema"),
         }])
 
-        # Leer siempre fresco sin caché para no sobrescribir
-        actual = conn.read(worksheet="Hoja", ttl=0)
+        # Reintento con delay aleatorio para evitar colisiones
+        for intento in range(4):
+            try:
+                actual = conn.read(worksheet="Hoja", ttl=0)
 
-        if actual is None or actual.empty:
-            df_final = nueva_fila
-        else:
-            actual = actual.dropna(how="all")
-            df_final = pd.concat([actual, nueva_fila], ignore_index=True)
+                if actual is None or actual.empty:
+                    df_final = nueva_fila
+                else:
+                    actual = actual.dropna(how="all")
+                    df_final = pd.concat([actual, nueva_fila], ignore_index=True)
 
-        conn.update(worksheet="Hoja", data=df_final)
-        leer_asistencias.clear()
-        return True
+                conn.update(worksheet="Hoja", data=df_final)
+                leer_asistencias.clear()
+                return True
+
+            except Exception:
+                # Espera aleatoria entre 1 y 4 segundos antes de reintentar
+                time.sleep(random.uniform(1, 4))
+
+        return False
 
     except Exception as e:
         st.error(f"Error guardando en Google Sheets: {e}")
