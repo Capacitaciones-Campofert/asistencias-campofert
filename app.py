@@ -388,7 +388,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     verde2 = (0.18, 0.52, 0.24)
     dorado = (0.95, 0.74, 0.12)
     gris   = (0.96, 0.96, 0.96)
-    codigo = f"CPF-2026-{random.randint(100000, 999999)}"
+    codigo = f"I.FO.GH.03"
 
     # Fondo y marco
     p.setFillColorRGB(1, 1, 1)
