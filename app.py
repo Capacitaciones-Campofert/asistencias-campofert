@@ -388,8 +388,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     verde2 = (0.18, 0.52, 0.24)
     dorado = (0.95, 0.74, 0.12)
     gris   = (0.96, 0.96, 0.96)
-    codigo = f"I.FO.GH.03"
-
+    
     # Fondo y marco
     p.setFillColorRGB(1, 1, 1)
     p.rect(0, 0, width, height, fill=1, stroke=0)
@@ -907,7 +906,7 @@ if st.session_state.rol == "Admin":
             st.markdown("### 1. Definir Tema")
             tipo_actividad = st.selectbox(
                 "Tipo de actividad:",
-                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO", "OTRO"]
+                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO"]
             )
             nuevo_tema = st.text_input(
                 "Nombre de la capacitación o inducción:",
