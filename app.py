@@ -458,7 +458,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawCentredString(
         width / 2,
         545,
-        f"Identificado(a) con documento No. {datos['ID']} Asistió a la:"
+        f"Identificado(a) con documento No. {datos['ID']} asistió a:"
     )
 
     # Bloque capacitación con tipo, nombre y resumen
@@ -557,7 +557,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
             p.drawCentredString(
                 130,
                 base_y - 12,
-                "Validación Registro de identidad"
+                "Validación de Registro"
             )
 
         except Exception as ex:
@@ -593,7 +593,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.drawCentredString(
         width - 185,
         base_y + 3,
-        "Firma Autorizada del Colaborador"
+        "Firma Autorizada"
     )
 
     # Pie
