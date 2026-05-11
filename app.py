@@ -55,6 +55,7 @@ CSS_CORPORATIVO = """
     .stApp { background-color: #F5F5F0; }
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
+    
 
     .stButton > button {
         background-color: #2E7D32 !important; 
