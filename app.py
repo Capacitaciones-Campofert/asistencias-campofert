@@ -872,7 +872,7 @@ if st.session_state.rol == "Empleado":
         header {visibility:hidden;}
     </style>
     """, unsafe_allow_html=True)
-    menu = "📋 Registro Asistencia"
+    menu = "Registro Asistencia"
 
 else:
     with st.sidebar:
