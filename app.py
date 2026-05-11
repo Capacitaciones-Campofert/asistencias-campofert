@@ -199,34 +199,7 @@ CSS_CORPORATIVO = """
         margin-top: 15px !important;
         opacity: 0.85 !important;
     }
-    /* =========================================
-   FIX ICONOS STREAMLIT ROTOS
-    ========================================= */
-    span.material-symbols-rounded {
-        display: none !important;
-    }
-    
-    [data-testid="stFileUploader"] section button p {
-        display: none !important;
-    }
-    
-    [data-testid="stFileUploader"] section button::after {
-        content: "Seleccionar archivo";
-        font-size: 14px;
-        font-weight: 700;
-        color: #1B5E20;
-        display: block;
-        padding: 2px 6px;
-    }
-    
-    [data-testid="stFileUploader"] section {
-        border-radius: 10px !important;
-    }
-    
-    [data-testid="stFileUploader"] svg {
-        display: none !important;
-    }
-</style>
+    </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
 
