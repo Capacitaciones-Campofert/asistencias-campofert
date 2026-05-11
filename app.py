@@ -475,7 +475,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
         60,
         405,
         width - 120,
-        alt    o_rect,
+        alto_rect,
         10,
         fill=1,
         stroke=0
