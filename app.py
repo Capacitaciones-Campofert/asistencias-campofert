@@ -882,14 +882,13 @@ else:
         st.markdown("Gestión Humana / Campofert")
         st.markdown("---")
         menu = st.radio("Seleccione módulo", [
-            "⚙️ Configurar Tema",
-            "📋 Registro Asistencia",
-            "👥 Lista Empleados",
-            "📤 Cargar Base de Personal",
-            "📄 Cargar Dcto para Firma",
-            "📊 Dashboard",
-            "📄 Historial",
-            "📁 Reportes",
+            "Configurar Tema",
+            "Registro Asistencia",
+            "Lista Empleados",
+            "Cargar Base de Personal",
+            "Dashboard",
+            "Historial",
+            "Reportes",
         ])
         st.markdown("---")
         if st.button("🚪 Cerrar Sesión", use_container_width=True):
@@ -980,51 +979,6 @@ if st.session_state.rol == "Admin":
             obtener_datos.clear()
             st.success("✅ Archivo actualizado correctamente.")
 
-    elif menu == "📄 Cargar Dcto para Firma":
-        st.markdown("## 📄 Cargar Documento para Firma")
-    
-        archivo = st.file_uploader("Subir documento PDF", type=["pdf"])
-        correo_responsable = st.text_input("Correo responsable (quien recibirá las firmas)")
-        tipo_doc = st.selectbox("Tipo de documento", ["DOTACIÓN", "BIENESTAR", "OTRO"])
-    
-        if st.button("Guardar documento"):
-    
-            if archivo and correo_responsable:
-    
-                # 📁 Guardar archivo local
-                os.makedirs("docs", exist_ok=True)
-    
-                ruta = f"docs/{archivo.name}"
-                with open(ruta, "wb") as f:
-                    f.write(archivo.getbuffer())
-    
-                # 📊 Guardar en Google Sheets
-                nuevo = pd.DataFrame([{
-                    "ID_DOC": random.randint(1000, 9999),
-                    "NOMBRE_DOCUMENTO": archivo.name,
-                    "RUTA_PDF": archivo.name,
-                    "RESPONSABLE_CORREO": correo_responsable,
-                    "TIPO": tipo_doc,
-                    "FECHA": datetime.now().strftime("%d/%m/%Y %H:%M")
-                }])
-    
-                try:
-                    df = conn.read(worksheet="DOCUMENTOS")
-                    if df is None or df.empty:
-                        df = nuevo
-                    else:
-                        df = pd.concat([df, nuevo], ignore_index=True)
-    
-                    conn.update(worksheet="DOCUMENTOS", data=df)
-    
-                    st.success("✅ Documento cargado correctamente")
-    
-                except Exception as e:
-                    st.error(f"Error guardando documento: {e}")
-    
-            else:
-                st.warning("⚠️ Debes subir archivo y correo")
-    
     elif menu == "📊 Dashboard":
         st.markdown("## 📊 Dashboard Ejecutivo")
     
