@@ -872,7 +872,7 @@ if st.session_state.rol == "Empleado":
         header {visibility:hidden;}
     </style>
     """, unsafe_allow_html=True)
-    menu = "Registro Asistencia"
+    menu = "📋Registro Asistencia"
 
 else:
     with st.sidebar:
@@ -1144,7 +1144,7 @@ if st.session_state.rol == "Admin":
 # =============================================================================
 # FLUJO EMPLEADO
 # =============================================================================
-if menu == "📋 Registro Asistencia":
+if menu == "Registro Asistencia":
 
     # Reset al entrar al módulo por primera vez
     if st.session_state.get("modulo") != "registro_asistencia":
