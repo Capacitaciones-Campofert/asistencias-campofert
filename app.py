@@ -198,6 +198,33 @@ CSS_CORPORATIVO = """
         margin-top: 15px !important;
         opacity: 0.85 !important;
     }
+    /* =========================================
+   FIX ICONOS STREAMLIT ROTOS
+    ========================================= */
+    span.material-symbols-rounded {
+        display: none !important;
+    }
+    
+    [data-testid="stFileUploader"] section button p {
+        display: none !important;
+    }
+    
+    [data-testid="stFileUploader"] section button::after {
+        content: "Seleccionar archivo";
+        font-size: 14px;
+        font-weight: 700;
+        color: #1B5E20;
+        display: block;
+        padding: 2px 6px;
+    }
+    
+    [data-testid="stFileUploader"] section {
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stFileUploader"] svg {
+        display: none !important;
+    }
 </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
@@ -818,7 +845,7 @@ if st.session_state.rol == "Admin":
     col_volver, col_vacia = st.columns([1, 4])
 
     with col_volver:
-        if st.button("⬅️ Inicio", use_container_width=True):
+        if st.button("INICIO", use_container_width=True):
 
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
