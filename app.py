@@ -389,7 +389,7 @@ def enviar_respaldo_async(datos, pdf_buffer):
 # =============================================================================
 # GENERACIÓN DE PDF
 # =============================================================================
-def generar_pdf(datos, imagen_firma, imagen_foto,codigo=""):
+def generar_pdf(datos, imagen_firma, imagen_foto,):
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
@@ -444,7 +444,6 @@ def generar_pdf(datos, imagen_firma, imagen_foto,codigo=""):
     )
 
     p.setFont("Helvetica-Bold", 8)
-    p.drawRightString(width - 35, height - 38, codigo)
 
     # Texto central
     p.setFillColorRGB(0, 0, 0)
@@ -1400,15 +1399,12 @@ if menu == "Registro Asistencia":
     
                     except Exception as ex:
                         print(f"[FIRMA ERROR] {ex}")
-
-                    # Código único certificado
-                    codigo = f"CERT-{datetime.now().strftime('%Y%m%d%H%M%S')}-{st.session_state.cedula}"
+                        
                     # PDF
                     pdf = generar_pdf(
                         datos_asistencia,
                         firma_img,
                         foto_comprimida,
-                        codigo
                     )
     
                 # 👇 AQUÍ VA EL ENVÍO
