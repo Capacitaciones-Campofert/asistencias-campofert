@@ -411,6 +411,7 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 buf_logo = BytesIO()
                 img_logo.save(buf_logo, format="PNG")
                 buf_logo.seek(0)
+
                 p.drawImage(
                     ImageReader(buf_logo),
                     x, height - 112,
@@ -418,13 +419,21 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                     preserveAspectRatio=True,
                     mask='auto'
                 )
+
             except Exception as ex:
                 print(f"[PDF LOGO] {ex}")
 
     # Títulos
     p.setFillColorRGB(1, 1, 1)
     p.setFont("Helvetica-Bold", 18)
-    p.drawCentredString(width / 2, height - 80, "CERTIFICADO DE ASISTENCIA")
+
+    # 🔽 MÁS ABAJO Y CENTRADO
+    p.drawCentredString(
+        width / 2,
+        height - 80,
+        "CERTIFICADO DE ASISTENCIA"
+    )
+
     p.setFont("Helvetica-Bold", 8)
     p.drawRightString(width - 35, height - 38, codigo)
 
@@ -432,71 +441,132 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica", 12)
     p.drawCentredString(width / 2, 610, "Se certifica que:")
+
     p.setFillColorRGB(*verde)
     p.setFont("Helvetica-Bold", 24)
-    p.drawCentredString(width / 2, 570, datos["Nombre"].upper())
+
+    # 🔽 LEVEMENTE MÁS ABAJO
+    p.drawCentredString(
+        width / 2,
+        575,
+        datos["Nombre"].upper()
+    )
+
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica", 12)
-    p.drawCentredString(width / 2, 545, f"Identificado(a) con documento No. {datos['ID']} Asistió a la:")
+
+    p.drawCentredString(
+        width / 2,
+        545,
+        f"Identificado(a) con documento No. {datos['ID']} Asistió a la:"
+    )
 
     # Bloque capacitación con tipo, nombre y resumen
     resumen = datos.get("Resumen", "")
     tipo    = datos.get("Tipo", "CAPACITACIÓN")
-    alto_rect = 115 if resumen else 90
-    
-    p.setFillColorRGB(*gris)
-    p.roundRect(60, 420, width - 120, alto_rect, 10, fill=1, stroke=0)
 
-    # Tipo de actividad (CAPACITACIÓN, INDUCCIÓN, etc.)
+    # 🔽 MÁS ALTO PARA DAR AIRE
+    alto_rect = 125 if resumen else 100
+
+    p.setFillColorRGB(*gris)
+
+    # 🔼 SUBE EL RECUADRO
+    p.roundRect(
+        60,
+        430,
+        width - 120,
+        alto_rect,
+        10,
+        fill=1,
+        stroke=0
+    )
+
+    # Tipo de actividad
     p.setFillColorRGB(*verde)
     p.setFont("Helvetica-Bold", 9)
-    p.drawString(80, 420 + alto_rect - 14, f"{tipo}:")
+
+    p.drawString(
+        80,
+        430 + alto_rect - 14,
+        f"{tipo}:"
+    )
 
     # Nombre del tema
     p.setFillColorRGB(0, 0, 0)
     p.setFont("Helvetica-Bold", 12)
-    p.drawString(80, 420 + alto_rect - 30, datos["Tema"])
+
+    p.drawString(
+        80,
+        430 + alto_rect - 30,
+        datos["Tema"]
+    )
 
     # Resumen de contenido
     if resumen:
+
         p.setFont("Helvetica", 9)
         p.setFillColorRGB(0.3, 0.3, 0.3)
+
         palabras = resumen.split()
         linea = ""
-        y_res = 420 + alto_rect - 48
+
+        y_res = 430 + alto_rect - 48
+
         for palabra in palabras:
+
             prueba = linea + " " + palabra if linea else palabra
+
             if p.stringWidth(prueba, "Helvetica", 9) < (width - 160):
                 linea = prueba
+
             else:
                 p.drawString(80, y_res, linea)
                 y_res -= 13
                 linea = palabra
+
         if linea:
             p.drawString(80, y_res, linea)
 
     # Datos
     p.setFont("Helvetica", 11)
-    p.drawString(80, 420, f"Empresa: {datos['Empresa']}")
-    p.drawString(80, 400, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
-    p.drawString(80, 380, f"Fecha Registro: {datos['Fecha']}")
+
+    # 🔽 MÁS ABAJO PARA SALIR DEL RECUADRO
+    p.drawString(80, 385, f"Empresa: {datos['Empresa']}")
+    p.drawString(80, 365, f"Cargo: {datos.get('Cargo', 'NO REGISTRA')}")
+    p.drawString(80, 345, f"Fecha Registro: {datos['Fecha']}")
 
     base_y = 185
 
-    # Foto (comprimida a 150px — suficiente en PDF)
+    # Foto
     if imagen_foto is not None:
         try:
+
             img = Image.open(imagen_foto).convert("RGB")
             img.thumbnail((150, 150))
-            p.drawImage(ImageReader(img), 75, base_y, width=110, height=110)
+
+            p.drawImage(
+                ImageReader(img),
+                75,
+                base_y,
+                width=110,
+                height=110
+            )
+
             p.setFont("Helvetica", 8)
-            p.drawCentredString(130, base_y - 12, "Validación Registro de identidad")
+
+            p.drawCentredString(
+                130,
+                base_y - 12,
+                "Validación Registro de identidad"
+            )
+
         except Exception as ex:
             print(f"[PDF FOTO] {ex}")
 
     # Firma
     if imagen_firma is not None:
         try:
+
             p.drawImage(
                 ImageReader(imagen_firma),
                 width - 255,
@@ -504,27 +574,55 @@ def generar_pdf(datos, imagen_firma, imagen_foto):
                 width=145,
                 height=55,
                 preserveAspectRatio=True,
-                
             )
+
         except Exception as ex:
             print(f"[PDF FIRMA] {ex}")
 
     p.setStrokeColorRGB(*verde)
-    p.line(width - 275, base_y + 18, width - 95, base_y + 18)
+
+    p.line(
+        width - 275,
+        base_y + 18,
+        width - 95,
+        base_y + 18
+    )
+
     p.setFont("Helvetica-Bold", 10)
-    p.drawCentredString(width - 185, base_y + 3, "Firma Autorizada del Colaborador")
+
+    p.drawCentredString(
+        width - 185,
+        base_y + 3,
+        "Firma Autorizada del Colaborador"
+    )
 
     # Pie
     p.setFillColorRGB(*verde2)
-    p.roundRect(20, 20, width - 40, 25, 0, fill=1, stroke=0)
+
+    p.roundRect(
+        20,
+        20,
+        width - 40,
+        25,
+        0,
+        fill=1,
+        stroke=0
+    )
+
     p.setFillColorRGB(1, 1, 1)
     p.setFont("Helvetica", 8)
-    p.drawCentredString(width / 2, 30,
-                        "Documento digital emitido por Campofert S.A.S.")
+
+    p.drawCentredString(
+        width / 2,
+        30,
+        "Documento digital emitido por Campofert S.A.S."
+    )
 
     p.showPage()
     p.save()
+
     buffer.seek(0)
+
     return buffer
 
 # =============================================================================
