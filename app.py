@@ -936,27 +936,72 @@ if st.session_state.rol == "Admin":
                 else:
                     st.error("⚠️ Por favor escribe un nombre antes de guardar.")
 
+        from urllib.parse import quote
+
         if "tema_actual" in st.session_state:
+        
             st.markdown("---")
             st.markdown("### 🔗 Enlace de Acceso para Colaboradores")
-            tema_url    = st.session_state.tema_actual.replace(" ", "+")
-            resumen_url = st.session_state.get("resumen_actual", "").replace(" ", "+")
-            base_url    = "https://asistencias-campofert.streamlit.app/"
-            tipo_url  = st.session_state.get("tipo_actividad", "CAPACITACIÓN").replace(" ", "+")
-            url_final = f"{base_url}?tema={tema_url}&resumen={resumen_url}&tipo={tipo_url}&rol=Empleado"
-            st.info(f"Copia este enlace y envíalo por WhatsApp:\n\n**{url_final}**")
+        
+            base_url = "https://asistencias-campofert.streamlit.app/"
+        
+            # ✅ Codificación segura URL
+            tema_url = quote(
+                st.session_state.tema_actual
+            )
+        
+            resumen_url = quote(
+                st.session_state.get("resumen_actual", "")
+            )
+        
+            tipo_url = quote(
+                st.session_state.get(
+                    "tipo_actividad",
+                    "CAPACITACIÓN"
+                )
+            )
+        
+            # ✅ URL final completa
+            url_final = (
+                f"{base_url}"
+                f"?tema={tema_url}"
+                f"&resumen={resumen_url}"
+                f"&tipo={tipo_url}"
+                f"&rol=Empleado"
+            )
+        
+            st.info(
+                f"Copia este enlace y envíalo por WhatsApp:\n\n{url_final}"
+            )
+        
             col_qr1, col_qr2 = st.columns([1, 2])
+        
             with col_qr1:
-                qr  = qrcode.make(url_final)
+        
+                qr = qrcode.make(url_final)
+        
                 buf = BytesIO()
+        
                 qr.save(buf, format="PNG")
-                st.image(buf.getvalue(), caption="QR para proyectar en sala", width=200)
+        
+                st.image(
+                    buf.getvalue(),
+                    caption="QR para proyectar en sala",
+                    width=200
+                )
+        
             with col_qr2:
+        
                 st.markdown("""
                 **Instrucciones:**
+        
                 1. El tema guardado aparecerá automáticamente en el certificado.
+        
                 2. Los empleados que usen el QR o el link entrarán directo al registro.
-                3. No necesitas volver a configurar nada hasta la siguiente capacitación.
+        
+                3. El resumen completo viajará en la URL sin cortarse.
+        
+                4. No necesitas volver a configurar nada hasta la siguiente capacitación.
                 """)
 
     if menu == "Lista Empleados":
