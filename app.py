@@ -7,6 +7,7 @@ import qrcode
 import threading
 import random
 import plotly.express as px
+from urllib.parse import unquote
 from io import BytesIO
 from datetime import datetime
 from streamlit_drawable_canvas import st_canvas
@@ -215,35 +216,73 @@ ADMIN_PASS = st.secrets.get("admin_password", "campofert2026")
 # =============================================================================
 # PARÁMETROS URL
 # =============================================================================
+from urllib.parse import unquote
+
 params = st.query_params
-tema_desde_url = params.get("tema") or params.get("Tema")
+
+# =========================
+# TEMA
+# =========================
+tema_desde_url = unquote(
+    params.get("tema", "")
+)
+
 if tema_desde_url:
-    st.session_state.tema_actual = tema_desde_url.replace("+", " ").strip().upper()
-if not st.session_state.tema_actual:
+    st.session_state.tema_actual = (
+        tema_desde_url.strip().upper()
+    )
+
+if not st.session_state.get("tema_actual"):
     st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
+
 tema_actual = st.session_state.tema_actual
 
-resumen_desde_url = params.get("resumen") or ""
+# =========================
+# RESUMEN
+# =========================
+resumen_desde_url = unquote(
+    params.get("resumen", "")
+)
+
 if resumen_desde_url:
-    st.session_state.resumen_actual = resumen_desde_url.replace("+", " ").strip()
+    st.session_state.resumen_actual = (
+        resumen_desde_url.strip()
+    )
+
 if not st.session_state.get("resumen_actual"):
     st.session_state.resumen_actual = ""
+
 resumen_actual = st.session_state.resumen_actual
 
-tipo_desde_url = params.get("tipo") or ""
+# =========================
+# TIPO
+# =========================
+tipo_desde_url = unquote(
+    params.get("tipo", "")
+)
+
 if tipo_desde_url:
-    st.session_state.tipo_actividad = tipo_desde_url.replace("+", " ").strip()
+    st.session_state.tipo_actividad = (
+        tipo_desde_url.strip()
+    )
+
 if not st.session_state.get("tipo_actividad"):
     st.session_state.tipo_actividad = "CAPACITACIÓN"
+
 tipo_actividad = st.session_state.tipo_actividad
 
+# =========================
+# ROL
+# =========================
 rol_url = params.get("rol")
+
 if rol_url and st.session_state.rol is None:
+
     if rol_url.lower() == "empleado":
         st.session_state.rol = "Empleado"
+
     elif rol_url.lower() == "admin":
         st.session_state.rol = "Admin"
-
 # =============================================================================    
 # LOGOS EN CACHÉ (se leen una sola vez, se comparten entre sesiones)
 # =============================================================================
