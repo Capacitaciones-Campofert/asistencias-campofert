@@ -217,8 +217,31 @@ ADMIN_PASS = st.secrets.get("admin_password", "campofert2026")
 # PARÁMETROS URL
 # =============================================================================
 from urllib.parse import unquote
+import base64
+import zlib
 
 params = st.query_params
+
+# =============================================================================
+# FUNCIÓN PARA DESCOMPRIMIR RESUMEN
+# =============================================================================
+def descomprimir_resumen(texto):
+
+    try:
+
+        texto_bytes = base64.urlsafe_b64decode(
+            texto.encode()
+        )
+
+        texto_final = zlib.decompress(
+            texto_bytes
+        ).decode("utf-8")
+
+        return texto_final
+
+    except:
+
+        return ""
 
 # =========================
 # TEMA
@@ -228,11 +251,13 @@ tema_desde_url = unquote(
 )
 
 if tema_desde_url:
+
     st.session_state.tema_actual = (
         tema_desde_url.strip().upper()
     )
 
 if not st.session_state.get("tema_actual"):
+
     st.session_state.tema_actual = "CAPACITACIÓN GENERAL"
 
 tema_actual = st.session_state.tema_actual
@@ -240,16 +265,21 @@ tema_actual = st.session_state.tema_actual
 # =========================
 # RESUMEN
 # =========================
-resumen_desde_url = unquote(
-    params.get("resumen", "")
+resumen_comprimido = params.get(
+    "resumen",
+    ""
 )
 
-if resumen_desde_url:
+if resumen_comprimido:
+
     st.session_state.resumen_actual = (
-        resumen_desde_url.strip()
+        descomprimir_resumen(
+            resumen_comprimido
+        ).strip()
     )
 
 if not st.session_state.get("resumen_actual"):
+
     st.session_state.resumen_actual = ""
 
 resumen_actual = st.session_state.resumen_actual
@@ -262,11 +292,13 @@ tipo_desde_url = unquote(
 )
 
 if tipo_desde_url:
+
     st.session_state.tipo_actividad = (
         tipo_desde_url.strip()
     )
 
 if not st.session_state.get("tipo_actividad"):
+
     st.session_state.tipo_actividad = "CAPACITACIÓN"
 
 tipo_actividad = st.session_state.tipo_actividad
@@ -279,9 +311,11 @@ rol_url = params.get("rol")
 if rol_url and st.session_state.rol is None:
 
     if rol_url.lower() == "empleado":
+
         st.session_state.rol = "Empleado"
 
     elif rol_url.lower() == "admin":
+
         st.session_state.rol = "Admin"
 # =============================================================================    
 # LOGOS EN CACHÉ (se leen una sola vez, se comparten entre sesiones)
@@ -976,7 +1010,25 @@ if st.session_state.rol == "Admin":
                     st.error("⚠️ Por favor escribe un nombre antes de guardar.")
 
         from urllib.parse import quote
-
+        import base64
+        import zlib
+        
+        # =============================================================================
+        # FUNCIÓN PARA COMPRIMIR RESUMEN
+        # =============================================================================
+        def comprimir_resumen(texto):
+        
+            texto_comprimido = zlib.compress(
+                texto.encode("utf-8")
+            )
+        
+            return base64.urlsafe_b64encode(
+                texto_comprimido
+            ).decode()
+        
+        # =============================================================================
+        # GENERAR URL
+        # =============================================================================
         if "tema_actual" in st.session_state:
         
             st.markdown("---")
@@ -989,8 +1041,12 @@ if st.session_state.rol == "Admin":
                 st.session_state.tema_actual
             )
         
-            resumen_url = quote(
-                st.session_state.get("resumen_actual", "")
+            # ✅ RESUMEN COMPRIMIDO
+            resumen_url = comprimir_resumen(
+                st.session_state.get(
+                    "resumen_actual",
+                    ""
+                )
             )
         
             tipo_url = quote(
@@ -1000,7 +1056,7 @@ if st.session_state.rol == "Admin":
                 )
             )
         
-            # ✅ URL final completa
+            # ✅ URL FINAL
             url_final = (
                 f"{base_url}"
                 f"?tema={tema_url}"
@@ -1038,11 +1094,10 @@ if st.session_state.rol == "Admin":
         
                 2. Los empleados que usen el QR o el link entrarán directo al registro.
         
-                3. El resumen completo viajará en la URL sin cortarse.
+                3. El resumen completo viajará comprimido en la URL.
         
                 4. No necesitas volver a configurar nada hasta la siguiente capacitación.
                 """)
-
     if menu == "Lista Empleados":
         st.markdown("## 👥 Base de Empleados")
         df_emp = obtener_datos()
