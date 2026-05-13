@@ -9,4 +9,5 @@ Pillow
 openpyxl
 qrcode
 quote
-zlib
+oauth2client
+gspread
