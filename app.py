@@ -865,8 +865,8 @@ st.markdown(f"""
         </div>
         <h1>REGISTRO ASISTENCIA DIGITAL</h1>
         <div class="hero-mini">
-            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2014-12-01 |
-            Fecha de actualización: 2026-05-20{texto_pagina}
+            Código: I.FO.GH.03 | Versión: 03 | Fecha de emisión: 2026-05-13 |
+            Fecha de actualización: N/A{texto_pagina}
         </div>
     </div>
     """, unsafe_allow_html=True)
