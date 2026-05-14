@@ -21,6 +21,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2 import service_account
 
 # =============================================================================
 # CONFIGURACIÓN DE PÁGINA
@@ -458,6 +461,53 @@ def enviar_respaldo_async(datos, pdf_buffer):
 
     # 🚀 ENVÍO EN SEGUNDO PLANO
     threading.Thread(target=_proceso_envio, daemon=True).start()
+
+# =============================================================================
+# SUBIR PDF A GOOGLE DRIVE
+# =============================================================================
+def subir_pdf_drive(pdf_buffer, nombre_archivo):
+
+    try:
+
+        SCOPES = ['https://www.googleapis.com/auth/drive']
+
+        creds = service_account.Credentials.from_service_account_info(
+            dict(st.secrets["connections"]["gsheets"]),
+            scopes=SCOPES
+        )
+
+        service = build(
+            'drive',
+            'v3',
+            credentials=creds
+        )
+
+        file_metadata = {
+            'name': nombre_archivo,
+            'parents': [st.secrets["DRIVE_FOLDER_ID"]]
+        }
+
+        media = MediaIoBaseUpload(
+            pdf_buffer,
+            mimetype='application/pdf',
+            resumable=True
+        )
+
+        archivo = service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id, webViewLink'
+        ).execute()
+        
+        print(f"✅ PDF SUBIDO A DRIVE: {nombre_archivo}")
+
+        return archivo
+
+    except Exception as e:
+
+        print(f"❌ ERROR GOOGLE DRIVE: {e}")
+
+        return None
 
 # =============================================================================
 # GENERACIÓN DE PDF
@@ -1545,11 +1595,40 @@ if menu == "Registro Asistencia":
                         firma_img,
                         foto_comprimida,
                     )
-    
+
+                # ─────────────────────────────────────────────
+                # SUBIR PDF A GOOGLE DRIVE
+                # ─────────────────────────────────────────────
+                try:
+                
+                    nombre_pdf = f"Certificado_{datos_asistencia['ID']}.pdf"
+                
+                    pdf.seek(0)
+                
+                    archivo_drive = subir_pdf_drive(
+                        pdf,
+                        nombre_pdf
+                    )
+                
+                    if archivo_drive:
+                
+                        print("✅ PDF subido a Drive")
+                
+                        # OPCIONAL → guardar link
+                        datos_asistencia["LinkPDF"] = archivo_drive.get(
+                            "webViewLink",
+                            ""
+                        )
+                
+                except Exception as ex:
+                
+                    print(f"[DRIVE ERROR] {ex}")
+                
                 # 👇 AQUÍ VA EL ENVÍO
                 enviar_respaldo_async(datos_asistencia, pdf)
-    
+                
                 pdf.seek(0)
+                
                 st.session_state.pdf_doc = pdf
                 st.session_state.paso = 4
                 st.rerun()
