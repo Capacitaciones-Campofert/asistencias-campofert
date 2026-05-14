@@ -1635,20 +1635,19 @@ if menu == "Registro Asistencia":
                 # ─────────────────────────────────────────────
                 pdf.seek(0)
                 
+                # Se crea una copia REAL del PDF en memoria
+                pdf_bytes = pdf.getvalue()
+                
                 enviar_respaldo_async(
                     datos_asistencia,
-                    pdf
+                    BytesIO(pdf_bytes)
                 )
-                
-                # 🔥 pequeña pausa para estabilizar thread
-                time.sleep(1)
                 
                 # ─────────────────────────────────────────────
                 # GUARDAR EN SESSION
                 # ─────────────────────────────────────────────
-                pdf.seek(0)
+                st.session_state.pdf_doc = BytesIO(pdf_bytes)
                 
-                st.session_state.pdf_doc = pdf
                 st.session_state.paso = 4
                 
                 st.rerun()
