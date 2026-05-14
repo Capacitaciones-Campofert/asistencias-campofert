@@ -7,6 +7,7 @@ import qrcode
 import threading
 import random
 import plotly.express as px
+import time        
 from urllib.parse import unquote
 from io import BytesIO
 from datetime import datetime
@@ -1601,7 +1602,13 @@ if menu == "Registro Asistencia":
                 # ─────────────────────────────────────────────
                 try:
                 
-                    nombre_pdf = f"Certificado_{datos_asistencia['ID']}.pdf"
+                    fecha_archivo = datetime.now().strftime(
+                        "%Y%m%d_%H%M%S"
+                    )
+                
+                    nombre_pdf = (
+                        f"Certificado_{datos_asistencia['ID']}_{fecha_archivo}.pdf"
+                    )
                 
                     pdf.seek(0)
                 
@@ -1614,7 +1621,6 @@ if menu == "Registro Asistencia":
                 
                         print("✅ PDF subido a Drive")
                 
-                        # OPCIONAL → guardar link
                         datos_asistencia["LinkPDF"] = archivo_drive.get(
                             "webViewLink",
                             ""
@@ -1624,15 +1630,28 @@ if menu == "Registro Asistencia":
                 
                     print(f"[DRIVE ERROR] {ex}")
                 
-                # 👇 AQUÍ VA EL ENVÍO
-                enviar_respaldo_async(datos_asistencia, pdf)
+                # ─────────────────────────────────────────────
+                # ENVÍO CORREO
+                # ─────────────────────────────────────────────
+                pdf.seek(0)
                 
+                enviar_respaldo_async(
+                    datos_asistencia,
+                    pdf
+                )
+                
+                # 🔥 pequeña pausa para estabilizar thread
+                time.sleep(1)
+                
+                # ─────────────────────────────────────────────
+                # GUARDAR EN SESSION
+                # ─────────────────────────────────────────────
                 pdf.seek(0)
                 
                 st.session_state.pdf_doc = pdf
                 st.session_state.paso = 4
+                
                 st.rerun()
-
     # ─────────────────────────────────────────────────────────────────────────
     # PASO 4 → RESULTADO
     # ─────────────────────────────────────────────────────────────────────────
