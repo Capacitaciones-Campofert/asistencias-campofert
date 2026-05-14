@@ -987,10 +987,10 @@ if st.session_state.rol == "Admin":
             st.markdown("### 1. Definir Tema")
             tipo_actividad = st.selectbox(
                 "Tipo de actividad:",
-                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO"]
+                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO", "OTRO"]
             )
             nuevo_tema = st.text_input(
-                "Nombre de la capacitación o inducción:",
+                "Nombre de la Actividad:",
                 placeholder="Ej: INDUCCIÓN SEGURIDAD Y SALUD 2026"
             )
             # ← NUEVO: resumen de contenido
