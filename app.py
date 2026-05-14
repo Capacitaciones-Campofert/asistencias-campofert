@@ -987,10 +987,10 @@ if st.session_state.rol == "Admin":
             st.markdown("### 1. Definir Tema")
             tipo_actividad = st.selectbox(
                 "Tipo de actividad:",
-                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO"]
+                ["CAPACITACIÓN", "INDUCCIÓN", "REINDUCCIÓN", "ACTIVIDAD", "TALLER","SEMINARIO", "OTRO"]
             )
             nuevo_tema = st.text_input(
-                "Nombre de la capacitación o inducción:",
+                "Nombre de la Actividad:",
                 placeholder="Ej: INDUCCIÓN SEGURIDAD Y SALUD 2026"
             )
             # ← NUEVO: resumen de contenido
@@ -1032,7 +1032,7 @@ if st.session_state.rol == "Admin":
         if "tema_actual" in st.session_state:
         
             st.markdown("---")
-            st.markdown("### 🔗 Enlace de Acceso para Colaboradores")
+            st.markdown("### 🔗 Enlace de Acceso")
         
             base_url = "https://asistencias-campofert.streamlit.app/"
         
