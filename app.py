@@ -403,47 +403,81 @@ def guardar_en_google_sheets(datos):
 # =============================================================================
 # FUNCIÓN DE ENVÍO DE CORREO (MEJORADA ESTILO CÓDIGO 45)
 # =============================================================================
-def enviar_respaldo_async(datos, pdf_buffer):
+def enviar_respaldo_async(datos, pdf_bytes):
 
     def _proceso_envio():
+
         try:
+
             print("📩 Enviando respaldo a RRHH...")
 
             msg = MIMEMultipart()
+
             msg['From'] = EMAIL_USER
             msg['To'] = EMAIL_USER
-            msg['Subject'] = f"✅ Asistencia: {datos['Nombre']} - {datos['Tema']}"
 
-            # 🧾 CUERPO
+            msg['Subject'] = (
+                f"✅ Asistencia: "
+                f"{datos['Nombre']} - {datos['Tema']}"
+            )
+
             cuerpo = f"""
-            <html><body style="font-family: Arial;">
-                <h2 style="color:#2E7D32;">📋 Respaldo de Asistencia</h2>
+            <html>
+            <body style="font-family: Arial;">
+
+                <h2 style="color:#2E7D32;">
+                    📋 Respaldo de Asistencia
+                </h2>
+
                 <p><b>Empleado:</b> {datos['Nombre']}</p>
                 <p><b>Cédula:</b> {datos['ID']}</p>
                 <p><b>Empresa:</b> {datos['Empresa']}</p>
                 <p><b>Cargo:</b> {datos.get('Cargo', 'NO REGISTRA')}</p>
                 <p><b>Tema:</b> {datos['Tema']}</p>
                 <p><b>Fecha:</b> {datos['Fecha']}</p>
-                <hr>
-                <small>Enviado automáticamente desde Campofert</small>
-            </body></html>
-            """
-            msg.attach(MIMEText(cuerpo, 'html'))
 
-            # 📎 ADJUNTO PDF
-            pdf_buffer.seek(0)
-            adjunto = MIMEBase('application', 'octet-stream')
-            adjunto.set_payload(pdf_buffer.read())
+                <hr>
+
+                <small>
+                    Enviado automáticamente desde Campofert
+                </small>
+
+            </body>
+            </html>
+            """
+
+            msg.attach(
+                MIMEText(cuerpo, 'html')
+            )
+
+            # PDF ADJUNTO
+            adjunto = MIMEBase(
+                'application',
+                'octet-stream'
+            )
+
+            adjunto.set_payload(pdf_bytes)
+
             encoders.encode_base64(adjunto)
+
             adjunto.add_header(
                 'Content-Disposition',
                 f"attachment; filename=Certificado_{datos['ID']}.pdf"
             )
+
             msg.attach(adjunto)
 
-            # 🚀 ENVÍO
-            server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=30)
-            server.login(EMAIL_USER, EMAIL_PASS)
+            # ENVÍO
+            server = smtplib.SMTP_SSL(
+                'smtp.gmail.com',
+                465,
+                timeout=30
+            )
+
+            server.login(
+                EMAIL_USER,
+                EMAIL_PASS
+            )
 
             server.sendmail(
                 EMAIL_USER,
@@ -453,15 +487,24 @@ def enviar_respaldo_async(datos, pdf_buffer):
 
             server.quit()
 
-            print(f"✅ CORREO ENVIADO para {datos['ID']}")
+            print(
+                f"✅ CORREO ENVIADO para {datos['ID']}"
+            )
 
         except Exception as e:
-            import traceback
-            print("❌ ERROR EN CORREO:")
-            print(traceback.format_exc())
 
-    # 🚀 ENVÍO EN SEGUNDO PLANO
-    threading.Thread(target=_proceso_envio, daemon=True).start()
+            import traceback
+
+            print("❌ ERROR EN CORREO:")
+
+            print(
+                traceback.format_exc()
+            )
+
+    threading.Thread(
+        target=_proceso_envio,
+        daemon=True
+    ).start()
 
 # =============================================================================
 # SUBIR PDF A GOOGLE DRIVE
@@ -1631,27 +1674,28 @@ if menu == "Registro Asistencia":
                     print(f"[DRIVE ERROR] {ex}")
                 
                 # ─────────────────────────────────────────────
-                # ENVÍO CORREO
+                # PREPARAR PDF DEFINITIVO
                 # ─────────────────────────────────────────────
                 pdf.seek(0)
                 
-                # Se crea una copia REAL del PDF en memoria
                 pdf_bytes = pdf.getvalue()
                 
+                # ─────────────────────────────────────────────
+                # ENVÍO CORREO ASYNC
+                # ─────────────────────────────────────────────
                 enviar_respaldo_async(
                     datos_asistencia,
-                    BytesIO(pdf_bytes)
+                    pdf_bytes
                 )
                 
                 # ─────────────────────────────────────────────
-                # GUARDAR EN SESSION
+                # SESSION STATE
                 # ─────────────────────────────────────────────
-                st.session_state.pdf_doc = BytesIO(pdf_bytes)
-                
+                st.session_state.pdf_doc = pdf_bytes
                 st.session_state.paso = 4
                 
                 st.rerun()
-    # ─────────────────────────────────────────────────────────────────────────
+                    # ─────────────────────────────────────────────────────────────────────────
     # PASO 4 → RESULTADO
     # ─────────────────────────────────────────────────────────────────────────
     elif st.session_state.paso == 4:
@@ -1665,9 +1709,10 @@ if menu == "Registro Asistencia":
         """, unsafe_allow_html=True)
 
         if st.session_state.get("pdf_doc"):
+
             st.download_button(
                 "Descargar mi Certificado (PDF)",
-                st.session_state.pdf_doc.getvalue(),
+                st.session_state.pdf_doc,
                 f"Certificado_{st.session_state.cedula}.pdf",
                 "application/pdf"
             )
