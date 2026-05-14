@@ -11,3 +11,5 @@ qrcode
 quote
 oauth2client
 gspread
+google-api-python-client
+google-auth
