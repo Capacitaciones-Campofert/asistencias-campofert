@@ -8,7 +8,6 @@ streamlit-drawable-canvas
 Pillow
 openpyxl
 qrcode
-quote
 oauth2client
 gspread
 google-api-python-client
