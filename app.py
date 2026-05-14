@@ -7,7 +7,8 @@ import qrcode
 import threading
 import random
 import plotly.express as px
-import time        
+import time
+import zipfile
 from urllib.parse import unquote
 from io import BytesIO
 from datetime import datetime
@@ -216,6 +217,15 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 EMAIL_USER = st.secrets.get("email_user", "gestionhumanacpfert@gmail.com")
 EMAIL_PASS = st.secrets.get("email_password", "eliwdxcfoseragcn")
 ADMIN_PASS = st.secrets.get("admin_password", "campofert2026")
+# =============================================================================
+# CARPETAS DEL SISTEMA
+# =============================================================================
+CARPETA_CERTIFICADOS = "certificados"
+
+os.makedirs(
+    CARPETA_CERTIFICADOS,
+    exist_ok=True
+)
 
 # =============================================================================
 # PARÁMETROS URL
@@ -374,6 +384,8 @@ def guardar_en_google_sheets(datos):
             "Empresa": datos.get("Empresa"),
             "Cargo":   datos.get("Cargo", "NO REGISTRA"),
             "Tema":    datos.get("Tema"),
+            "RutaPDF": datos.get("RutaPDF", ""),
+            "LinkPDF": datos.get("LinkPDF", ""),
         }])
 
         # Reintento con delay aleatorio para evitar colisiones
@@ -1065,6 +1077,7 @@ else:
             "Dashboard",
             "Historial",
             "Reportes",
+            "Gestor Certificados",
         ])
         st.markdown("---")
         if st.button("🚪 Cerrar Sesión", use_container_width=True):
@@ -1382,6 +1395,124 @@ if st.session_state.rol == "Admin":
     
         except Exception as e:
             st.warning(f"Error reportes: {e}")
+    # =============================================================================
+    # GESTOR DE CERTIFICADOS
+    # =============================================================================
+    elif menu == "Gestor Certificados":
+    
+        st.markdown("## 📂 Gestor de Certificados")
+    
+        if not os.path.exists(CARPETA_CERTIFICADOS):
+    
+            st.warning("No existe carpeta de certificados.")
+            st.stop()
+    
+        archivos_pdf = [
+            f for f in os.listdir(CARPETA_CERTIFICADOS)
+            if f.lower().endswith(".pdf")
+        ]
+    
+        if not archivos_pdf:
+    
+            st.info("No hay certificados guardados.")
+            st.stop()
+    
+        # =========================================================
+        # DATAFRAME
+        # =========================================================
+        df_pdf = pd.DataFrame({
+            "Archivo": archivos_pdf
+        })
+    
+        st.success(
+            f"Certificados encontrados: {len(df_pdf)}"
+        )
+    
+        # =========================================================
+        # FILTRO
+        # =========================================================
+        buscar = st.text_input(
+            "🔎 Buscar certificado"
+        )
+    
+        if buscar:
+    
+            df_pdf = df_pdf[
+                df_pdf["Archivo"]
+                .str.contains(buscar, case=False)
+            ]
+    
+        st.dataframe(
+            df_pdf,
+            use_container_width=True
+        )
+    
+        st.markdown("---")
+    
+        # =========================================================
+        # DESCARGA INDIVIDUAL
+        # =========================================================
+        st.markdown("### 📥 Descargar Individual")
+    
+        archivo_sel = st.selectbox(
+            "Seleccione PDF",
+            df_pdf["Archivo"].tolist()
+        )
+    
+        ruta_sel = os.path.join(
+            CARPETA_CERTIFICADOS,
+            archivo_sel
+        )
+    
+        with open(ruta_sel, "rb") as f:
+    
+            st.download_button(
+                "📄 Descargar PDF",
+                f.read(),
+                archivo_sel,
+                "application/pdf"
+            )
+    
+        st.markdown("---")
+    
+        # =========================================================
+        # ZIP MASIVO
+        # =========================================================
+        st.markdown("### 🗜️ Descarga Masiva ZIP")
+    
+        if st.button(
+            "Generar ZIP Completo",
+            use_container_width=True
+        ):
+    
+            zip_buffer = BytesIO()
+    
+            with zipfile.ZipFile(
+                zip_buffer,
+                "w",
+                zipfile.ZIP_DEFLATED
+            ) as zipf:
+    
+                for archivo in archivos_pdf:
+    
+                    ruta = os.path.join(
+                        CARPETA_CERTIFICADOS,
+                        archivo
+                    )
+    
+                    zipf.write(
+                        ruta,
+                        arcname=archivo
+                    )
+    
+            zip_buffer.seek(0)
+    
+            st.download_button(
+                "⬇️ Descargar ZIP",
+                zip_buffer,
+                f"Certificados_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
+                "application/zip"
+            )
 
 # =============================================================================
 # FLUJO EMPLEADO
@@ -1679,6 +1810,41 @@ if menu == "Registro Asistencia":
                 pdf.seek(0)
                 
                 pdf_bytes = pdf.getvalue()
+
+                # =============================================================================
+                # GUARDAR PDF LOCALMENTE
+                # =============================================================================
+                try:
+                
+                    nombre_archivo_pdf = (
+                        f"{datos_asistencia['Tema']}_"
+                        f"{datos_asistencia['ID']}_"
+                        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                    )
+                
+                    # limpiar caracteres peligrosos
+                    nombre_archivo_pdf = (
+                        nombre_archivo_pdf
+                        .replace("/", "_")
+                        .replace("\\", "_")
+                        .replace(":", "_")
+                    )
+                
+                    ruta_pdf = os.path.join(
+                        CARPETA_CERTIFICADOS,
+                        nombre_archivo_pdf
+                    )
+                
+                    with open(ruta_pdf, "wb") as f:
+                        f.write(pdf_bytes)
+                
+                    print(f"✅ PDF guardado localmente: {ruta_pdf}")
+                
+                    datos_asistencia["RutaPDF"] = ruta_pdf
+                
+                except Exception as ex:
+                
+                    print(f"❌ ERROR guardando PDF local: {ex}")
                 
                 # ─────────────────────────────────────────────
                 # ENVÍO CORREO ASYNC
