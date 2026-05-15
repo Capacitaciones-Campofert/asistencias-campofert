@@ -1432,25 +1432,35 @@ if st.session_state.rol == "Admin":
         temas_detectados = []
     
         for archivo in archivos_pdf:
-    
+        
             try:
-    
-                partes = archivo.split("_")
-    
-                if len(partes) >= 3:
-    
-                    tema = "_".join(partes[:-2])
-    
+        
+                nombre_limpio = archivo.replace(".pdf", "")
+        
+                partes = nombre_limpio.split("_")
+        
+                # =====================================================
+                # ESTRUCTURA ESPERADA:
+                # TEMA_CEDULA_FECHA_HORA
+                # =====================================================
+        
+                if len(partes) >= 4:
+        
+                    # elimina:
+                    # cédula
+                    # fecha
+                    # hora
+        
+                    tema = "_".join(partes[:-3])
+        
                 else:
-    
+        
                     tema = "SIN CLASIFICAR"
-    
-                tema = tema.replace(".pdf", "")
-    
+        
                 temas_detectados.append(tema)
-    
+        
             except:
-    
+        
                 temas_detectados.append("SIN CLASIFICAR")
     
         # =========================================================
