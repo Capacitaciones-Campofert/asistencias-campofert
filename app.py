@@ -1396,21 +1396,30 @@ if st.session_state.rol == "Admin":
         except Exception as e:
             st.warning(f"Error reportes: {e}")
     # =============================================================================
-    # GESTOR DE CERTIFICADOS
+    # GESTOR DE CERTIFICADOS PREMIUM
     # =============================================================================
     elif menu == "Gestor Certificados":
     
+        import zipfile
+        import re
+    
         st.markdown("## 📂 Gestor de Certificados")
     
+        # =========================================================
+        # VALIDAR CARPETA
+        # =========================================================
         if not os.path.exists(CARPETA_CERTIFICADOS):
     
             st.warning("No existe carpeta de certificados.")
             st.stop()
     
-        archivos_pdf = [
+        # =========================================================
+        # LEER PDFs
+        # =========================================================
+        archivos_pdf = sorted([
             f for f in os.listdir(CARPETA_CERTIFICADOS)
             if f.lower().endswith(".pdf")
-        ]
+        ])
     
         if not archivos_pdf:
     
@@ -1418,33 +1427,112 @@ if st.session_state.rol == "Admin":
             st.stop()
     
         # =========================================================
-        # DATAFRAME
+        # EXTRAER TEMAS DESDE NOMBRE ARCHIVO
+        # =========================================================
+        temas_detectados = []
+    
+        for archivo in archivos_pdf:
+    
+            try:
+    
+                partes = archivo.split("_")
+    
+                if len(partes) >= 3:
+    
+                    tema = "_".join(partes[:-2])
+    
+                else:
+    
+                    tema = "SIN CLASIFICAR"
+    
+                tema = tema.replace(".pdf", "")
+    
+                temas_detectados.append(tema)
+    
+            except:
+    
+                temas_detectados.append("SIN CLASIFICAR")
+    
+        # =========================================================
+        # DATAFRAME PRINCIPAL
         # =========================================================
         df_pdf = pd.DataFrame({
-            "Archivo": archivos_pdf
+            "Archivo": archivos_pdf,
+            "Tema": temas_detectados
         })
     
-        st.success(
-            f"Certificados encontrados: {len(df_pdf)}"
-        )
+        # =========================================================
+        # KPIs
+        # =========================================================
+        colk1, colk2 = st.columns(2)
+    
+        with colk1:
+    
+            st.success(
+                f"📄 Certificados encontrados: {len(df_pdf)}"
+            )
+    
+        with colk2:
+    
+            st.info(
+                f"📚 Capacitaciones detectadas: {df_pdf['Tema'].nunique()}"
+            )
     
         # =========================================================
-        # FILTRO
+        # FILTROS
         # =========================================================
-        buscar = st.text_input(
-            "🔎 Buscar certificado"
-        )
+        st.markdown("### 🎯 Filtros")
+    
+        colf1, colf2 = st.columns(2)
+    
+        with colf1:
+    
+            tema_seleccionado = st.selectbox(
+                "📚 Filtrar por capacitación",
+                ["TODOS"] + sorted(df_pdf["Tema"].unique().tolist())
+            )
+    
+        with colf2:
+    
+            buscar = st.text_input(
+                "🔎 Buscar por nombre o cédula"
+            )
+    
+        # =========================================================
+        # APLICAR FILTROS
+        # =========================================================
+        df_filtrado = df_pdf.copy()
+    
+        if tema_seleccionado != "TODOS":
+    
+            df_filtrado = df_filtrado[
+                df_filtrado["Tema"] == tema_seleccionado
+            ]
     
         if buscar:
     
-            df_pdf = df_pdf[
-                df_pdf["Archivo"]
-                .str.contains(buscar, case=False)
+            df_filtrado = df_filtrado[
+                df_filtrado["Archivo"]
+                .str.contains(buscar, case=False, na=False)
             ]
     
+        # =========================================================
+        # VALIDACIÓN
+        # =========================================================
+        if df_filtrado.empty:
+    
+            st.warning("No existen certificados con ese filtro.")
+            st.stop()
+    
+        # =========================================================
+        # TABLA
+        # =========================================================
+        st.markdown("### 📋 Certificados Encontrados")
+    
         st.dataframe(
-            df_pdf,
-            use_container_width=True
+            df_filtrado,
+            use_container_width=True,
+            hide_index=True
         )
     
         st.markdown("---")
@@ -1452,11 +1540,11 @@ if st.session_state.rol == "Admin":
         # =========================================================
         # DESCARGA INDIVIDUAL
         # =========================================================
-        st.markdown("### 📥 Descargar Individual")
+        st.markdown("## 📥 Descargar Individual")
     
         archivo_sel = st.selectbox(
-            "Seleccione PDF",
-            df_pdf["Archivo"].tolist()
+            "Seleccione certificado",
+            df_filtrado["Archivo"].tolist()
         )
     
         ruta_sel = os.path.join(
@@ -1468,52 +1556,91 @@ if st.session_state.rol == "Admin":
     
             st.download_button(
                 "📄 Descargar PDF",
-                f.read(),
-                archivo_sel,
-                "application/pdf"
+                data=f.read(),
+                file_name=archivo_sel,
+                mime="application/pdf",
+                use_container_width=True
             )
     
         st.markdown("---")
     
         # =========================================================
-        # ZIP MASIVO
+        # DESCARGA MASIVA ZIP
         # =========================================================
-        st.markdown("### 🗜️ Descarga Masiva ZIP")
+        st.markdown("## 🗜️ Descarga Masiva")
+    
+        cantidad_zip = len(df_filtrado)
+    
+        st.info(
+            f"Se incluirán {cantidad_zip} certificados en el ZIP."
+        )
+    
+        nombre_zip = (
+            f"{tema_seleccionado}_{datetime.now().strftime('%Y%m%d_%H%M')}.zip"
+            if tema_seleccionado != "TODOS"
+            else f"Certificados_Completos_{datetime.now().strftime('%Y%m%d_%H%M')}.zip"
+        )
     
         if st.button(
-            "Generar ZIP Completo",
+            "📦 Generar ZIP",
             use_container_width=True
         ):
     
-            zip_buffer = BytesIO()
+            with st.spinner("Generando ZIP..."):
     
-            with zipfile.ZipFile(
-                zip_buffer,
-                "w",
-                zipfile.ZIP_DEFLATED
-            ) as zipf:
+                zip_buffer = BytesIO()
     
-                for archivo in archivos_pdf:
+                with zipfile.ZipFile(
+                    zip_buffer,
+                    "w",
+                    zipfile.ZIP_DEFLATED
+                ) as zipf:
     
-                    ruta = os.path.join(
-                        CARPETA_CERTIFICADOS,
-                        archivo
-                    )
+                    for archivo in df_filtrado["Archivo"]:
     
-                    zipf.write(
-                        ruta,
-                        arcname=archivo
-                    )
+                        ruta = os.path.join(
+                            CARPETA_CERTIFICADOS,
+                            archivo
+                        )
     
-            zip_buffer.seek(0)
+                        if os.path.exists(ruta):
     
-            st.download_button(
-                "⬇️ Descargar ZIP",
-                zip_buffer,
-                f"Certificados_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
-                "application/zip"
-            )
-
+                            zipf.write(
+                                ruta,
+                                arcname=archivo
+                            )
+    
+                zip_buffer.seek(0)
+    
+                st.success("✅ ZIP generado correctamente.")
+    
+                st.download_button(
+                    "⬇️ Descargar ZIP",
+                    data=zip_buffer,
+                    file_name=nombre_zip,
+                    mime="application/zip",
+                    use_container_width=True
+                )
+    
+        # =========================================================
+        # RESUMEN FINAL
+        # =========================================================
+        st.markdown("---")
+    
+        st.markdown("### 📊 Resumen")
+    
+        resumen = (
+            df_filtrado
+            .groupby("Tema")
+            .size()
+            .reset_index(name="Cantidad PDFs")
+        )
+    
+        st.dataframe(
+            resumen,
+            use_container_width=True,
+            hide_index=True
+        )
 # =============================================================================
 # FLUJO EMPLEADO
 # =============================================================================
