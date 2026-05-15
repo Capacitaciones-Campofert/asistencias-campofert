@@ -32,7 +32,7 @@ from google.oauth2 import service_account
 # =============================================================================
 st.set_page_config(
     page_title="REGISTRO DE ASISTENCIA DIGITAL",
-    layout="centered",
+    layout="wide",
     page_icon="🌱"
 )
 
@@ -62,7 +62,6 @@ CSS_CORPORATIVO = """
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
-
     .stButton > button {
         background-color: #2E7D32 !important; 
         color: white !important; 
@@ -208,6 +207,146 @@ CSS_CORPORATIVO = """
     </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+/* =========================================
+LAYOUT PRINCIPAL FULL WIDTH PROFESIONAL
+========================================= */
+
+.main .block-container {
+
+    max-width: 100% !important;
+
+    width: 100% !important;
+
+    padding-top: 1rem !important;
+
+    padding-bottom: 1rem !important;
+
+    padding-left: 1.8rem !important;
+
+    padding-right: 1.8rem !important;
+}
+
+/* =========================================
+ELIMINA LIMITES INTERNOS DE STREAMLIT
+========================================= */
+
+section.main > div {
+
+    max-width: 100% !important;
+}
+
+/* =========================================
+MEJOR DISTRIBUCIÓN DE COLUMNAS
+========================================= */
+
+[data-testid="column"] {
+
+    padding: 0.2rem !important;
+}
+
+/* =========================================
+TABLAS MÁS LIMPIAS
+========================================= */
+
+[data-testid="stDataFrame"] {
+
+    width: 100% !important;
+}
+
+/* =========================================
+FORMULARIOS MÁS ORDENADOS
+========================================= */
+
+.stForm {
+
+    width: 100% !important;
+}
+
+/* =========================================
+MÉTRICAS MÁS ELEGANTES
+========================================= */
+
+[data-testid="metric-container"] {
+
+    border-radius: 14px !important;
+
+    padding: 1rem !important;
+
+    background: white !important;
+
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* =========================================
+PANTALLAS ULTRA GRANDES
+========================================= */
+
+@media (min-width: 1600px) {
+
+    .main .block-container {
+
+        padding-left: 3rem !important;
+
+        padding-right: 3rem !important;
+    }
+}
+
+/* =========================================
+TABLETS
+========================================= */
+
+@media (max-width: 1024px) {
+
+    .main .block-container {
+
+        padding-left: 1rem !important;
+
+        padding-right: 1rem !important;
+    }
+}
+
+/* =========================================
+CELULARES
+========================================= */
+
+@media (max-width: 768px) {
+
+    .main .block-container {
+
+        padding-left: 0.6rem !important;
+
+        padding-right: 0.6rem !important;
+
+        padding-top: 0.5rem !important;
+    }
+
+    h1 {
+
+        font-size: 1.6rem !important;
+    }
+
+    h2 {
+
+        font-size: 1.3rem !important;
+    }
+
+    .stButton > button {
+
+        width: 100% !important;
+    }
+
+    [data-testid="metric-container"] {
+
+        padding: 0.8rem !important;
+    }
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # =============================================================================
 # CONEXIÓN A DATOS
