@@ -32,7 +32,7 @@ from google.oauth2 import service_account
 # =============================================================================
 st.set_page_config(
     page_title="REGISTRO DE ASISTENCIA DIGITAL",
-    layout="wide",
+    layout="centered",
     page_icon="🌱"
 )
 
