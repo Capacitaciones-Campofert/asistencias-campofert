@@ -211,21 +211,29 @@ CSS_CORPORATIVO = """
     TARJETAS LEGIBLES SOBRE IMAGEN DE FONDO
     ========================================= */
     [data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: rgba(255, 255, 255, 0.92) !important;
-        border-radius: 16px !important;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
         padding: 1rem !important;
     }
 
     [data-testid="stVerticalBlockBorderWrapper"] h2,
     [data-testid="stVerticalBlockBorderWrapper"] h3 {
         color: #1B5E20 !important;
+        font-weight: 800 !important;
+        text-shadow: 
+            0px 0px 8px rgba(255,255,255,0.9),
+            0px 1px 4px rgba(255,255,255,0.8) !important;
     }
 
     [data-testid="stVerticalBlockBorderWrapper"] p,
     [data-testid="stVerticalBlockBorderWrapper"] span,
     [data-testid="stVerticalBlockBorderWrapper"] div {
-        color: #1B5E20 !important;
+        color: #0d3d12 !important;
+        font-weight: 700 !important;
+        text-shadow: 
+            0px 0px 6px rgba(255,255,255,0.95),
+            0px 1px 3px rgba(255,255,255,0.8) !important;
     }
 
     </style>
