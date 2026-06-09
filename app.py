@@ -231,9 +231,6 @@ CSS_CORPORATIVO = """
     [data-testid="stVerticalBlockBorderWrapper"] h3 {
         color: #1B5E20 !important;
         font-weight: 800 !important;
-        text-shadow: 
-            0px 0px 8px rgba(255,255,255,0.9),
-            0px 1px 4px rgba(255,255,255,0.8) !important;
     }
 
     [data-testid="stVerticalBlockBorderWrapper"] p,
@@ -241,29 +238,18 @@ CSS_CORPORATIVO = """
     [data-testid="stVerticalBlockBorderWrapper"] div {
         color: #0d3d12 !important;
         font-weight: 700 !important;
-        text-shadow: 
-            0px 0px 6px rgba(255,255,255,0.95),
-            0px 1px 3px rgba(255,255,255,0.8) !important;
     }
 
-    /* Subtítulo "Seleccione el perfil" */
     .sub-acceso {
         font-weight: 800 !important;
         font-size: 15px !important;
         color: #0d3d12 !important;
-        text-shadow: 
-            0px 0px 6px rgba(255,255,255,0.95),
-            0px 1px 3px rgba(255,255,255,0.8) !important;
     }
 
-    /* Footer "Campofert S.A.S • Campolab • Versión 2026" */
     .footer-premium {
         font-weight: 800 !important;
         font-size: 13px !important;
         color: #0d3d12 !important;
-        text-shadow: 
-            0px 0px 6px rgba(255,255,255,0.95),
-            0px 1px 3px rgba(255,255,255,0.8) !important;
     }
 
     </style>
