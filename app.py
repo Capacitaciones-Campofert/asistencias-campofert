@@ -59,11 +59,6 @@ CSS_CORPORATIVO = """
     }
 
     .stApp { 
-        background-image: url('https://raw.githubusercontent.com/Capacitaciones-Campofert/asistencias-campofert/main/Capa.png') !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-repeat: no-repeat !important;
-        background-attachment: fixed !important;
         background-color: #F5F5F0 !important;
         position: relative !important;
     }
@@ -75,7 +70,11 @@ CSS_CORPORATIVO = """
         left: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        background-color: rgba(255, 255, 255, 0.55) !important;
+        background-image: url('https://raw.githubusercontent.com/Capacitaciones-Campofert/asistencias-campofert/main/Capa.png') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        opacity: 0.4 !important;
         z-index: 0 !important;
         pointer-events: none !important;
     }
