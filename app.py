@@ -65,6 +65,19 @@ CSS_CORPORATIVO = """
         background-repeat: no-repeat !important;
         background-attachment: fixed !important;
         background-color: #F5F5F0 !important;
+        position: relative !important;
+    }
+
+    .stApp::before {
+        content: '' !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(255, 255, 255, 0.55) !important;
+        z-index: 0 !important;
+        pointer-events: none !important;
     }
 
     [data-testid="stSidebar"] { background-color: #1B5E20; }
