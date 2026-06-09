@@ -66,6 +66,7 @@ CSS_CORPORATIVO = """
         background-attachment: fixed !important;
         background-color: #F5F5F0 !important;
     }
+
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
@@ -74,20 +75,11 @@ CSS_CORPORATIVO = """
         color: white !important; 
         border: none !important;
         border-radius: 8px !important; 
-        
-        /* 1. Peso de negrilla estándar (Bold) */
-        /* Quitamos el 800/900 y dejamos 700 para que sea elegante */
         font-weight: 900 !important; 
         font-size: 18px !important; 
-        
-        /* 2. ELIMINAMOS EL text-shadow */
-        /* Al quitar esto, la letra recupera su forma original y limpia */
         text-shadow: none !important;
-        
         padding: 0.6rem 1.5rem !important;
         font-family: 'Century Gothic', 'Nunito', sans-serif !important;
-        
-        /* Bajamos un poco el espaciado ya que la letra no es tan ancha ahora */
         letter-spacing: 1px !important;
         text-transform: uppercase !important;
     }
@@ -95,10 +87,8 @@ CSS_CORPORATIVO = """
     .stButton > button:hover { 
         background-color: #F9A825 !important; 
         color: #1B5E20 !important;
-        /* Aseguramos que no haya sombra tampoco al pasar el mouse */
         text-shadow: none !important;
     }
-    .stButton > button:hover { background-color: #F9A825; color: #1B5E20; }
 
     h1, h2, h3 {
         color: #1B5E20;
@@ -152,7 +142,7 @@ CSS_CORPORATIVO = """
     }
     [data-testid="stCameraInputButton"] span { display: none !important; }
 
-    /* Limpieza y ajuste de logos GIGANTES en el encabezado */
+    /* Hero logos */
     .hero-logos {
         display: flex;
         justify-content: space-between;
@@ -164,15 +154,15 @@ CSS_CORPORATIVO = """
     .hero-logos img {
         height: 65px !important; 
         width: auto !important;
-        background-color: transparent !important; /* Quita el fondo blanco */
-        background: transparent !important;       /* Refuerzo */
+        background: transparent !important;
+        background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        filter: brightness(1.1); /* Ajusta el brillo de los logos blancos */
-        object-fit: contain;
+        filter: brightness(1.1) !important;
+        object-fit: contain !important;
     }
 
-    /* Estilo para el contenedor verde del banner */
+    /* Banner verde principal */
     .hero-gerencia {
         background: linear-gradient(135deg,#0f4d1c,#1b5e20,#2e7d32) !important;
         border-radius: 26px !important;
@@ -183,7 +173,6 @@ CSS_CORPORATIVO = """
         box-shadow: 0 18px 40px rgba(0,0,0,.16) !important;
     }
     
-    /* Título siempre blanco */
     .hero-gerencia h1 {
         color: white !important;
         margin: 10px 0 0 0 !important;
@@ -193,24 +182,34 @@ CSS_CORPORATIVO = """
         text-shadow: none !important;
     }
 
-    /* Logos sin cuadros blancos */
-    .hero-logos img {
-        height: 65px !important; 
-        width: auto !important;
-        background: transparent !important;
-        background-color: transparent !important;
-        border: none !important;
-        filter: brightness(1.1) !important;
-        object-fit: contain !important;
-    }
-
-    /* Texto técnico pequeño y blanco */
     .hero-mini {
         font-size: 11px !important;
         color: rgba(255, 255, 255, 0.9) !important;
         margin-top: 15px !important;
         opacity: 0.85 !important;
     }
+
+    /* =========================================
+    TARJETAS LEGIBLES SOBRE IMAGEN DE FONDO
+    ========================================= */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: rgba(255, 255, 255, 0.92) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+        padding: 1rem !important;
+    }
+
+    [data-testid="stVerticalBlockBorderWrapper"] h2,
+    [data-testid="stVerticalBlockBorderWrapper"] h3 {
+        color: #1B5E20 !important;
+    }
+
+    [data-testid="stVerticalBlockBorderWrapper"] p,
+    [data-testid="stVerticalBlockBorderWrapper"] span,
+    [data-testid="stVerticalBlockBorderWrapper"] div {
+        color: #1B5E20 !important;
+    }
+
     </style>
 """
 st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
@@ -221,135 +220,65 @@ st.markdown("""
 /* =========================================
 LAYOUT PRINCIPAL FULL WIDTH PROFESIONAL
 ========================================= */
-
 .main .block-container {
-
     max-width: 100% !important;
-
     width: 100% !important;
-
     padding-top: 1rem !important;
-
     padding-bottom: 1rem !important;
-
     padding-left: 1.8rem !important;
-
     padding-right: 1.8rem !important;
 }
 
-/* =========================================
-ELIMINA LIMITES INTERNOS DE STREAMLIT
-========================================= */
-
 section.main > div {
-
     max-width: 100% !important;
 }
 
-/* =========================================
-MEJOR DISTRIBUCIÓN DE COLUMNAS
-========================================= */
-
 [data-testid="column"] {
-
     padding: 0.2rem !important;
 }
 
-/* =========================================
-TABLAS MÁS LIMPIAS
-========================================= */
-
 [data-testid="stDataFrame"] {
-
     width: 100% !important;
 }
-
-/* =========================================
-FORMULARIOS MÁS ORDENADOS
-========================================= */
 
 .stForm {
-
     width: 100% !important;
 }
 
-/* =========================================
-MÉTRICAS MÁS ELEGANTES
-========================================= */
-
 [data-testid="metric-container"] {
-
     border-radius: 14px !important;
-
     padding: 1rem !important;
-
     background: white !important;
-
     box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
 }
 
-/* =========================================
-PANTALLAS ULTRA GRANDES
-========================================= */
-
+/* Pantallas ultra grandes */
 @media (min-width: 1600px) {
-
     .main .block-container {
-
         padding-left: 3rem !important;
-
         padding-right: 3rem !important;
     }
 }
 
-/* =========================================
-TABLETS
-========================================= */
-
+/* Tablets */
 @media (max-width: 1024px) {
-
     .main .block-container {
-
         padding-left: 1rem !important;
-
         padding-right: 1rem !important;
     }
 }
 
-/* =========================================
-CELULARES
-========================================= */
-
+/* Celulares */
 @media (max-width: 768px) {
-
     .main .block-container {
-
         padding-left: 0.6rem !important;
-
         padding-right: 0.6rem !important;
-
         padding-top: 0.5rem !important;
     }
-
-    h1 {
-
-        font-size: 1.6rem !important;
-    }
-
-    h2 {
-
-        font-size: 1.3rem !important;
-    }
-
-    .stButton > button {
-
-        width: 100% !important;
-    }
-
-    [data-testid="metric-container"] {
-
-        padding: 0.8rem !important;
-    }
+    h1 { font-size: 1.6rem !important; }
+    h2 { font-size: 1.3rem !important; }
+    .stButton > button { width: 100% !important; }
+    [data-testid="metric-container"] { padding: 0.8rem !important; }
 }
 
 </style>
