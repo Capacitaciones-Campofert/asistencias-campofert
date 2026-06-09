@@ -79,6 +79,12 @@ CSS_CORPORATIVO = """
         pointer-events: none !important;
     }
 
+    /* ESTO ES LO NUEVO — fuerza el contenido encima de la imagen */
+    .stApp > * {
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
