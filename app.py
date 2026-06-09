@@ -58,7 +58,14 @@ CSS_CORPORATIVO = """
         font-family: 'Century Gothic', 'CenturyGothic', 'Nunito', 'Apple Gothic', sans-serif !important;
     }
 
-    .stApp { background-color: #F5F5F0; }
+    .stApp { 
+        background-image: url('https://raw.githubusercontent.com/Capacitaciones-Campofert/asistencias-campofert/main/Capa.png');
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-color: #F5F5F0;
+    }
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
     
