@@ -59,12 +59,12 @@ CSS_CORPORATIVO = """
     }
 
     .stApp { 
-        background-image: url('https://raw.githubusercontent.com/Capacitaciones-Campofert/asistencias-campofert/main/Capa.png');
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        background-color: #F5F5F0;
+        background-image: url('https://raw.githubusercontent.com/Capacitaciones-Campofert/asistencias-campofert/main/Capa.png') !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        background-attachment: fixed !important;
+        background-color: #F5F5F0 !important;
     }
     [data-testid="stSidebar"] { background-color: #1B5E20; }
     [data-testid="stSidebar"] * { color: #FFFFFF !important; }
