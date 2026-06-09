@@ -210,11 +210,21 @@ CSS_CORPORATIVO = """
     /* =========================================
     TARJETAS LEGIBLES SOBRE IMAGEN DE FONDO
     ========================================= */
-    [data-testid="stVerticalBlockBorderWrapper"] {
+    [data-testid="stVerticalBlockBorderWrapper"],
+    [data-testid="stVerticalBlockBorderWrapper"] > div,
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: transparent !important;
         border: none !important;
+        border-radius: 0 !important;
         box-shadow: none !important;
+        outline: none !important;
         padding: 1rem !important;
+    }
+
+    .stVerticalBlockBorderWrapper {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
     }
 
     [data-testid="stVerticalBlockBorderWrapper"] h2,
@@ -242,7 +252,6 @@ st.markdown(CSS_CORPORATIVO, unsafe_allow_html=True)
 
 st.markdown("""
 <style>
-
 /* =========================================
 LAYOUT PRINCIPAL FULL WIDTH PROFESIONAL
 ========================================= */
