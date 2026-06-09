@@ -1057,7 +1057,7 @@ if st.session_state.get("rol") is None:
     </div>
     """, unsafe_allow_html=True)
 
-    with st.container(border=True):
+    with st.container():
         st.markdown('<div class="titulo-acceso">Acceso Corporativo</div>', unsafe_allow_html=True)
         st.markdown('<div class="sub-acceso">Seleccione el perfil para ingresar</div>', unsafe_allow_html=True)
 
