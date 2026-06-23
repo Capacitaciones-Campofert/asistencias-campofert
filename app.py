@@ -638,47 +638,36 @@ def enviar_respaldo_async(datos, pdf_bytes):
 # SUBIR PDF A GOOGLE DRIVE
 # =============================================================================
 def subir_pdf_drive(pdf_buffer, nombre_archivo):
-
     try:
-
         SCOPES = ['https://www.googleapis.com/auth/drive']
-
         creds = service_account.Credentials.from_service_account_info(
             dict(st.secrets["connections"]["gsheets"]),
             scopes=SCOPES
         )
-
         service = build(
             'drive',
             'v3',
             credentials=creds
         )
-
         file_metadata = {
             'name': nombre_archivo,
             'parents': [st.secrets["DRIVE_FOLDER_ID"]]
         }
-
         media = MediaIoBaseUpload(
             pdf_buffer,
             mimetype='application/pdf',
             resumable=True
         )
-
         archivo = service.files().create(
             body=file_metadata,
             media_body=media,
             fields='id, webViewLink'
         ).execute()
-        
-        print(f"✅ PDF SUBIDO A DRIVE: {nombre_archivo}")
 
         return archivo
 
     except Exception as e:
-
-        print(f"❌ ERROR GOOGLE DRIVE: {e}")
-
+        st.session_state["drive_error_real"] = str(e)
         return None
 
 # =============================================================================
@@ -2045,9 +2034,7 @@ if menu == "Registro Asistencia":
                     )
                 
                     if archivo_drive:
-                
                         st.success(f"✅ PDF subido a Drive correctamente: {nombre_pdf}")
-                
                         datos_asistencia["LinkPDF"] = archivo_drive.get(
                             "webViewLink",
                             ""
@@ -2056,10 +2043,92 @@ if menu == "Registro Asistencia":
                     else:
                 
                         st.warning("⚠️ subir_pdf_drive() devolvió None — revisa permisos o folder ID.")
-                
+                        if st.session_state.get("drive_error_real"):
+                            st.code(st.session_state["drive_error_real"])
                 except Exception as ex:
                 
                     st.error(f"❌ ERROR SUBIENDO A DRIVE: {ex}")
+                
+                # ─────────────────────────────────────────────
+                # PREPARAR PDF DEFINITIVO
+                # ─────────────────────────────────────────────
+                pdf.seek(0)
+                
+                pdf_bytes = pdf.getvalue()
+                # =============================================================================
+                # GUARDAR PDF LOCALMENTE
+                # =============================================================================
+                try:
+                
+                    nombre_archivo_pdf = (
+                        f"{datos_asistencia['Tema']}_"
+                        f"{datos_asistencia['ID']}_"
+                        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                    )
+                
+                    # limpiar caracteres peligrosos
+                    nombre_archivo_pdf = (
+                        nombre_archivo_pdf
+                        .replace("/", "_")
+                        .replace("\\", "_")
+                        .replace(":", "_")
+                    )
+                
+                    ruta_pdf = os.path.join(
+                        CARPETA_CERTIFICADOS,
+                        nombre_archivo_pdf
+                    )
+                
+                    with open(ruta_pdf, "wb") as f:
+                        f.write(pdf_bytes)
+                
+                    print(f"✅ PDF guardado localmente: {ruta_pdf}")
+                
+                    datos_asistencia["RutaPDF"] = ruta_pdf
+                
+                except Exception as ex:
+                
+                    print(f"❌ ERROR guardando PDF local: {ex}")
+                # ─────────────────────────────────────────────
+                # PREPARAR PDF DEFINITIVO
+                # ─────────────────────────────────────────────
+                pdf.seek(0)
+
+                pdf_bytes = pdf.getvalue()
+                # =============================================================================
+                # GUARDAR PDF LOCALMENTE
+                # =============================================================================
+                try:
+
+                    nombre_archivo_pdf = (
+                        f"{datos_asistencia['Tema']}_"
+                        f"{datos_asistencia['ID']}_"
+                        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                    )
+
+                    # limpiar caracteres peligrosos
+                    nombre_archivo_pdf = (
+                        nombre_archivo_pdf
+                        .replace("/", "_")
+                        .replace("\\", "_")
+                        .replace(":", "_")
+                    )
+
+                    ruta_pdf = os.path.join(
+                        CARPETA_CERTIFICADOS,
+                        nombre_archivo_pdf
+                    )
+
+                    with open(ruta_pdf, "wb") as f:
+                        f.write(pdf_bytes)
+
+                    print(f"✅ PDF guardado localmente: {ruta_pdf}")
+
+                    datos_asistencia["RutaPDF"] = ruta_pdf
+
+                except Exception as ex:
+
+                    print(f"❌ ERROR guardando PDF local: {ex}")
                 
                 # ─────────────────────────────────────────────
                 # PREPARAR PDF DEFINITIVO
