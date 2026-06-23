@@ -2046,16 +2046,20 @@ if menu == "Registro Asistencia":
                 
                     if archivo_drive:
                 
-                        print("✅ PDF subido a Drive")
+                        st.success(f"✅ PDF subido a Drive correctamente: {nombre_pdf}")
                 
                         datos_asistencia["LinkPDF"] = archivo_drive.get(
                             "webViewLink",
                             ""
                         )
                 
+                    else:
+                
+                        st.warning("⚠️ subir_pdf_drive() devolvió None — revisa permisos o folder ID.")
+                
                 except Exception as ex:
                 
-                    print(f"[DRIVE ERROR] {ex}")
+                    st.error(f"❌ ERROR SUBIENDO A DRIVE: {ex}")
                 
                 # ─────────────────────────────────────────────
                 # PREPARAR PDF DEFINITIVO
@@ -2063,7 +2067,6 @@ if menu == "Registro Asistencia":
                 pdf.seek(0)
                 
                 pdf_bytes = pdf.getvalue()
-
                 # =============================================================================
                 # GUARDAR PDF LOCALMENTE
                 # =============================================================================
