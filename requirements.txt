@@ -4,7 +4,7 @@ plotly
 pytz
 st-gsheets-connection
 reportlab
-streamlit-drawable-canvas
+streamlit-drawable-canvas==0.9.3
 Pillow
 openpyxl
 qrcode
